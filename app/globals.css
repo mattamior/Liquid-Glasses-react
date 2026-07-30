@@ -579,12 +579,20 @@ main {
 }
 
 .apple-menu-cluster {
+  --menu-drag-x: 0px;
+  --menu-drag-y: 0px;
   position: absolute;
   z-index: 14;
   top: 68px;
   right: clamp(28px, 5vw, 72px);
   width: min(340px, calc(100% - 56px));
   cursor: default;
+  transform: translate3d(var(--menu-drag-x), var(--menu-drag-y), 0);
+  will-change: transform;
+}
+
+.apple-menu-cluster.is-dragging {
+  z-index: 18;
 }
 
 .system-menu-label {
@@ -704,7 +712,14 @@ main {
   border-radius: 999px;
   clip-path: inset(0 round 999px);
   contain: paint;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
   transition: transform 240ms ease;
+}
+
+.apple-menu-cluster.is-dragging .apple-toolbar {
+  cursor: grabbing;
 }
 
 .apple-toolbar::before,

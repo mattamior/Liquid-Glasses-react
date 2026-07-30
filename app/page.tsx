@@ -2,6 +2,7 @@
 
 import {
   type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
   useEffect,
   useRef,
   useState,
@@ -21,6 +22,24 @@ interface StageSize {
 interface SurfaceMetrics {
   x: number;
   y: number;
+}
+
+interface MenuOffset {
+  x: number;
+  y: number;
+}
+
+interface MenuDragSession {
+  pointerId: number;
+  startClientX: number;
+  startClientY: number;
+  originOffset: MenuOffset;
+  minimumX: number;
+  maximumX: number;
+  minimumY: number;
+  maximumY: number;
+  toolbarMetrics: SurfaceMetrics;
+  popoverMetrics: SurfaceMetrics;
 }
 
 type MenuMotion = "idle" | "opening" | "closing";
@@ -352,8 +371,10 @@ function RangeControl({
 
 export default function Home() {
   const stageRef = useRef<HTMLDivElement>(null);
+  const menuClusterRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const menuDragSessionRef = useRef<MenuDragSession | null>(null);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [displacementMap, setDisplacementMap] = useState("");
   const [stageSize, setStageSize] = useState<StageSize>({
@@ -370,6 +391,8 @@ export default function Home() {
   const [menuMotion, setMenuMotion] = useState<MenuMotion>("idle");
   const [isMapEnabled, setIsMapEnabled] = useState(true);
   const [themeMode, setThemeMode] = useState<ThemeMode>("dark");
+  const [menuOffset, setMenuOffset] = useState<MenuOffset>({ x: 0, y: 0 });
+  const [isMenuDragging, setIsMenuDragging] = useState(false);
 
   useEffect(() => {
     setDisplacementMap(createDisplacementMap());
@@ -390,9 +413,10 @@ export default function Home() {
 
   useEffect(() => {
     const stage = stageRef.current;
+    const menuCluster = menuClusterRef.current;
     const toolbar = toolbarRef.current;
     const popover = popoverRef.current;
-    if (!stage || !toolbar || !popover) {
+    if (!stage || !menuCluster || !toolbar || !popover) {
       return;
     }
 
@@ -420,6 +444,7 @@ export default function Home() {
     updateSurfaceMetrics();
     const resizeObserver = new ResizeObserver(updateSurfaceMetrics);
     resizeObserver.observe(stage);
+    resizeObserver.observe(menuCluster);
     resizeObserver.observe(toolbar);
     resizeObserver.observe(popover);
     window.addEventListener("resize", updateSurfaceMetrics);
@@ -443,6 +468,11 @@ export default function Home() {
     "--surface-elasticity": `${160 + settings.elasticity * 3}ms`,
   } as CSSProperties;
 
+  const menuStyle = {
+    "--menu-drag-x": `${menuOffset.x}px`,
+    "--menu-drag-y": `${menuOffset.y}px`,
+  } as CSSProperties;
+
   const updateSetting = (key: keyof LensSettings, value: number) => {
     setSettings((currentSettings) => ({
       ...currentSettings,
@@ -453,6 +483,108 @@ export default function Home() {
   const toggleMenu = () => {
     setMenuMotion(isMenuOpen ? "closing" : "opening");
     setIsMenuOpen((currentValue) => !currentValue);
+  };
+
+  const startMenuDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (
+      menuMotion !== "idle" ||
+      (event.pointerType === "mouse" && event.button !== 0)
+    ) {
+      return;
+    }
+
+    const eventTarget = event.target;
+    if (eventTarget instanceof Element && eventTarget.closest("button")) {
+      return;
+    }
+
+    const stage = stageRef.current;
+    const menuCluster = menuClusterRef.current;
+    const popover = popoverRef.current;
+    if (!stage || !menuCluster || !popover) {
+      return;
+    }
+
+    const stageBounds = stage.getBoundingClientRect();
+    const clusterBounds = menuCluster.getBoundingClientRect();
+    const popoverBounds = popover.getBoundingClientRect();
+    const expandedClusterBottom =
+      clusterBounds.bottom +
+      Math.max(0, popover.scrollHeight - popoverBounds.height);
+
+    menuDragSessionRef.current = {
+      pointerId: event.pointerId,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      originOffset: menuOffset,
+      minimumX: menuOffset.x + stageBounds.left - clusterBounds.left,
+      maximumX: menuOffset.x + stageBounds.right - clusterBounds.right,
+      minimumY: menuOffset.y + stageBounds.top - clusterBounds.top,
+      maximumY: menuOffset.y + stageBounds.bottom - expandedClusterBottom,
+      toolbarMetrics: surfaceMetrics.toolbar,
+      popoverMetrics: surfaceMetrics.popover,
+    };
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+    setIsMenuDragging(true);
+  };
+
+  const dragMenu = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const dragSession = menuDragSessionRef.current;
+    if (!dragSession || dragSession.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const nextOffset = {
+      x: clamp(
+        dragSession.originOffset.x +
+          event.clientX -
+          dragSession.startClientX,
+        dragSession.minimumX,
+        dragSession.maximumX,
+      ),
+      y: clamp(
+        dragSession.originOffset.y +
+          event.clientY -
+          dragSession.startClientY,
+        dragSession.minimumY,
+        dragSession.maximumY,
+      ),
+    };
+    const offsetDelta = {
+      x: nextOffset.x - dragSession.originOffset.x,
+      y: nextOffset.y - dragSession.originOffset.y,
+    };
+
+    setMenuOffset(nextOffset);
+    setSurfaceMetrics({
+      toolbar: {
+        x: dragSession.toolbarMetrics.x + offsetDelta.x,
+        y: dragSession.toolbarMetrics.y + offsetDelta.y,
+      },
+      popover: {
+        x: dragSession.popoverMetrics.x + offsetDelta.x,
+        y: dragSession.popoverMetrics.y + offsetDelta.y,
+      },
+    });
+    event.preventDefault();
+  };
+
+  const finishMenuDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const dragSession = menuDragSessionRef.current;
+    if (!dragSession || dragSession.pointerId !== event.pointerId) {
+      return;
+    }
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    menuDragSessionRef.current = null;
+    setIsMenuDragging(false);
+    window.requestAnimationFrame(() =>
+      window.dispatchEvent(new Event("resize")),
+    );
   };
 
   return (
@@ -532,12 +664,14 @@ export default function Home() {
           aria-label="苹果风格液态玻璃菜单交互实验区"
         >
           <StageArtwork />
-          <p className="stage-label">INTERACT WITH THE MENU</p>
+          <p className="stage-label">DRAG THE BAR / INTERACT WITH THE MENU</p>
 
           <div
             className={`apple-menu-cluster ${
               isMenuOpen ? "is-open" : ""
-            } motion-${menuMotion}`}
+            } motion-${menuMotion} ${isMenuDragging ? "is-dragging" : ""}`}
+            ref={menuClusterRef}
+            style={menuStyle}
             onPointerDown={(event) => event.stopPropagation()}
           >
             <p className="system-menu-label">PRIMARY MATERIAL / FUNCTION LAYER</p>
@@ -545,6 +679,10 @@ export default function Home() {
             <div
               ref={toolbarRef}
               className="apple-toolbar system-glass"
+              onPointerDown={startMenuDrag}
+              onPointerMove={dragMenu}
+              onPointerUp={finishMenuDrag}
+              onPointerCancel={finishMenuDrag}
               onTransitionEnd={() => window.dispatchEvent(new Event("resize"))}
             >
               <RefractedStageSurface
