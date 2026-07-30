@@ -2,9 +2,7 @@
 
 import {
   type CSSProperties,
-  type PointerEvent,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -15,10 +13,20 @@ interface LensSettings {
   elasticity: number;
 }
 
+interface StageSize {
+  width: number;
+  height: number;
+}
+
+interface SurfaceMetrics {
+  x: number;
+  y: number;
+}
+
 const DEFAULT_SETTINGS: LensSettings = {
-  refraction: 52,
-  frost: 7,
-  elasticity: 72,
+  refraction: 112,
+  frost: 2,
+  elasticity: 64,
 };
 
 const FEATURES = [
@@ -184,24 +192,120 @@ function GlassFilter({
           <feDisplacementMap
             in="SourceGraphic"
             in2="displacement-map"
+            scale={refraction * 1.08}
+            xChannelSelector="R"
+            yChannelSelector="G"
+            result="red-source"
+          />
+          <feColorMatrix
+            in="red-source"
+            type="matrix"
+            values="1 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 1 0"
+            result="red-channel"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="displacement-map"
             scale={refraction}
             xChannelSelector="R"
             yChannelSelector="G"
-            result="refracted"
-          />
-          <feGaussianBlur
-            in="refracted"
-            stdDeviation="0.22"
-            result="softened"
+            result="green-source"
           />
           <feColorMatrix
-            in="softened"
+            in="green-source"
+            type="matrix"
+            values="0 0 0 0 0
+                    0 1 0 0 0
+                    0 0 0 0 0
+                    0 0 0 1 0"
+            result="green-channel"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="displacement-map"
+            scale={refraction * 0.9}
+            xChannelSelector="R"
+            yChannelSelector="G"
+            result="blue-source"
+          />
+          <feColorMatrix
+            in="blue-source"
+            type="matrix"
+            values="0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 1 0 0
+                    0 0 0 1 0"
+            result="blue-channel"
+          />
+          <feBlend
+            in="red-channel"
+            in2="green-channel"
+            mode="screen"
+            result="red-green"
+          />
+          <feBlend
+            in="red-green"
+            in2="blue-channel"
+            mode="screen"
+            result="refracted-rgb"
+          />
+          <feColorMatrix
+            in="refracted-rgb"
             type="saturate"
-            values="1.28"
+            values="1.42"
           />
         </filter>
       </defs>
     </svg>
+  );
+}
+
+function StageArtwork() {
+  return (
+    <div className="scene-artwork" aria-hidden="true">
+      <div className="stage-grid" />
+      <div className="spectrum-band spectrum-band-one" />
+      <div className="spectrum-band spectrum-band-two" />
+      <div className="color-orb orb-cyan" />
+      <div className="color-orb orb-violet" />
+      <div className="color-orb orb-coral" />
+      <div className="backdrop-word">REFRACT</div>
+
+      <div className="poster poster-primary">
+        <span>01</span>
+        <p>BENDING</p>
+        <strong>LIGHT</strong>
+        <small>REALTIME OPTICS</small>
+      </div>
+      <div className="poster poster-secondary">
+        <span>FLUID</span>
+        <strong>FORM</strong>
+      </div>
+    </div>
+  );
+}
+
+function RefractedStageSurface({
+  stageSize,
+  surfaceMetrics,
+}: {
+  stageSize: StageSize;
+  surfaceMetrics: SurfaceMetrics;
+}) {
+  const surfaceStyle = {
+    "--surface-offset-x": `${-surfaceMetrics.x}px`,
+    "--surface-offset-y": `${-surfaceMetrics.y}px`,
+    "--surface-stage-width": `${stageSize.width}px`,
+    "--surface-stage-height": `${stageSize.height}px`,
+  } as CSSProperties;
+
+  return (
+    <div className="menu-scene-copy" style={surfaceStyle} aria-hidden="true">
+      <StageArtwork />
+    </div>
   );
 }
 
@@ -245,39 +349,81 @@ function RangeControl({
 
 export default function Home() {
   const stageRef = useRef<HTMLDivElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [displacementMap, setDisplacementMap] = useState("");
-  const [lensPosition, setLensPosition] = useState({ x: 64, y: 44 });
-  const [isPressed, setIsPressed] = useState(false);
-  const [activeMode, setActiveMode] = useState("Lens");
+  const [stageSize, setStageSize] = useState<StageSize>({
+    width: 760,
+    height: 760,
+  });
+  const [surfaceMetrics, setSurfaceMetrics] = useState({
+    toolbar: { x: 440, y: 58 },
+    popover: { x: 440, y: 140 },
+  });
+  const [activeMode, setActiveMode] = useState("Liquid");
+  const [activeMenuItem, setActiveMenuItem] = useState("view");
+  const [isMenuOpen, setIsMenuOpen] = useState(true);
+  const [isMapEnabled, setIsMapEnabled] = useState(true);
 
   useEffect(() => {
     setDisplacementMap(createDisplacementMap());
   }, []);
 
-  const stageStyle = useMemo(
-    () =>
-      ({
-        "--lens-x": `${lensPosition.x}%`,
-        "--lens-y": `${lensPosition.y}%`,
-        "--lens-frost": `${settings.frost}px`,
-        "--lens-elasticity": `${160 + settings.elasticity * 3}ms`,
-      }) as CSSProperties,
-    [lensPosition, settings],
-  );
-
-  const updateLensPosition = (event: PointerEvent<HTMLDivElement>) => {
+  useEffect(() => {
     const stage = stageRef.current;
-    if (!stage) {
+    const toolbar = toolbarRef.current;
+    const popover = popoverRef.current;
+    if (!stage || !toolbar || !popover) {
       return;
     }
 
-    const bounds = stage.getBoundingClientRect();
-    setLensPosition({
-      x: clamp(((event.clientX - bounds.left) / bounds.width) * 100, 15, 85),
-      y: clamp(((event.clientY - bounds.top) / bounds.height) * 100, 18, 82),
-    });
-  };
+    const updateSurfaceMetrics = () => {
+      const stageBounds = stage.getBoundingClientRect();
+      const toolbarBounds = toolbar.getBoundingClientRect();
+      const popoverBounds = popover.getBoundingClientRect();
+
+      setStageSize({
+        width: stageBounds.width,
+        height: stageBounds.height,
+      });
+      setSurfaceMetrics({
+        toolbar: {
+          x: toolbarBounds.left - stageBounds.left,
+          y: toolbarBounds.top - stageBounds.top,
+        },
+        popover: {
+          x: popoverBounds.left - stageBounds.left,
+          y: popoverBounds.top - stageBounds.top,
+        },
+      });
+    };
+
+    updateSurfaceMetrics();
+    const resizeObserver = new ResizeObserver(updateSurfaceMetrics);
+    resizeObserver.observe(stage);
+    resizeObserver.observe(toolbar);
+    resizeObserver.observe(popover);
+    window.addEventListener("resize", updateSurfaceMetrics);
+    const settleTimer = window.setTimeout(updateSurfaceMetrics, 500);
+
+    return () => {
+      window.clearTimeout(settleTimer);
+      window.removeEventListener("resize", updateSurfaceMetrics);
+      resizeObserver.disconnect();
+    };
+  }, [isMenuOpen]);
+
+  const stageStyle = {
+    "--surface-frost": `${
+      activeMode === "Clear"
+        ? 0
+        : activeMode === "Frost"
+          ? Math.max(settings.frost, 12)
+          : settings.frost
+    }px`,
+    "--surface-elasticity": `${160 + settings.elasticity * 3}ms`,
+  } as CSSProperties;
 
   const updateSetting = (key: keyof LensSettings, value: number) => {
     setSettings((currentSettings) => ({
@@ -318,7 +464,7 @@ export default function Home() {
           </h1>
           <p className="hero-intro">
             一个研究光线如何被界面弯曲、聚焦并赋予触感的交互实验。
-            移动指针，直接观察折射层如何响应背景。
+            打开菜单并操作选项，观察功能层如何折射环境并随交互流动。
           </p>
           <div className="hero-actions">
             <a className="primary-action glass-shell" href="#playground">
@@ -336,53 +482,128 @@ export default function Home() {
         </div>
 
         <div
-          className={`optical-stage ${isPressed ? "is-pressed" : ""}`}
+          className={`optical-stage mode-${activeMode.toLowerCase()}`}
           id="playground"
           ref={stageRef}
           style={stageStyle}
-          onPointerMove={updateLensPosition}
-          onPointerDown={(event) => {
-            event.currentTarget.setPointerCapture(event.pointerId);
-            setIsPressed(true);
-            updateLensPosition(event);
-          }}
-          onPointerUp={(event) => {
-            event.currentTarget.releasePointerCapture(event.pointerId);
-            setIsPressed(false);
-          }}
-          onPointerCancel={() => setIsPressed(false)}
-          aria-label="可交互液态玻璃实验区，移动指针可改变镜片位置"
+          aria-label="苹果风格液态玻璃菜单交互实验区"
         >
-          <div className="stage-grid" />
-          <div className="color-orb orb-cyan" />
-          <div className="color-orb orb-violet" />
-          <div className="color-orb orb-coral" />
-          <p className="stage-label">DRAG / MOVE</p>
+          <StageArtwork />
+          <p className="stage-label">INTERACT WITH THE MENU</p>
 
-          <div className="poster poster-primary">
-            <span>01</span>
-            <p>BENDING</p>
-            <strong>LIGHT</strong>
-            <small>REALTIME OPTICS</small>
-          </div>
-          <div className="poster poster-secondary">
-            <span>FLUID</span>
-            <strong>FORM</strong>
-          </div>
+          <div
+            className={`apple-menu-cluster ${isMenuOpen ? "is-open" : ""}`}
+            onPointerDown={(event) => event.stopPropagation()}
+          >
+            <p className="system-menu-label">PRIMARY MATERIAL / FUNCTION LAYER</p>
 
-          <div className="lens" aria-hidden="true">
-            <span className="glass-warp" />
-            <span className="lens-shadow" />
-            <span className="lens-rim lens-rim-primary" />
-            <span className="lens-rim lens-rim-secondary" />
-            <span className="lens-glow" />
-            <span className="lens-crosshair">+</span>
+            <div
+              ref={toolbarRef}
+              className="apple-toolbar system-glass"
+              onTransitionEnd={() => window.dispatchEvent(new Event("resize"))}
+            >
+              <RefractedStageSurface
+                stageSize={stageSize}
+                surfaceMetrics={surfaceMetrics.toolbar}
+              />
+              <span className="glass-optics" aria-hidden="true" />
+              <button type="button" aria-label="返回" className="toolbar-button">
+                <span className="toolbar-symbol toolbar-back">‹</span>
+              </button>
+              <div className="toolbar-title">
+                <span>Photos</span>
+                <small>8 ITEMS</small>
+              </div>
+              <button
+                type="button"
+                aria-label={isMenuOpen ? "关闭菜单" : "打开菜单"}
+                aria-expanded={isMenuOpen}
+                className="toolbar-button"
+                onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
+              >
+                <span className="toolbar-symbol toolbar-more">•••</span>
+              </button>
+            </div>
+
+            <div
+              ref={popoverRef}
+              className="apple-popover system-glass"
+              aria-hidden={!isMenuOpen}
+              onTransitionEnd={() => window.dispatchEvent(new Event("resize"))}
+            >
+              <RefractedStageSurface
+                stageSize={stageSize}
+                surfaceMetrics={surfaceMetrics.popover}
+              />
+              <span className="glass-optics" aria-hidden="true" />
+              <div
+                className="popover-content"
+                data-active-item={activeMenuItem}
+              >
+                <span className="menu-selection-plate" aria-hidden="true">
+                  <span key={activeMenuItem} />
+                </span>
+                <button
+                  type="button"
+                  className={activeMenuItem === "view" ? "is-active" : ""}
+                  onClick={() => setActiveMenuItem("view")}
+                >
+                  <span className="item-optic" aria-hidden="true" />
+                  <span className="menu-icon">▦</span>
+                  <span>View Options</span>
+                </button>
+                <button
+                  type="button"
+                  className={activeMenuItem === "select" ? "is-active" : ""}
+                  onClick={() => setActiveMenuItem("select")}
+                >
+                  <span className="item-optic" aria-hidden="true" />
+                  <span className="menu-icon">✓</span>
+                  <span>Select</span>
+                </button>
+                <div className="menu-divider" />
+                <button
+                  type="button"
+                  className={`toggle-row ${
+                    activeMenuItem === "map" ? "is-active" : ""
+                  }`}
+                  onClick={() => {
+                    setActiveMenuItem("map");
+                    setIsMapEnabled((currentValue) => !currentValue);
+                  }}
+                >
+                  <span className="item-optic" aria-hidden="true" />
+                  <span className="menu-icon">⌖</span>
+                  <span>Show Map</span>
+                  <span className={`mini-toggle ${isMapEnabled ? "is-on" : ""}`}>
+                    <i />
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className={activeMenuItem === "sort" ? "is-active" : ""}
+                  onClick={() => setActiveMenuItem("sort")}
+                >
+                  <span className="item-optic" aria-hidden="true" />
+                  <span className="menu-icon">↕</span>
+                  <span>Sort By</span>
+                  <span className="menu-chevron">›</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="mode-switcher glass-shell">
             <span className="glass-warp" />
-            <div className="mode-content">
-              {["Lens", "Clear", "Frost"].map((mode) => (
+            <div
+              className="mode-content"
+              data-active-mode={activeMode}
+              onPointerDown={(event) => event.stopPropagation()}
+            >
+              <span className="mode-selection-plate" aria-hidden="true">
+                <span key={activeMode} />
+              </span>
+              {["Liquid", "Clear", "Frost"].map((mode) => (
                 <button
                   key={mode}
                   type="button"
@@ -421,7 +642,7 @@ export default function Home() {
           <p className="eyebrow">MATERIAL CONTROLS</p>
           <h2>调校镜片</h2>
           <p>
-            参数会直接作用于上方实验区。高折射适合强调边缘，低霜化让背景保持鲜活。
+            参数会直接作用于上方菜单。高折射强调菜单边缘，弹性决定展开和按压时的流动感。
           </p>
         </div>
 
@@ -431,8 +652,8 @@ export default function Home() {
             <RangeControl
               label="REFRACTION"
               value={settings.refraction}
-              minimum={12}
-              maximum={90}
+              minimum={40}
+              maximum={180}
               unit=""
               onChange={(value) => updateSetting("refraction", value)}
             />
