@@ -29,6 +29,7 @@ test("renders the Liquid Lab demo", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Liquid Lab/);
+  assert.match(html, /demo-shell theme-light/);
   assert.match(html, /LIGHT,/);
   assert.match(html, /ENTER PLAYGROUND/);
   assert.match(html, /MATERIAL CONTROLS/);

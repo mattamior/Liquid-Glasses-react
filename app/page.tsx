@@ -390,7 +390,7 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [menuMotion, setMenuMotion] = useState<MenuMotion>("idle");
   const [isMapEnabled, setIsMapEnabled] = useState(true);
-  const [themeMode, setThemeMode] = useState<ThemeMode>("dark");
+  const [themeMode, setThemeMode] = useState<ThemeMode>("light");
   const [menuOffset, setMenuOffset] = useState<MenuOffset>({ x: 0, y: 0 });
   const [isMenuDragging, setIsMenuDragging] = useState(false);
 
