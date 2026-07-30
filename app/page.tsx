@@ -24,6 +24,7 @@ interface SurfaceMetrics {
 }
 
 type MenuMotion = "idle" | "opening" | "closing";
+type ThemeMode = "dark" | "light";
 
 const DEFAULT_SETTINGS: LensSettings = {
   refraction: 112,
@@ -368,10 +369,15 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [menuMotion, setMenuMotion] = useState<MenuMotion>("idle");
   const [isMapEnabled, setIsMapEnabled] = useState(true);
+  const [themeMode, setThemeMode] = useState<ThemeMode>("dark");
 
   useEffect(() => {
     setDisplacementMap(createDisplacementMap());
   }, []);
+
+  useEffect(() => {
+    document.documentElement.style.colorScheme = themeMode;
+  }, [themeMode]);
 
   useEffect(() => {
     if (menuMotion === "idle") {
@@ -450,7 +456,7 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <main className={`demo-shell theme-${themeMode}`}>
       <GlassFilter
         displacementMap={displacementMap}
         refraction={settings.refraction}
@@ -465,10 +471,30 @@ export default function Home() {
           <a href="#principles">PRINCIPLES</a>
           <a href="#playground">PLAYGROUND</a>
         </div>
-        <a className="nav-status" href="#playground">
-          <span />
-          LIVE DEMO
-        </a>
+        <div className="nav-actions">
+          <button
+            type="button"
+            className="theme-toggle"
+            aria-label={`切换到${themeMode === "dark" ? "亮色" : "暗色"}模式`}
+            aria-pressed={themeMode === "light"}
+            onClick={() =>
+              setThemeMode((currentMode) =>
+                currentMode === "dark" ? "light" : "dark",
+              )
+            }
+          >
+            <span className="theme-toggle-track" aria-hidden="true">
+              <span>{themeMode === "dark" ? "☾" : "☀"}</span>
+            </span>
+            <span className="theme-toggle-label">
+              {themeMode === "dark" ? "DARK" : "LIGHT"}
+            </span>
+          </button>
+          <a className="nav-status" href="#playground">
+            <span />
+            LIVE DEMO
+          </a>
+        </div>
       </nav>
 
       <section className="hero" id="top">
