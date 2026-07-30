@@ -558,6 +558,8 @@ main {
 }
 
 .apple-toolbar {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: 48px 1fr 48px;
   align-items: center;
@@ -567,6 +569,97 @@ main {
   clip-path: inset(0 round 999px);
   contain: paint;
   transition: transform 240ms ease;
+}
+
+.apple-toolbar::before,
+.apple-popover::before {
+  position: absolute;
+  z-index: 2;
+  right: 6%;
+  left: 6%;
+  height: 22px;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(255 255 255 / 64%),
+    rgb(93 228 255 / 28%) 36%,
+    transparent 72%
+  );
+  filter: blur(2px);
+  opacity: 0;
+  transform: scaleX(0.48);
+  pointer-events: none;
+  content: "";
+}
+
+.apple-toolbar::before {
+  bottom: -8px;
+  transform-origin: center bottom;
+}
+
+.apple-popover::before {
+  top: -8px;
+  transform-origin: center top;
+}
+
+.apple-menu-cluster.motion-opening .apple-toolbar {
+  animation: toolbar-couple-open 440ms cubic-bezier(0.22, 0.82, 0.28, 1);
+}
+
+.apple-menu-cluster.motion-closing .apple-toolbar {
+  animation: toolbar-couple-close 340ms cubic-bezier(0.22, 0.82, 0.28, 1);
+}
+
+.apple-menu-cluster.motion-opening .apple-toolbar::before,
+.apple-menu-cluster.motion-opening .apple-popover::before {
+  animation: material-seam-pulse 440ms ease-out;
+}
+
+.apple-menu-cluster.motion-closing .apple-toolbar::before,
+.apple-menu-cluster.motion-closing .apple-popover::before {
+  animation: material-seam-pulse 300ms ease-out reverse;
+}
+
+.menu-coupling-field {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: calc(100% - 40px);
+  height: 0;
+  margin: 0 auto;
+  pointer-events: none;
+}
+
+.menu-coupling-field > span {
+  position: absolute;
+  top: -6px;
+  right: 0;
+  left: 0;
+  height: 22px;
+  border-radius: 999px;
+  background:
+    radial-gradient(ellipse at center, rgb(255 255 255 / 38%), transparent 58%),
+    linear-gradient(90deg, transparent, rgb(82 226 255 / 22%) 28%, rgb(255 255 255 / 18%) 50%, rgb(182 86 255 / 20%) 72%, transparent);
+  -webkit-backdrop-filter: blur(8px) saturate(170%);
+  backdrop-filter: blur(8px) saturate(170%);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 18%);
+  opacity: 0;
+  transform: scale(0.78, 0.12);
+  transition:
+    opacity 160ms ease,
+    transform 220ms ease;
+}
+
+.apple-menu-cluster.is-open .menu-coupling-field > span {
+  opacity: 0.07;
+  transform: scale(0.96, 0.32);
+}
+
+.apple-menu-cluster.motion-opening .menu-coupling-field > span {
+  animation: coupling-field-open 460ms cubic-bezier(0.22, 0.82, 0.28, 1) both;
+}
+
+.apple-menu-cluster.motion-closing .menu-coupling-field > span {
+  animation: coupling-field-close 340ms cubic-bezier(0.22, 0.82, 0.28, 1) both;
 }
 
 .apple-toolbar .toolbar-button {
@@ -639,13 +732,15 @@ main {
 }
 
 .apple-popover {
+  position: relative;
+  z-index: 2;
   max-height: 0;
   margin-top: 8px;
   border-radius: 32px;
-  clip-path: inset(0 0 100% 82% round 32px);
+  clip-path: inset(0 40% 100% 40% round 32px);
   opacity: 0;
-  transform: translateY(-22px) scale(0.84, 0.72);
-  transform-origin: top right;
+  transform: translateY(-16px) scale(0.94, 0.78);
+  transform-origin: top center;
   transition:
     max-height 450ms ease,
     opacity 250ms ease,
@@ -1133,6 +1228,83 @@ footer p {
   50% {
     opacity: 0.45;
     transform: scale(0.75);
+  }
+}
+
+@keyframes toolbar-couple-open {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+
+  32% {
+    transform: translateY(2px) scaleY(0.985);
+  }
+
+  64% {
+    transform: translateY(0.5px) scaleY(1.006);
+  }
+}
+
+@keyframes toolbar-couple-close {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+
+  44% {
+    transform: translateY(1.5px) scaleY(0.99);
+  }
+}
+
+@keyframes material-seam-pulse {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.48);
+  }
+
+  46% {
+    opacity: 0.62;
+    transform: scaleX(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scaleX(1.08);
+  }
+}
+
+@keyframes coupling-field-open {
+  0% {
+    opacity: 0;
+    transform: scale(0.76, 0.12);
+  }
+
+  46% {
+    opacity: 0.24;
+    transform: scale(1, 0.82);
+  }
+
+  100% {
+    opacity: 0.07;
+    transform: scale(0.96, 0.32);
+  }
+}
+
+@keyframes coupling-field-close {
+  0% {
+    opacity: 0.07;
+    transform: scale(0.96, 0.32);
+  }
+
+  42% {
+    opacity: 0.16;
+    transform: scale(1, 0.58);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.78, 0.12);
   }
 }
 

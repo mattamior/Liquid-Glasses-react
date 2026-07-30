@@ -23,6 +23,8 @@ interface SurfaceMetrics {
   y: number;
 }
 
+type MenuMotion = "idle" | "opening" | "closing";
+
 const DEFAULT_SETTINGS: LensSettings = {
   refraction: 112,
   frost: 2,
@@ -364,11 +366,21 @@ export default function Home() {
   const [activeMode, setActiveMode] = useState("Liquid");
   const [activeMenuItem, setActiveMenuItem] = useState("view");
   const [isMenuOpen, setIsMenuOpen] = useState(true);
+  const [menuMotion, setMenuMotion] = useState<MenuMotion>("idle");
   const [isMapEnabled, setIsMapEnabled] = useState(true);
 
   useEffect(() => {
     setDisplacementMap(createDisplacementMap());
   }, []);
+
+  useEffect(() => {
+    if (menuMotion === "idle") {
+      return;
+    }
+
+    const motionTimer = window.setTimeout(() => setMenuMotion("idle"), 520);
+    return () => window.clearTimeout(motionTimer);
+  }, [menuMotion]);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -432,6 +444,11 @@ export default function Home() {
     }));
   };
 
+  const toggleMenu = () => {
+    setMenuMotion(isMenuOpen ? "closing" : "opening");
+    setIsMenuOpen((currentValue) => !currentValue);
+  };
+
   return (
     <main>
       <GlassFilter
@@ -492,7 +509,9 @@ export default function Home() {
           <p className="stage-label">INTERACT WITH THE MENU</p>
 
           <div
-            className={`apple-menu-cluster ${isMenuOpen ? "is-open" : ""}`}
+            className={`apple-menu-cluster ${
+              isMenuOpen ? "is-open" : ""
+            } motion-${menuMotion}`}
             onPointerDown={(event) => event.stopPropagation()}
           >
             <p className="system-menu-label">PRIMARY MATERIAL / FUNCTION LAYER</p>
@@ -519,11 +538,15 @@ export default function Home() {
                 aria-label={isMenuOpen ? "关闭菜单" : "打开菜单"}
                 aria-expanded={isMenuOpen}
                 className="toolbar-button"
-                onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
+                onClick={toggleMenu}
               >
                 <span className="toolbar-symbol toolbar-more">•••</span>
               </button>
             </div>
+
+            <span className="menu-coupling-field" aria-hidden="true">
+              <span />
+            </span>
 
             <div
               ref={popoverRef}
