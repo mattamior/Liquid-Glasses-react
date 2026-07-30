@@ -182,6 +182,120 @@ function createDisplacementMap() {
   return canvas.toDataURL("image/png");
 }
 
+interface GlassFilterDefinitionProps {
+  channelSpread: {
+    red: number;
+    blue: number;
+  };
+  displacementMap: string;
+  id: string;
+  refraction: number;
+  refractionScale: number;
+  saturation: number;
+}
+
+function GlassFilterDefinition({
+  channelSpread,
+  displacementMap,
+  id,
+  refraction,
+  refractionScale,
+  saturation,
+}: GlassFilterDefinitionProps) {
+  const scaledRefraction = refraction * refractionScale;
+
+  return (
+    <filter
+      id={id}
+      x="-28%"
+      y="-28%"
+      width="156%"
+      height="156%"
+      colorInterpolationFilters="sRGB"
+    >
+      {displacementMap ? (
+        <feImage
+          href={displacementMap}
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          preserveAspectRatio="none"
+          result="displacement-map"
+        />
+      ) : null}
+      <feDisplacementMap
+        in="SourceGraphic"
+        in2="displacement-map"
+        scale={scaledRefraction * channelSpread.red}
+        xChannelSelector="R"
+        yChannelSelector="G"
+        result="red-source"
+      />
+      <feColorMatrix
+        in="red-source"
+        type="matrix"
+        values="1 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 1 0"
+        result="red-channel"
+      />
+      <feDisplacementMap
+        in="SourceGraphic"
+        in2="displacement-map"
+        scale={scaledRefraction}
+        xChannelSelector="R"
+        yChannelSelector="G"
+        result="green-source"
+      />
+      <feColorMatrix
+        in="green-source"
+        type="matrix"
+        values="0 0 0 0 0
+                    0 1 0 0 0
+                    0 0 0 0 0
+                    0 0 0 1 0"
+        result="green-channel"
+      />
+      <feDisplacementMap
+        in="SourceGraphic"
+        in2="displacement-map"
+        scale={scaledRefraction * channelSpread.blue}
+        xChannelSelector="R"
+        yChannelSelector="G"
+        result="blue-source"
+      />
+      <feColorMatrix
+        in="blue-source"
+        type="matrix"
+        values="0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 1 0 0
+                    0 0 0 1 0"
+        result="blue-channel"
+      />
+      <feBlend
+        in="red-channel"
+        in2="green-channel"
+        mode="screen"
+        result="red-green"
+      />
+      <feBlend
+        in="red-green"
+        in2="blue-channel"
+        mode="screen"
+        result="refracted-rgb"
+      />
+      <feColorMatrix
+        in="refracted-rgb"
+        type="saturate"
+        values={saturation}
+      />
+    </filter>
+  );
+}
+
 function GlassFilter({
   displacementMap,
   refraction,
@@ -192,94 +306,22 @@ function GlassFilter({
   return (
     <svg className="filter-definitions" aria-hidden="true">
       <defs>
-        <filter
+        <GlassFilterDefinition
           id="liquid-lens-filter"
-          x="-28%"
-          y="-28%"
-          width="156%"
-          height="156%"
-          colorInterpolationFilters="sRGB"
-        >
-          {displacementMap ? (
-            <feImage
-              href={displacementMap}
-              x="0"
-              y="0"
-              width="100%"
-              height="100%"
-              preserveAspectRatio="none"
-              result="displacement-map"
-            />
-          ) : null}
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="displacement-map"
-            scale={refraction * 1.08}
-            xChannelSelector="R"
-            yChannelSelector="G"
-            result="red-source"
-          />
-          <feColorMatrix
-            in="red-source"
-            type="matrix"
-            values="1 0 0 0 0
-                    0 0 0 0 0
-                    0 0 0 0 0
-                    0 0 0 1 0"
-            result="red-channel"
-          />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="displacement-map"
-            scale={refraction}
-            xChannelSelector="R"
-            yChannelSelector="G"
-            result="green-source"
-          />
-          <feColorMatrix
-            in="green-source"
-            type="matrix"
-            values="0 0 0 0 0
-                    0 1 0 0 0
-                    0 0 0 0 0
-                    0 0 0 1 0"
-            result="green-channel"
-          />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="displacement-map"
-            scale={refraction * 0.9}
-            xChannelSelector="R"
-            yChannelSelector="G"
-            result="blue-source"
-          />
-          <feColorMatrix
-            in="blue-source"
-            type="matrix"
-            values="0 0 0 0 0
-                    0 0 0 0 0
-                    0 0 1 0 0
-                    0 0 0 1 0"
-            result="blue-channel"
-          />
-          <feBlend
-            in="red-channel"
-            in2="green-channel"
-            mode="screen"
-            result="red-green"
-          />
-          <feBlend
-            in="red-green"
-            in2="blue-channel"
-            mode="screen"
-            result="refracted-rgb"
-          />
-          <feColorMatrix
-            in="refracted-rgb"
-            type="saturate"
-            values="1.42"
-          />
-        </filter>
+          displacementMap={displacementMap}
+          refraction={refraction}
+          refractionScale={1}
+          channelSpread={{ red: 1.08, blue: 0.9 }}
+          saturation={1.42}
+        />
+        <GlassFilterDefinition
+          id="liquid-lens-filter-light"
+          displacementMap={displacementMap}
+          refraction={refraction}
+          refractionScale={0.58}
+          channelSpread={{ red: 1, blue: 1 }}
+          saturation={0.9}
+        />
       </defs>
     </svg>
   );

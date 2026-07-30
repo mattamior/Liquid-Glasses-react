@@ -637,6 +637,14 @@ main {
   content: "";
 }
 
+.theme-light .system-glass::after {
+  background:
+    radial-gradient(circle at 28% 0, rgb(255 255 255 / 58%), transparent 27%),
+    linear-gradient(145deg, rgb(255 255 255 / 28%), transparent 31%),
+    linear-gradient(320deg, rgb(255 255 255 / 18%), transparent 38%);
+  mix-blend-mode: soft-light;
+}
+
 .menu-scene-copy {
   position: absolute;
   z-index: 0;
@@ -680,6 +688,32 @@ main {
   transform: scale(1.085);
 }
 
+.theme-light .menu-scene-copy {
+  filter:
+    url("#liquid-lens-filter-light")
+    blur(var(--surface-frost))
+    saturate(1.05)
+    contrast(1);
+  transform: scale(1.02);
+}
+
+.theme-light .mode-clear .menu-scene-copy {
+  filter: saturate(1.04);
+  transform: none;
+}
+
+.theme-light .mode-frost .menu-scene-copy {
+  filter:
+    url("#liquid-lens-filter-light")
+    blur(var(--surface-frost))
+    saturate(1.06)
+    brightness(1.03);
+}
+
+.theme-light .system-glass:hover .menu-scene-copy {
+  transform: scale(1.032);
+}
+
 .glass-optics {
   position: absolute;
   z-index: 2;
@@ -696,9 +730,8 @@ main {
 .theme-light .glass-optics {
   box-shadow:
     inset 2px 2px 1px rgb(255 255 255 / 82%),
-    inset -3px -4px 7px rgb(35 62 112 / 16%),
-    inset 12px 0 22px rgb(42 178 218 / 9%),
-    inset -12px 0 22px rgb(131 72 226 / 7%);
+    inset -2px -3px 6px rgb(35 62 112 / 10%),
+    inset 0 0 10px 3px rgb(255 255 255 / 42%);
 }
 
 .apple-toolbar {
