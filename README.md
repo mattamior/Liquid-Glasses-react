@@ -5,7 +5,7 @@ highlights, fluid menu motion, drag interactions, and light/dark themes.
 
 一个基于 React 的液态玻璃交互实验，展示背景折射、自适应高光、菜单流体动效、自由拖动与亮暗主题。
 
-[Live Demo](https://liquid-lab-optics-demo.mattamior.workers.dev) ·
+[Live Demo](https://liquid.hkooii.com) ·
 [中文说明](./README.zh.md) ·
 [English Documentation](./README.en.md)
 

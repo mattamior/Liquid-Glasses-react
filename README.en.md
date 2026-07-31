@@ -5,7 +5,7 @@ design. It explores how glass material can refract（折射） its surroundings,
 adapt to environmental color, and communicate menu hierarchy through fluid
 motion（流体动效）.
 
-[Live Demo](https://liquid-lab-optics-demo.mattamior.workers.dev) ·
+[Live Demo](https://liquid.hkooii.com) ·
 [中文](./README.zh.md) ·
 [Project Home](./README.md)
 
@@ -13,7 +13,7 @@ motion（流体动效）.
 
 The public version is deployed on Cloudflare Workers:
 
-<https://liquid-lab-optics-demo.mattamior.workers.dev>
+<https://liquid.hkooii.com>
 
 ## Features
 

@@ -2,7 +2,7 @@
 
 Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验，重点研究玻璃材质如何折射背景、响应环境色彩，并通过流体动效表达菜单层级关系。
 
-[在线体验](https://liquid-lab-optics-demo.mattamior.workers.dev) ·
+[在线体验](https://liquid.hkooii.com) ·
 [English](./README.en.md) ·
 [项目入口](./README.md)
 
@@ -10,7 +10,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 
 公开版本部署于 Cloudflare Workers：
 
-<https://liquid-lab-optics-demo.mattamior.workers.dev>
+<https://liquid.hkooii.com>
 
 ## 功能特性
 
