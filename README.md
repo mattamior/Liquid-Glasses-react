@@ -7,7 +7,9 @@ highlights, fluid menu motion, drag interactions, and light/dark themes.
 
 [Live Demo](https://liquid.hkooii.com) ·
 [中文说明](./README.zh.md) ·
-[English Documentation](./README.en.md)
+[English Documentation](./README.en.md) ·
+[Liquid Glass Method](./docs/liquid-glass-interface.en.md) ·
+[Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Highlights
 
@@ -30,6 +32,20 @@ Open the local URL printed by the development server.
 ```bash
 npm test
 ```
+
+## Agent Skill
+
+The reusable `liquid-glass-interface` Skill is versioned in
+[`skills/liquid-glass-interface`](./skills/liquid-glass-interface/). It teaches
+agents to build layered Web refraction, semantic menu motion, independent theme
+tuning, accessible fallbacks, and optional floating-panel dragging.
+
+The Skill contains guidance only. It does not access credentials, personal
+data, remote assets, telemetry, or hidden network services.
+
+## License
+
+Released under the [MIT License](./LICENSE).
 
 This project is an independent interface study and is not affiliated with or
 endorsed by Apple Inc.

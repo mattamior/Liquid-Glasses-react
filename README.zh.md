@@ -4,7 +4,9 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 
 [在线体验](https://liquid.hkooii.com) ·
 [English](./README.en.md) ·
-[项目入口](./README.md)
+[项目入口](./README.md) ·
+[液态玻璃方法](./docs/liquid-glass-interface.zh.md) ·
+[Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## 在线体验
 
@@ -81,7 +83,18 @@ public/
   favicon.svg        项目图标
 tests/
   rendered-html.test.mjs
+skills/
+  liquid-glass-interface/  可供 Agent 安装和商店分发的 Skill 源码
+docs/
+  liquid-glass-interface.zh.md
+  liquid-glass-interface.en.md
 ```
+
+## Agent Skill
+
+可复用的 `liquid-glass-interface` Skill 位于 [`skills/liquid-glass-interface`](./skills/liquid-glass-interface/)，用于指导 Agent 实现分层折射、语义菜单动效、亮暗主题独立调校、可访问降级，以及仅在合理场景启用的浮动面板拖动。
+
+Skill 只包含实现指导，不访问凭证、个人数据、远程资源、遥测或隐藏网络服务。
 
 ## 部署
 
@@ -97,3 +110,5 @@ npx wrangler deploy --config dist/server/wrangler.json
 ## 项目声明
 
 本项目是独立的界面与光学效果研究，不是 Apple 官方产品，也未获得 Apple Inc. 的认可或授权。Apple 及其相关名称和商标归各自权利人所有。
+
+项目采用 [MIT License](./LICENSE) 开源。

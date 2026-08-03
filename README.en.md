@@ -7,7 +7,9 @@ motion（流体动效）.
 
 [Live Demo](https://liquid.hkooii.com) ·
 [中文](./README.zh.md) ·
-[Project Home](./README.md)
+[Project Home](./README.md) ·
+[Liquid Glass Method](./docs/liquid-glass-interface.en.md) ·
+[Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Live Demo
 
@@ -87,7 +89,18 @@ public/
   favicon.svg        Project icon
 tests/
   rendered-html.test.mjs
+skills/
+  liquid-glass-interface/  Versioned Skill source for agents and stores
+docs/
+  liquid-glass-interface.zh.md
+  liquid-glass-interface.en.md
 ```
+
+## Agent Skill
+
+The reusable `liquid-glass-interface` Skill lives in [`skills/liquid-glass-interface`](./skills/liquid-glass-interface/). It guides agents through layered refraction, semantic menu motion, independent theme tuning, accessible fallbacks, and floating-panel dragging only when the product context justifies it.
+
+The Skill contains implementation guidance only. It does not access credentials, personal data, remote assets, telemetry（遥测）, or hidden network services.
 
 ## Deployment
 
@@ -107,3 +120,5 @@ before deploying.
 This project is an independent interface and optical-effects study. It is not an
 official Apple product and is not endorsed or authorized by Apple Inc. Apple and
 related names and trademarks belong to their respective owners.
+
+The project is released under the [MIT License](./LICENSE).
