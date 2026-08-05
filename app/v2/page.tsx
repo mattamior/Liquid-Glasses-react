@@ -2,6 +2,7 @@
 
 import {
   type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
   type RefObject,
   memo,
   useDeferredValue,
@@ -16,6 +17,7 @@ type ThemeMode = "light" | "dark";
 type MenuItemId = "home" | "products" | "activity" | "about";
 type IconName = MenuItemId | "collapse" | "expand" | "sun" | "moon";
 type OpticsTier = "baseline" | "enhanced";
+type GlassPhase = "click" | "dragging" | "settling" | "fading";
 
 interface MenuItem {
   id: MenuItemId;
@@ -47,6 +49,20 @@ interface SelectionSweep {
   id: number;
   dx: number;
   dy: number;
+}
+
+interface GlassInteraction {
+  phase: GlassPhase;
+  targetItemId: MenuItemId;
+  y: number;
+}
+
+interface DragSession {
+  pointerId: number;
+  grabOffset: number;
+  hasMoved: boolean;
+  originY: number;
+  y: number;
 }
 
 const MENU_ITEMS: MenuItem[] = [
@@ -102,6 +118,25 @@ const MENU_ITEM_HEIGHT = 58;
 const MENU_ITEM_GAP = 8;
 const MENU_TOP_PADDING = 10;
 const NAVIGATION_LENS_DURATION = 680;
+const DRAG_SETTLE_DURATION = 260;
+const GLASS_FADE_DURATION = 120;
+const DRAG_THRESHOLD = 5;
+
+function getMenuItemY(itemId: MenuItemId) {
+  return (
+    Math.max(0, MENU_ITEMS.findIndex((item) => item.id === itemId)) *
+    (MENU_ITEM_HEIGHT + MENU_ITEM_GAP)
+  );
+}
+
+function getMenuItemIdAt(y: number) {
+  const index = clamp(
+    Math.round(y / (MENU_ITEM_HEIGHT + MENU_ITEM_GAP)),
+    0,
+    MENU_ITEMS.length - 1,
+  );
+  return MENU_ITEMS[index].id;
+}
 
 function clamp(value: number, minimum: number, maximum: number) {
   return Math.min(Math.max(value, minimum), maximum);
@@ -339,15 +374,21 @@ const MenuMaterialScene = memo(function MenuMaterialScene({
 const MenuVisualWorld = memo(function MenuVisualWorld({
   className,
   copy,
+  selectedItemId,
 }: {
   className: string;
   copy: "visible" | "replica";
+  selectedItemId?: MenuItemId;
 }) {
   return (
     <span className={className} aria-hidden="true">
       <MenuMaterialScene copy={copy} />
       {MENU_ITEMS.map((item) => (
-        <span key={item.id} className="v2-menu-visual-item">
+        <span
+          key={item.id}
+          className="v2-menu-visual-item"
+          data-selected={selectedItemId === item.id ? "true" : undefined}
+        >
           <span className="v2-menu-visual-item-content">
             <span className="v2-menu-icon">
               <Icon name={item.id} />
@@ -445,6 +486,7 @@ function LiquidSelectionPlate({
   theme,
   collapsed,
   enhancedOptics,
+  phase,
   sweep,
 }: {
   sceneRef: RefObject<HTMLElement | null>;
@@ -453,6 +495,7 @@ function LiquidSelectionPlate({
   theme: ThemeMode;
   collapsed: boolean;
   enhancedOptics: boolean;
+  phase: GlassPhase;
   sweep: SelectionSweep | null;
 }) {
   const sweepRef = useRef<HTMLSpanElement>(null);
@@ -463,7 +506,7 @@ function LiquidSelectionPlate({
     plateRef,
     `${collapsed}`,
   );
-  const shouldRefract = enhancedOptics && sweep !== null;
+  const shouldRefract = enhancedOptics;
   const displacementField = useMemo(
     () =>
       geometry.ready && shouldRefract
@@ -486,7 +529,10 @@ function LiquidSelectionPlate({
     "--v2-world-x": "0px",
     "--v2-world-y": `${-(MENU_TOP_PADDING + position.y)}px`,
   } as CSSProperties;
-  const filterStyle = {
+  const replicaStyle = {
+    inset: `${OVERSCAN}px`,
+  } as CSSProperties;
+  const edgeFilterStyle = {
     inset: `${OVERSCAN}px`,
     filter:
       geometry.ready && displacementField
@@ -541,7 +587,8 @@ function LiquidSelectionPlate({
       ref={plateRef}
       className={`v2-selection-plate${position.ready ? " is-ready" : ""}`}
       style={plateStyle}
-      data-moving={sweep ? "true" : "false"}
+      data-moving={phase === "fading" ? "false" : "true"}
+      data-phase={phase}
       data-refraction={
         geometry.ready && displacementField ? "candidate" : "baseline"
       }
@@ -562,11 +609,11 @@ function LiquidSelectionPlate({
       ) : null}
       <span className="v2-selection-optical-clip">
         <span
-          className="v2-selection-replica-overscan"
+          className="v2-selection-replica-overscan v2-selection-replica-overscan--stable"
           data-ready={geometry.ready ? "true" : "false"}
           style={{ inset: -OVERSCAN }}
         >
-          <span className="v2-selection-replica-filter" style={filterStyle}>
+          <span className="v2-selection-replica-filter" style={replicaStyle}>
             <span
               className="v2-selection-world"
               style={worldStyle}
@@ -578,6 +625,30 @@ function LiquidSelectionPlate({
             </span>
           </span>
         </span>
+        {geometry.ready && displacementField ? (
+          <span className="v2-selection-edge-optics">
+            <span
+              className="v2-selection-replica-overscan v2-selection-replica-overscan--edge"
+              data-ready="true"
+              style={{ inset: -OVERSCAN }}
+            >
+              <span
+                className="v2-selection-replica-filter"
+                style={edgeFilterStyle}
+              >
+                <span
+                  className="v2-selection-world"
+                  style={worldStyle}
+                >
+                  <MenuVisualWorld
+                    className="v2-menu-visual-world v2-menu-visual-world--lens"
+                    copy="replica"
+                  />
+                </span>
+              </span>
+            </span>
+          </span>
+        ) : null}
         <span className="v2-selection-fill" />
         <span className="v2-selection-edge" />
         <span ref={sweepRef} className="v2-selection-sweep" />
@@ -599,17 +670,29 @@ export default function V2Page() {
   const [theme, setTheme] = useState<ThemeMode>("light");
   const [collapsed, setCollapsed] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<MenuItemId>("home");
+  const [glassInteraction, setGlassInteraction] =
+    useState<GlassInteraction | null>(null);
   const [sweep, setSweep] = useState<SelectionSweep | null>(null);
   const [opticsTier, setOpticsTier] = useState<OpticsTier>("baseline");
+  const glassInteractionRef = useRef<GlassInteraction | null>(null);
+  const dragSessionRef = useRef<DragSession | null>(null);
+  const motionTimerRef = useRef<number | null>(null);
+  const fadeTimerRef = useRef<number | null>(null);
+  const motionFrameRef = useRef<number | null>(null);
+  const sweepIdRef = useRef(0);
   const deferredContentItemId = useDeferredValue(selectedItemId);
-  const selectedItemIndex = MENU_ITEMS.findIndex(
-    (item) => item.id === selectedItemId,
-  );
-  const platePosition: PlatePosition = {
-    y: Math.max(0, selectedItemIndex) * (MENU_ITEM_HEIGHT + MENU_ITEM_GAP),
+  const committedPlatePosition: PlatePosition = {
+    y: getMenuItemY(selectedItemId),
     height: MENU_ITEM_HEIGHT,
     ready: true,
   };
+  const platePosition = glassInteraction
+    ? {
+        y: glassInteraction.y,
+        height: MENU_ITEM_HEIGHT,
+        ready: true,
+      }
+    : committedPlatePosition;
   const menuStyle = {
     "--v2-selection-y": `${platePosition.y}px`,
     "--v2-selection-height": `${platePosition.height}px`,
@@ -631,45 +714,242 @@ export default function V2Page() {
     return () => window.clearTimeout(settleTimer);
   }, [sweep]);
 
-  const selectItem = (itemId: MenuItemId, target: HTMLButtonElement) => {
-    if (itemId === selectedItemId) {
-      return;
+  const setTransientGlass = (nextInteraction: GlassInteraction | null) => {
+    glassInteractionRef.current = nextInteraction;
+    setGlassInteraction(nextInteraction);
+  };
+
+  const clearPendingGlassWork = () => {
+    if (motionTimerRef.current !== null) {
+      window.clearTimeout(motionTimerRef.current);
+      motionTimerRef.current = null;
     }
-
-    if (
-      window.matchMedia("(max-width: 680px)").matches ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      setSelectedItemId(itemId);
-      setSweep(null);
-      return;
+    if (fadeTimerRef.current !== null) {
+      window.clearTimeout(fadeTimerRef.current);
+      fadeTimerRef.current = null;
     }
+    if (motionFrameRef.current !== null) {
+      window.cancelAnimationFrame(motionFrameRef.current);
+      motionFrameRef.current = null;
+    }
+  };
 
-    const plateBounds = plateRef.current?.getBoundingClientRect();
-    const previousBounds = itemRefs.current[selectedItemId]?.getBoundingClientRect();
-    const origin =
-      plateBounds && plateBounds.width > 0 && plateBounds.height > 0
-        ? plateBounds
-        : previousBounds;
-    const targetBounds = target.getBoundingClientRect();
-    setSelectedItemId(itemId);
+  useEffect(
+    () => () => {
+      clearPendingGlassWork();
+    },
+    [],
+  );
 
+  const shouldBypassGlass = () =>
+    window.matchMedia("(max-width: 680px)").matches ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+    window.matchMedia("(forced-colors: active)").matches;
+
+  const playSweepBetween = (origin: DOMRect | undefined, target: DOMRect) => {
     if (!origin) {
       setSweep(null);
       return;
     }
 
-    setSweep((current) => ({
-      id: (current?.id ?? 0) + 1,
-      dx:
-        targetBounds.left +
-        targetBounds.width / 2 -
-        (origin.left + origin.width / 2),
-      dy:
-        targetBounds.top +
-        targetBounds.height / 2 -
-        (origin.top + origin.height / 2),
-    }));
+    const dx =
+      target.left + target.width / 2 - (origin.left + origin.width / 2);
+    const dy = target.top + target.height / 2 - (origin.top + origin.height / 2);
+    if (Math.hypot(dx, dy) < 1) {
+      setSweep(null);
+      return;
+    }
+
+    sweepIdRef.current += 1;
+    setSweep({ id: sweepIdRef.current, dx, dy });
+  };
+
+  const finishGlassInteraction = (
+    targetItemId: MenuItemId,
+    targetY: number,
+    duration: number,
+    shouldCommit: boolean,
+  ) => {
+    if (motionTimerRef.current !== null) {
+      window.clearTimeout(motionTimerRef.current);
+    }
+    if (fadeTimerRef.current !== null) {
+      window.clearTimeout(fadeTimerRef.current);
+    }
+
+    motionTimerRef.current = window.setTimeout(() => {
+      const currentInteraction = glassInteractionRef.current;
+      if (!currentInteraction) {
+        return;
+      }
+
+      setTransientGlass({
+        ...currentInteraction,
+        phase: "fading",
+        targetItemId,
+        y: targetY,
+      });
+      fadeTimerRef.current = window.setTimeout(() => {
+        if (shouldCommit) {
+          setSelectedItemId(targetItemId);
+        }
+        setSweep(null);
+        setTransientGlass(null);
+        motionTimerRef.current = null;
+        fadeTimerRef.current = null;
+      }, GLASS_FADE_DURATION);
+    }, duration);
+  };
+
+  const startClickInteraction = (
+    itemId: MenuItemId,
+    target: HTMLButtonElement,
+  ) => {
+    if (itemId === selectedItemId || glassInteractionRef.current) {
+      return;
+    }
+
+    if (shouldBypassGlass()) {
+      setSelectedItemId(itemId);
+      setSweep(null);
+      return;
+    }
+
+    const originY = getMenuItemY(selectedItemId);
+    const targetY = getMenuItemY(itemId);
+    const origin = itemRefs.current[selectedItemId]?.getBoundingClientRect();
+    const targetBounds = target.getBoundingClientRect();
+
+    clearPendingGlassWork();
+    setTransientGlass({ phase: "click", targetItemId: itemId, y: originY });
+    playSweepBetween(origin, targetBounds);
+
+    motionFrameRef.current = window.requestAnimationFrame(() => {
+      motionFrameRef.current = window.requestAnimationFrame(() => {
+        const currentInteraction = glassInteractionRef.current;
+        if (
+          !currentInteraction ||
+          currentInteraction.phase !== "click" ||
+          currentInteraction.targetItemId !== itemId
+        ) {
+          return;
+        }
+
+        setTransientGlass({ ...currentInteraction, y: targetY });
+        finishGlassInteraction(
+          itemId,
+          targetY,
+          NAVIGATION_LENS_DURATION,
+          true,
+        );
+      });
+    });
+  };
+
+  const startMouseDrag = (
+    event: ReactPointerEvent<HTMLButtonElement>,
+    itemId: MenuItemId,
+  ) => {
+    if (
+      itemId !== selectedItemId ||
+      event.pointerType !== "mouse" ||
+      !event.isPrimary ||
+      glassInteractionRef.current ||
+      shouldBypassGlass()
+    ) {
+      return;
+    }
+
+    const navigationBounds = navRef.current?.getBoundingClientRect();
+    if (!navigationBounds) {
+      return;
+    }
+
+    const originY = getMenuItemY(itemId);
+    const plateTop = navigationBounds.top + MENU_TOP_PADDING + originY;
+    clearPendingGlassWork();
+    setSweep(null);
+    dragSessionRef.current = {
+      pointerId: event.pointerId,
+      grabOffset: event.clientY - plateTop,
+      hasMoved: false,
+      originY,
+      y: originY,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+    setTransientGlass({ phase: "dragging", targetItemId: itemId, y: originY });
+  };
+
+  const continueMouseDrag = (
+    event: ReactPointerEvent<HTMLButtonElement>,
+  ) => {
+    const dragSession = dragSessionRef.current;
+    const navigationBounds = navRef.current?.getBoundingClientRect();
+    if (
+      !dragSession ||
+      dragSession.pointerId !== event.pointerId ||
+      !navigationBounds
+    ) {
+      return;
+    }
+
+    const maximumY = getMenuItemY(MENU_ITEMS[MENU_ITEMS.length - 1].id);
+    const nextY = clamp(
+      event.clientY - navigationBounds.top - MENU_TOP_PADDING - dragSession.grabOffset,
+      0,
+      maximumY,
+    );
+    dragSession.y = nextY;
+    dragSession.hasMoved =
+      dragSession.hasMoved || Math.abs(nextY - dragSession.originY) > DRAG_THRESHOLD;
+    event.preventDefault();
+    setTransientGlass({
+      phase: "dragging",
+      targetItemId: getMenuItemIdAt(nextY),
+      y: nextY,
+    });
+  };
+
+  const finishMouseDrag = (
+    event: ReactPointerEvent<HTMLButtonElement>,
+    wasCancelled: boolean,
+  ) => {
+    const dragSession = dragSessionRef.current;
+    if (!dragSession || dragSession.pointerId !== event.pointerId) {
+      return;
+    }
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    dragSessionRef.current = null;
+
+    const targetItemId =
+      wasCancelled || !dragSession.hasMoved
+        ? selectedItemId
+        : getMenuItemIdAt(dragSession.y);
+    const targetY = getMenuItemY(targetItemId);
+    const shouldCommit = !wasCancelled && targetItemId !== selectedItemId;
+    const origin = plateRef.current?.getBoundingClientRect();
+    const target = itemRefs.current[targetItemId]?.getBoundingClientRect();
+
+    setTransientGlass({
+      phase: "settling",
+      targetItemId,
+      y: targetY,
+    });
+    if (!wasCancelled && target) {
+      playSweepBetween(origin, target);
+    } else {
+      setSweep(null);
+    }
+    finishGlassInteraction(
+      targetItemId,
+      targetY,
+      DRAG_SETTLE_DURATION,
+      shouldCommit,
+    );
   };
 
   return (
@@ -747,24 +1027,39 @@ export default function V2Page() {
           className="v2-menu"
           style={menuStyle}
           aria-label="页面导航"
+          data-glass-active={glassInteraction ? "true" : "false"}
+          data-glass-phase={glassInteraction?.phase}
         >
-          <MenuVisualWorld
-            className="v2-menu-visual-world v2-menu-visual-world--base v2-menu-visual-world--above"
-            copy="visible"
-          />
-          <MenuVisualWorld
-            className="v2-menu-visual-world v2-menu-visual-world--base v2-menu-visual-world--below"
-            copy="visible"
-          />
-          <LiquidSelectionPlate
-            sceneRef={navRef}
-            plateRef={plateRef}
-            position={platePosition}
-            theme={theme}
-            collapsed={collapsed}
-            enhancedOptics={opticsTier === "enhanced"}
-            sweep={sweep}
-          />
+          {glassInteraction ? (
+            <>
+              <MenuVisualWorld
+                className="v2-menu-visual-world v2-menu-visual-world--base v2-menu-visual-world--above"
+                copy="visible"
+                selectedItemId={selectedItemId}
+              />
+              <MenuVisualWorld
+                className="v2-menu-visual-world v2-menu-visual-world--base v2-menu-visual-world--below"
+                copy="visible"
+                selectedItemId={selectedItemId}
+              />
+              <LiquidSelectionPlate
+                sceneRef={navRef}
+                plateRef={plateRef}
+                position={platePosition}
+                theme={theme}
+                collapsed={collapsed}
+                enhancedOptics={opticsTier === "enhanced"}
+                phase={glassInteraction.phase}
+                sweep={sweep}
+              />
+            </>
+          ) : (
+            <MenuVisualWorld
+              className="v2-menu-visual-world v2-menu-visual-world--base"
+              copy="visible"
+              selectedItemId={selectedItemId}
+            />
+          )}
           {MENU_ITEMS.map((item) => (
             <button
               key={item.id}
@@ -777,7 +1072,13 @@ export default function V2Page() {
               aria-current={selectedItemId === item.id ? "page" : undefined}
               aria-label={item.label}
               title={collapsed ? item.label : undefined}
-              onClick={(event) => selectItem(item.id, event.currentTarget)}
+              onPointerDown={(event) => startMouseDrag(event, item.id)}
+              onPointerMove={continueMouseDrag}
+              onPointerUp={(event) => finishMouseDrag(event, false)}
+              onPointerCancel={(event) => finishMouseDrag(event, true)}
+              onClick={(event) =>
+                startClickInteraction(item.id, event.currentTarget)
+              }
             />
           ))}
         </nav>
