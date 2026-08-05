@@ -7,7 +7,6 @@ import {
   useDeferredValue,
   useEffect,
   useId,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -16,6 +15,7 @@ import {
 type ThemeMode = "light" | "dark";
 type MenuItemId = "home" | "products" | "activity" | "about";
 type IconName = MenuItemId | "collapse" | "expand" | "sun" | "moon";
+type OpticsTier = "baseline" | "enhanced";
 
 interface MenuItem {
   id: MenuItemId;
@@ -97,11 +97,11 @@ const MENU_ITEMS: MenuItem[] = [
 ];
 
 const OVERSCAN = 40;
-const EDGE_BAND = 30;
-const EDGE_FIELD_STRENGTH = 126;
+const LENS_FIELD_STRENGTH = 62;
 const MENU_ITEM_HEIGHT = 58;
 const MENU_ITEM_GAP = 8;
 const MENU_TOP_PADDING = 10;
+const NAVIGATION_LENS_DURATION = 680;
 
 function clamp(value: number, minimum: number, maximum: number) {
   return Math.min(Math.max(value, minimum), maximum);
@@ -112,102 +112,40 @@ function smoothstep(edge0: number, edge1: number, value: number) {
   return normalized * normalized * (3 - 2 * normalized);
 }
 
-function roundedRectangleDistance(
-  x: number,
-  y: number,
-  halfWidth: number,
-  halfHeight: number,
-  radius: number,
-) {
-  const adjustedX = Math.abs(x) - halfWidth + radius;
-  const adjustedY = Math.abs(y) - halfHeight + radius;
-  return (
-    Math.min(Math.max(adjustedX, adjustedY), 0) +
-    Math.hypot(Math.max(adjustedX, 0), Math.max(adjustedY, 0)) -
-    radius
-  );
-}
-
-function createRoundedEdgeField(
-  width: number,
-  height: number,
-  radius: number,
-) {
+function createCapsuleLensField(width: number, height: number) {
   const safeWidth = Math.max(2, Math.round(width));
   const safeHeight = Math.max(2, Math.round(height));
   const canvas = document.createElement("canvas");
   canvas.width = safeWidth;
   canvas.height = safeHeight;
 
-  const context = canvas.getContext("2d");
+  const context = canvas.getContext("2d", { willReadFrequently: true });
   if (!context) {
     return "";
   }
 
   const imageData = context.createImageData(safeWidth, safeHeight);
-  const halfWidth = safeWidth / 2 - 2;
-  const halfHeight = safeHeight / 2 - 2;
-  const safeRadius = Math.min(radius, halfWidth, halfHeight);
-  const sample = 0.75;
+  const halfWidth = safeWidth / 2;
+  const halfHeight = safeHeight / 2;
 
   for (let y = 0; y < safeHeight; y += 1) {
     for (let x = 0; x < safeWidth; x += 1) {
-      const localX = x - safeWidth / 2;
-      const localY = y - safeHeight / 2;
-      const distance = roundedRectangleDistance(
-        localX,
-        localY,
-        halfWidth,
-        halfHeight,
-        safeRadius,
-      );
-      const gradientX =
-        roundedRectangleDistance(
-          localX + sample,
-          localY,
-          halfWidth,
-          halfHeight,
-          safeRadius,
-        ) -
-        roundedRectangleDistance(
-          localX - sample,
-          localY,
-          halfWidth,
-          halfHeight,
-          safeRadius,
-        );
-      const gradientY =
-        roundedRectangleDistance(
-          localX,
-          localY + sample,
-          halfWidth,
-          halfHeight,
-          safeRadius,
-        ) -
-        roundedRectangleDistance(
-          localX,
-          localY - sample,
-          halfWidth,
-          halfHeight,
-          safeRadius,
-        );
-      const gradientLength = Math.hypot(gradientX, gradientY) || 1;
-      const edgeStrength =
-        distance <= 0 ? 1 - smoothstep(0, EDGE_BAND, -distance) : 0;
-      const fade =
-        smoothstep(0, 3, x) *
-        smoothstep(0, 3, y) *
-        smoothstep(0, 3, safeWidth - 1 - x) *
-        smoothstep(0, 3, safeHeight - 1 - y);
+      const normalizedX = (x - halfWidth) / halfWidth;
+      const normalizedY = (y - halfHeight) / halfHeight;
+      const normalizedRadius = Math.hypot(normalizedX, normalizedY);
+      const directionLength = normalizedRadius || 1;
+      const lensBand =
+        smoothstep(0.12, 0.5, normalizedRadius) *
+        (1 - smoothstep(0.72, 1, normalizedRadius));
+      const edgeFade = 1 - smoothstep(0.9, 1.08, normalizedRadius);
+      const displacementStrength =
+        lensBand * edgeFade * LENS_FIELD_STRENGTH;
       const index = (y * safeWidth + x) * 4;
 
       imageData.data[index] = Math.round(
         clamp(
           128 +
-            (gradientX / gradientLength) *
-              edgeStrength *
-              fade *
-              EDGE_FIELD_STRENGTH,
+            (normalizedX / directionLength) * displacementStrength,
           0,
           255,
         ),
@@ -215,10 +153,7 @@ function createRoundedEdgeField(
       imageData.data[index + 1] = Math.round(
         clamp(
           128 +
-            (gradientY / gradientLength) *
-              edgeStrength *
-              fade *
-              EDGE_FIELD_STRENGTH,
+            (normalizedY / directionLength) * displacementStrength,
           0,
           255,
         ),
@@ -243,29 +178,34 @@ function makeSvgSafeId(value: string) {
 function SelectionLensFilter({
   id,
   displacementField,
+  width,
+  height,
   theme,
 }: {
   id: string;
   displacementField: string;
+  width: number;
+  height: number;
   theme: ThemeMode;
 }) {
-  const scale = theme === "dark" ? 54 : 44;
+  const scale = theme === "dark" ? 16 : 14;
 
   return (
     <filter
       id={id}
-      x="-22%"
-      y="-85%"
-      width="144%"
-      height="270%"
+      filterUnits="userSpaceOnUse"
+      x={-OVERSCAN}
+      y={-OVERSCAN}
+      width={width + OVERSCAN * 2}
+      height={height + OVERSCAN * 2}
       colorInterpolationFilters="sRGB"
     >
       <feImage
         href={displacementField}
         x="0"
         y="0"
-        width="100%"
-        height="100%"
+        width={width}
+        height={height}
         preserveAspectRatio="none"
         result="edge-field"
       />
@@ -273,6 +213,10 @@ function SelectionLensFilter({
         in="SourceGraphic"
         in2="edge-field"
         scale={scale}
+        x="0"
+        y="0"
+        width={width}
+        height={height}
         xChannelSelector="R"
         yChannelSelector="G"
       />
@@ -392,6 +336,30 @@ const MenuMaterialScene = memo(function MenuMaterialScene({
   );
 });
 
+const MenuVisualWorld = memo(function MenuVisualWorld({
+  className,
+  copy,
+}: {
+  className: string;
+  copy: "visible" | "replica";
+}) {
+  return (
+    <span className={className} aria-hidden="true">
+      <MenuMaterialScene copy={copy} />
+      {MENU_ITEMS.map((item) => (
+        <span key={item.id} className="v2-menu-visual-item">
+          <span className="v2-menu-visual-item-content">
+            <span className="v2-menu-icon">
+              <Icon name={item.id} />
+            </span>
+            <span className="v2-menu-label">{item.label}</span>
+          </span>
+        </span>
+      ))}
+    </span>
+  );
+});
+
 function useSurfaceGeometry(
   stageRef: RefObject<HTMLElement | null>,
   surfaceRef: RefObject<HTMLElement | null>,
@@ -405,16 +373,33 @@ function useSurfaceGeometry(
     ready: false,
   });
 
-  useLayoutEffect(() => {
-    const stage = stageRef.current;
-    const surface = surfaceRef.current;
-    if (!stage || !surface) {
-      return;
-    }
-
+  useEffect(() => {
     let layoutFrame = 0;
+    let observer: ResizeObserver | null = null;
+    let isObserving = false;
+    let transitionSurface: HTMLElement | null = null;
     const updateLayout = () => {
       layoutFrame = 0;
+      const stage = stageRef.current;
+      const surface = surfaceRef.current;
+      if (!stage || !surface) {
+        scheduleLayout();
+        return;
+      }
+
+      if (!isObserving) {
+        observer = new ResizeObserver(scheduleLayout);
+        observer.observe(stage);
+        observer.observe(surface);
+        isObserving = true;
+      }
+
+      if (transitionSurface !== surface) {
+        transitionSurface?.removeEventListener("transitionend", scheduleLayout);
+        surface.addEventListener("transitionend", scheduleLayout);
+        transitionSurface = surface;
+      }
+
       const stageBounds = stage.getBoundingClientRect();
       const surfaceBounds = surface.getBoundingClientRect();
       const nextGeometry: SurfaceGeometry = {
@@ -439,17 +424,13 @@ function useSurfaceGeometry(
         layoutFrame = requestAnimationFrame(updateLayout);
       }
     };
-    const observer = new ResizeObserver(scheduleLayout);
-    observer.observe(stage);
-    observer.observe(surface);
     window.addEventListener("resize", scheduleLayout);
-    surface.addEventListener("transitionend", scheduleLayout);
     scheduleLayout();
 
     return () => {
-      observer.disconnect();
+      observer?.disconnect();
       window.removeEventListener("resize", scheduleLayout);
-      surface.removeEventListener("transitionend", scheduleLayout);
+      transitionSurface?.removeEventListener("transitionend", scheduleLayout);
       if (layoutFrame) cancelAnimationFrame(layoutFrame);
     };
   }, [geometryKey, stageRef, surfaceRef]);
@@ -482,18 +463,17 @@ function LiquidSelectionPlate({
     plateRef,
     `${collapsed}`,
   );
-  const radius = Math.min(24, Math.max(16, geometry.height / 2 - 2));
+  const shouldRefract = enhancedOptics && sweep !== null;
   const displacementField = useMemo(
     () =>
-      geometry.ready && enhancedOptics
-        ? createRoundedEdgeField(geometry.width, geometry.height, radius)
+      geometry.ready && shouldRefract
+        ? createCapsuleLensField(geometry.width, geometry.height)
         : "",
     [
-      enhancedOptics,
       geometry.height,
       geometry.ready,
       geometry.width,
-      radius,
+      shouldRefract,
     ],
   );
   const plateStyle = {
@@ -561,6 +541,7 @@ function LiquidSelectionPlate({
       ref={plateRef}
       className={`v2-selection-plate${position.ready ? " is-ready" : ""}`}
       style={plateStyle}
+      data-moving={sweep ? "true" : "false"}
       data-refraction={
         geometry.ready && displacementField ? "candidate" : "baseline"
       }
@@ -572,6 +553,8 @@ function LiquidSelectionPlate({
             <SelectionLensFilter
               id={filterId}
               displacementField={displacementField}
+              width={geometry.width}
+              height={geometry.height}
               theme={theme}
             />
           </defs>
@@ -588,7 +571,10 @@ function LiquidSelectionPlate({
               className="v2-selection-world"
               style={worldStyle}
             >
-              <MenuMaterialScene copy="replica" />
+              <MenuVisualWorld
+                className="v2-menu-visual-world v2-menu-visual-world--lens"
+                copy="replica"
+              />
             </span>
           </span>
         </span>
@@ -614,7 +600,7 @@ export default function V2Page() {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<MenuItemId>("home");
   const [sweep, setSweep] = useState<SelectionSweep | null>(null);
-  const [enhancedOptics, setEnhancedOptics] = useState(false);
+  const [opticsTier, setOpticsTier] = useState<OpticsTier>("baseline");
   const deferredContentItemId = useDeferredValue(selectedItemId);
   const selectedItemIndex = MENU_ITEMS.findIndex(
     (item) => item.id === selectedItemId,
@@ -624,17 +610,26 @@ export default function V2Page() {
     height: MENU_ITEM_HEIGHT,
     ready: true,
   };
+  const menuStyle = {
+    "--v2-selection-y": `${platePosition.y}px`,
+    "--v2-selection-height": `${platePosition.height}px`,
+  } as CSSProperties;
   const activeItem =
     MENU_ITEMS.find((item) => item.id === deferredContentItemId) ??
     MENU_ITEMS[0];
 
   useEffect(() => {
-    const desktopOptics = window.matchMedia("(min-width: 681px)");
-    const updateOpticsTier = () => setEnhancedOptics(desktopOptics.matches);
-    updateOpticsTier();
-    desktopOptics.addEventListener("change", updateOpticsTier);
-    return () => desktopOptics.removeEventListener("change", updateOpticsTier);
-  }, []);
+    if (!sweep) {
+      return;
+    }
+
+    const settleTimer = window.setTimeout(
+      () => setSweep(null),
+      NAVIGATION_LENS_DURATION,
+    );
+
+    return () => window.clearTimeout(settleTimer);
+  }, [sweep]);
 
   const selectItem = (itemId: MenuItemId, target: HTMLButtonElement) => {
     if (itemId === selectedItemId) {
@@ -683,6 +678,7 @@ export default function V2Page() {
       className="v2-demo"
       data-theme={theme}
       data-sidebar={collapsed ? "collapsed" : "expanded"}
+      data-optics-tier={opticsTier}
     >
       <AmbientScene copy="visible" />
 
@@ -701,6 +697,35 @@ export default function V2Page() {
         <span>{theme === "light" ? "暗色" : "亮色"}</span>
       </button>
 
+      <div className="v2-optics-toggle" aria-label="液态玻璃渲染方式">
+        <button
+          type="button"
+          aria-pressed={opticsTier === "enhanced"}
+          className={
+            opticsTier === "enhanced"
+              ? "v2-optics-toggle__button is-active"
+              : "v2-optics-toggle__button"
+          }
+          title="启用需要更高性能开销的真实背景折射"
+          onClick={() => setOpticsTier("enhanced")}
+        >
+          增强折射
+        </button>
+        <button
+          type="button"
+          aria-pressed={opticsTier === "baseline"}
+          className={
+            opticsTier === "baseline"
+              ? "v2-optics-toggle__button is-active"
+              : "v2-optics-toggle__button"
+          }
+          title="保留可读性与层级，不启用背景位移"
+          onClick={() => setOpticsTier("baseline")}
+        >
+          保底
+        </button>
+      </div>
+
       <aside className="v2-sidebar" aria-label="主菜单">
         <div className="v2-sidebar-header">
           <button
@@ -717,15 +742,27 @@ export default function V2Page() {
           </span>
         </div>
 
-        <nav ref={navRef} className="v2-menu" aria-label="页面导航">
-          <MenuMaterialScene copy="visible" />
+        <nav
+          ref={navRef}
+          className="v2-menu"
+          style={menuStyle}
+          aria-label="页面导航"
+        >
+          <MenuVisualWorld
+            className="v2-menu-visual-world v2-menu-visual-world--base v2-menu-visual-world--above"
+            copy="visible"
+          />
+          <MenuVisualWorld
+            className="v2-menu-visual-world v2-menu-visual-world--base v2-menu-visual-world--below"
+            copy="visible"
+          />
           <LiquidSelectionPlate
             sceneRef={navRef}
             plateRef={plateRef}
             position={platePosition}
             theme={theme}
             collapsed={collapsed}
-            enhancedOptics={enhancedOptics}
+            enhancedOptics={opticsTier === "enhanced"}
             sweep={sweep}
           />
           {MENU_ITEMS.map((item) => (
@@ -738,15 +775,10 @@ export default function V2Page() {
               className="v2-menu-item"
               data-menu-item={item.id}
               aria-current={selectedItemId === item.id ? "page" : undefined}
-              aria-label={collapsed ? item.label : undefined}
+              aria-label={item.label}
               title={collapsed ? item.label : undefined}
               onClick={(event) => selectItem(item.id, event.currentTarget)}
-            >
-              <span className="v2-menu-icon">
-                <Icon name={item.id} />
-              </span>
-              <span className="v2-menu-label">{item.label}</span>
-            </button>
+            />
           ))}
         </nav>
       </aside>

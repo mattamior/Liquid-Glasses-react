@@ -59,4 +59,11 @@ test("renders the Liquid Lab V2 navigation demo", async () => {
   assert.match(html, /动态/);
   assert.match(html, /关于/);
   assert.match(html, /data-refraction="baseline"/);
+  assert.match(html, /data-optics-tier="baseline"/);
+  assert.match(html, /aria-label="液态玻璃渲染方式"/);
+  assert.match(html, /v2-menu-visual-world--lens/);
+  assert.match(html, /v2-menu-visual-world--above/);
+  assert.match(html, /v2-menu-visual-world--below/);
+  assert.doesNotMatch(html, /data-lens-source/);
+  assert.doesNotMatch(html, /REFRACT|LIGHT/);
 });
