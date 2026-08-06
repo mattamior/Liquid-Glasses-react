@@ -2,6 +2,10 @@
 
 This method turns the Demo's iterated（迭代调校的） visual findings into a reusable（可复用的） Web interface workflow（工作流）. The corresponding Agent Skill lives in [`skills/liquid-glass-interface`](../skills/liquid-glass-interface/).
 
+## Versioned Demo and Asset Routing（版本路由与资产）
+
+`/` redirects to the current V2 navigation study. `/v1` remains directly reachable as a frozen archived Demo; its visual and interaction behavior are not the current default. For ordinary navigation, start from [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/). Use [`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/) only when the request explicitly requires reproduction of the V1 original Demo. Add future generations as parallel `vN-*` assets; do not overwrite an archived baseline.
+
 ## Scope（适用范围）
 
 Liquid Glass suits navigation, toolbars, menus, selection states（选择状态）, and floating controls where material communicates hierarchy（层级）, context（上下文）, or a state transition（状态转换）. Prefer a simple opaque（不透明） or translucent（半透明） surface when a component is only a content card or its background lacks useful visual information to refract（折射）.
@@ -85,7 +89,9 @@ Chromatic dispersion（色散） is optional, not a definition of Liquid Glass. 
 
 Use menu visibility, selection, theme, and material mode as explicit（明确的） motion sources. Relate a toolbar and menu through a shared coupling field（耦合场）, synchronized（同步） translation, or opacity without temporarily flattening their rounded corners.
 
-Use one persistent（持续存在的） glass selection plate and interpolate（插值） its position and size between items. Limit spring overshoot（弹簧过冲） so the plate stays inside both horizontal edges. Keep hover feedback visibly quieter than selection.
+For current navigation, keep the committed selection flat and show a temporary glass lens only while a click, press, or mouse drag is in progress. The lifecycle is `click → dragging → settling → fading`: hide the flat selected visual while the lens exists, settle the lens to the destination, fade it, then commit content, `aria-current`, and the flat selected visual together. Use a persistent glass selection plate only when durable material selection is an explicit product requirement. Keep hover feedback visibly quieter than committed selection.
+
+For mouse dragging, use Pointer Capture and a capture-phase `pointerup` fallback. Update the rail position from the release event's final `clientY` before choosing the nearest item. Only cancellation or lost capture returns to the origin; a normal release never falls back because an intermediate move event was missed. Narrow, touch/pen, reduced-motion, and forced-color paths commit directly without the temporary lens.
 
 Plate geometry travel（几何位移） and its internal optical sweep（光学扫光） are independent channels（通道）. The plate may move or resize for any reliable geometry change; emit a sweep only for a user selection, using the previous-to-next measured center vector in the same positioning-container coordinate space: `dx = nextCenterX - previousCenterX`; `dy = nextCenterY - previousCenterY`. Do not use a fixed page direction, fixed item index/DOM order, blindly reverse `dx` for RTL, or replay solely because a key changed.
 
@@ -120,19 +126,18 @@ Describe implementations as inspired by Apple Liquid Glass. Do not copy Apple so
 
 | Method（方法） | Demo implementation（Demo 实现） |
 | --- | --- |
-| Environment and refraction layers（环境与折射层） | Should be migrated/refactored（迁移/重构） to an environment-coordinate-aligned application-controlled scene replica, displacement map, and SVG filter definitions（定义） |
-| Fill and edge optics（填充与边缘光学） | Glass fills, inset highlights（内高光）, and shadows in `app/globals.css` |
-| Independent theme tuning（独立主题调校） | Dark `liquid-lens-filter` and light `liquid-lens-filter-light` |
-| Toolbar and menu relationship（关系） | Open-state and coupling-field animation（动画） |
-| Moving selection plate（移动选择底板） | One shared plate positioned from the selected item |
-| Optional dragging（可选拖动） | Pointer Events, pointer capture（指针捕获）, and stage-bound clamping（边界限制） |
-| Motion fallback（动效降级） | `prefers-reduced-motion` and no-filter fallback styles（降级样式） |
+| Default route（默认入口） | `/` redirects to `/v2` |
+| Archived Demo（归档 Demo） | `/v1`, frozen visual and interaction behavior with archived metadata |
+| V2 refraction（V2 折射） | One application-controlled menu replica and one continuous rounded-SDF `feDisplacementMap` sample |
+| V2 selection（V2 选择） | Flat committed state plus a temporary click/drag lens that fades before committing content |
+| V2 dragging（V2 拖拽） | Mouse-only Pointer Capture, final-release nearest-item snapping, cancellation rollback |
+| Motion fallback（动效降级） | Direct commit for narrow, touch/pen, reduced-motion, forced-color, and baseline paths |
 
-## Current Blind-Test Conclusion and Transferable Core（本轮盲测结论与可迁移核心）
+## V2 Foundation and Transferable Core（V2 基础与可迁移核心）
 
-The current blind test（盲测） did not pass: static/structural（结构） and screenshot automation（截图自动检查） cannot prove genuine refraction, clipping boundaries, or interaction direction. The page must also be experienced by a user in an isolated, runnable page. Do not call `feTurbulence`, a fixed-gradient pseudo-element, locally repeated gradients, or `backdrop-filter` alone enhanced refraction. Only position-dependent bending of a background grid, text, or color bands at the glass edge qualifies（符合条件）.
+V2 establishes a single continuous lens sampler: a 2× rounded-SDF field combines a stable `1.03` center, a steep continuous rise to `1.12` across the final `16px`, and normal refraction that peaks inside the same band. This replaces core/edge masking, preventing seams, folded text, duplicate glyphs, missing glyphs, and a colored strip below the lens. Automated checks support review, but an isolated runnable page and explicit human experience remain required before design acceptance.
 
-The original Demo's transferable core（可迁移核心） remains the five-layer separation, independent light/dark tuning, state-coupled toolbar/menu motion, a shared selection plate, Pointer Events drag boundaries, and reduced-motion/no-filter fallback. During migration（迁移）, replace fixed direction, whole-component clipping, and automatic-check-only acceptance with measured two-dimensional direction, isolated optical clipping, and the human visual gate（人工视觉门）.
+The V1 Demo remains an archived fidelity source, not the default behavior. The transferable V2 core is five-layer separation, independently tuned themes, one filtered controlled replica, isolated optical clipping, final-release pointer handling, temporary-lens state, and direct accessible fallbacks.
 
 ## Acceptance Checklist（验收清单）
 
@@ -141,7 +146,9 @@ The original Demo's transferable core（可迁移核心） remains the five-laye
 - SVG IDs are unique（唯一） and colon-safe（冒号安全） across instances, and replica overscan, filter region, clipping, and corner radius remain aligned.
 - Light mode has no closed blue or purple ring.
 - Toolbar and menu preserve rounded corners and hierarchy throughout opening and closing.
-- The selection plate remains inside the menu, and hover is quieter than selection.
+- A V2 lens uses one complete replica and one continuous field: no hard core/edge seam, folded text, duplicate/missing glyphs, or colored strip outside the clipped capsule.
+- The flat committed selection disappears while the lens is active, then returns with content and `aria-current` only after the lens fades.
+- Normal release uses final pointer position and nearest-item snapping; only cancellation or lost capture returns to the origin.
 - A plate sweep occurs only for user selection and uses the measured previous-to-next two-dimensional center vector; wrapped rows, RTL, vertical writing, scrolling, and rapid selection work, while layout remeasurement emits no sweep.
 - Only the optical wrapper is clipped; overlays are outside it or in a portal, and each SVG `clipPath` has an explicit valid coordinate system.
 - Every blind test creates an isolated runnable page, automatically opens its local preview, and obtains explicit user approval after use; text, structure, and screenshot automation cannot replace this human visual gate（人工视觉门）.
@@ -149,11 +156,11 @@ The original Demo's transferable core（可迁移核心） remains the five-laye
 - Text, focus, keyboard operation, and touch targets remain usable.
 - Narrow viewports（窄视口）, reduced motion, and no-filter environments remain functional.
 
-## Original Demo Fidelity Mode（原 Demo 保真模式）
+## Archived V1 Fidelity Mode（归档 V1 保真模式）
 
-When a request says “match the original Demo”, “visual fidelity（视觉保真）”, “9/10”, “do not redesign（不要重新设计）”, or “reproduce（复现）”, use low freedom. Copy `skills/liquid-glass-interface/assets/fidelity-kit/`; do not locally replace the shared `SceneArtwork`, the rounded SDF (有符号距离场) field generated from actual geometry, the instance-safe RGB filter, the world-coordinate-aligned replica, dark/light material tuning（材质调校）, toolbar/popover coupling（耦合）, or the measured persistent selection plate. Copy, semantic menu items, placement, and colors in the shared scene model may change.
+When a request says “match the V1 original Demo”, “visual fidelity（视觉保真）”, “9/10”, “do not redesign（不要重新设计）”, or “reproduce（复现）”, use low freedom. Copy `skills/liquid-glass-interface/assets/v1-fidelity-kit/`; do not locally replace the shared `SceneArtwork`, the rounded SDF (有符号距离场) field generated from actual geometry, the instance-safe RGB filter, the world-coordinate-aligned replica, dark/light material tuning（材质调校）, toolbar/popover coupling（耦合）, or the measured persistent selection plate. Copy, semantic menu items, placement, and colors in the shared scene model may change.
 
-`assets/reference-implementation/` is a technical baseline（技术基础）, not a high-fidelity template（高保真模板）. A fidelity blind test must open the same menu at top, middle, and bottom scroll positions while readable large type, a grid, and color bands cross the lens. The visible scene and every replica must invoke one scene function, and every surface must generate its field from its own width, height, and radius. Without explicit user experience and approval, the blind test fails; screenshots and automated checks are supporting evidence only.
+`assets/v2-reference-implementation/` is the current technical navigation baseline（技术基础）, not a V1 high-fidelity template（高保真模板）. A V1 fidelity blind test must open the same menu at top, middle, and bottom scroll positions while readable large type, a grid, and color bands cross the lens. The visible scene and every replica must invoke one scene function, and every surface must generate its field from its own width, height, and radius. Without explicit user experience and approval, the blind test fails; screenshots and automated checks are supporting evidence only.
 
 Layout geometry（布局几何） is also a veto; console output and successful clicks cannot pass it alone. At desktop and `<=560px` narrow viewports（窄视口）, measure a 56–76 px toolbar, non-overlapping horizontal back/title/more columns, a visually centered title, and a popover fully within the viewport（视口）.
 

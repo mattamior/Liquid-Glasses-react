@@ -105,6 +105,19 @@ Keep the replica's overscan, the filter region, the outer clip, and its corner r
 
 Chromatic dispersion is optional. It is useful only when weak channel offsets reinforce environmental color without creating a permanent outline.
 
+### V2 navigation: one continuous sampler
+
+For ordinary navigation, keep the committed item flat and render one temporary lens only while the user clicks, holds, or mouse-drags. Use one complete, clipped scene replica and one `feDisplacementMap`; do not compose a stable core copy with a second edge-only copy. Their overlap or mask boundary produces visible seams, folded text, and doubled glyphs.
+
+Generate one geometry-specific rounded-rectangle signed-distance field at 2× resolution. Drive both optical changes from the same interior distance:
+
+- keep the stable interior at `1.03` sampling scale;
+- over the final `16px`, increase continuously to `1.12` with `pow(1 - smoothstep(0, 16, distance), 2.7)`;
+- combine the resulting inverse-scale offset with a rounded-rectangle-normal refraction vector in the field's R/G channels;
+- fade the normal vector to zero at both the contour and the interior boundary so it peaks inside the edge band rather than forming a hard ring.
+
+The semantic buttons remain unfiltered. A controlled, `aria-hidden` visual copy of navigation labels and icons may participate in the replica when it is the intended material behind the temporary lens. Hide the flat visual copy while the lens exists, then restore it only after the lens fades and the committed selection changes. Keep fill, reflection, and shadow inside the capsule clip; never add a blurred color strip outside the plate to simulate depth.
+
 ## CSS Optics and Fallbacks
 
 Use a restrained combination of:
@@ -162,4 +175,6 @@ Start with a functional fallback using fill, border, and shadow. Use this enhanc
 - Capturing arbitrary DOM or private page pixels to fabricate a scene replica.
 - Treating Baseline/Enhanced as aliases for Regular/Clear.
 - Applying strong whole-surface distortion where Apple-style lensing requires a stable, low-gradient interior.
+- Combining core and edge replicas with a hard mask, producing a fold, seam, double glyph, or missing part of a label.
+- Treating an archived V1 fidelity asset as the default reference for current navigation.
 - Using a QA scene with text deliberately crossing glass as a production layout recommendation.

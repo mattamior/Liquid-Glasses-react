@@ -1,6 +1,6 @@
 ---
 name: liquid-glass-interface
-description: Build or refine Apple-inspired Web Liquid Glass interfaces using current official Apple design guidance as the primary authority, with layered refraction, Regular/Clear semantics, adaptive edge optics, semantic motion, independent light and dark tuning, accessibility, and graceful fallbacks. Use for translucent navigation, menus, toolbars, floating panels, selection plates, or controls in React, CSS, SVG, or comparable Web stacks; also use when a request says match/reproduce the original Demo, visual fidelity, 9/10, or do not redesign; and when diagnosing flat glassmorphism, fixed color rings, disconnected menu motion, excessive hover emphasis, or unsafe draggable controls.
+description: Build or refine Apple-inspired Web Liquid Glass interfaces using current official Apple design guidance as the primary authority, with layered refraction, Regular/Clear semantics, adaptive edge optics, semantic motion, independent light and dark tuning, accessibility, and graceful fallbacks. Use for translucent navigation, menus, toolbars, floating panels, selection lenses, or controls in React, CSS, SVG, or comparable Web stacks; also use when a request says match/reproduce the archived V1 Demo, visual fidelity, 9/10, or do not redesign; and when diagnosing flat glassmorphism, fixed color rings, duplicated refraction, discontinuous lens edges, disconnected menu motion, excessive hover emphasis, or unsafe draggable controls.
 ---
 
 # Liquid Glass Interface
@@ -17,20 +17,20 @@ Treat the official logic as the primary acceptance standard, including when a us
 
 Keep four axes separate: Apple material variant (`Regular` or `Clear`), Web rendering tier (`baseline` or `enhanced`), appearance theme (`light` or `dark`), and interaction state. Baseline/Enhanced are never aliases for Regular/Clear.
 
-## Fidelity Mode: Match the Original Demo
+## Versioned Asset Selection
 
-When the request says **match/reproduce the original Demo**, **visual fidelity**, **9/10**, or **do not redesign**, use low freedom. Copy `assets/fidelity-kit/` as a unit before changing content. It is the canonical high-fidelity asset, extracted from this repository's Demo; `assets/reference-implementation/` is only a small technical baseline, not a fidelity template.
+Use `assets/v2-reference-implementation/` for ordinary Web navigation unless the user explicitly requests another version. It is the current default: flat committed selection plus a temporary, single-sample navigation lens.
 
-Do not replace `SceneArtwork`, `createRoundedEdgeField`, the instance-safe RGB filter, `RefractedSurface`, dark/light tuning, toolbar-popover coupling, or the measured persistent selection plate with locally written equivalents. You may change copy, semantic menu items, placement, responsive layout, and scene colors only through the shared scene model. Generate the RG field from every actual surface width, height, and radius; never stretch one fixed field across surfaces.
+When the request says **match/reproduce the V1 Demo**, **visual fidelity**, **9/10**, or **do not redesign**, use low freedom. Copy `assets/v1-fidelity-kit/` as a unit before changing content. It is the archived V1 high-fidelity asset, not the default navigation pattern. Do not replace its `SceneArtwork`, geometry-specific RGB filter, toolbar-popover coupling, or measured persistent selection plate with locally written equivalents.
 
-Run `node skills/liquid-glass-interface/scripts/verify-fidelity-kit.js` after copying the kit. For a fidelity blind test, test the same menu at top, middle, and bottom scroll positions over readable large type, a grid, and color bands. The user must explicitly pass the experienced page; screenshots and automated checks cannot pass it.
+Run `node skills/liquid-glass-interface/scripts/verify-v1-fidelity-kit.js` after copying V1. For a V1 fidelity blind test, test the same menu at top, middle, and bottom scroll positions over readable large type, a grid, and color bands. The user must explicitly pass the experienced page; screenshots and automated checks cannot pass it. Add future generations as parallel `assets/vN-*` and `scripts/verify-vN-*` paths; never overwrite an archived version's assets.
 
 ## Workflow
 
 1. Read the official design logic, then inspect the existing component, background, interaction states, browser targets, accessibility requirements, and performance constraints.
 2. Decide whether glass belongs to the floating functional layer and clarifies navigation, controls, spatial hierarchy, or a transition. Prefer an ordinary opaque or translucent surface when it does not; avoid content-layer glass and glass-on-glass.
 3. Establish readable layout, focus behavior, and the baseline material (fill, border, shadow) before adding optical effects.
-4. Read [material-system.md](references/material-system.md) before implementing refraction or edge optics. For ordinary work, start with the technical baseline at [reference-implementation/index.html](assets/reference-implementation/index.html), then read [react-integration.md](references/react-integration.md). For fidelity mode, copy [assets/fidelity-kit/index.tsx](assets/fidelity-kit/index.tsx) and [fidelity.css](assets/fidelity-kit/fidelity.css) instead.
+4. Read [material-system.md](references/material-system.md) before implementing refraction or edge optics. For ordinary navigation, start with [v2-reference-implementation/index.html](assets/v2-reference-implementation/index.html), then read [react-integration.md](references/react-integration.md). For V1 fidelity mode, copy [assets/v1-fidelity-kit/index.tsx](assets/v1-fidelity-kit/index.tsx) and [fidelity.css](assets/v1-fidelity-kit/fidelity.css) instead.
 5. Read [interactions.md](references/interactions.md) before implementing menus, selection plates, coupled motion, or optional dragging.
 6. Tune light and dark themes independently, then complete [themes-and-qa.md](references/themes-and-qa.md).
 7. Verify the result in a real browser at rest, during transitions, over varied backgrounds, with keyboard input, on a narrow viewport, with reduced motion enabled, and with advanced optics disabled.
@@ -54,11 +54,11 @@ Use two levels. The baseline is fill, border, shadow, then `backdrop-filter` whe
 ## Reference Routing
 
 - Official Apple semantics and vetoes: [apple-design-logic.en.md](references/apple-design-logic.en.md), with equivalent [Chinese edition](references/apple-design-logic.zh.md). Read this before all other references for Apple-inspired work.
-- Technical baseline, not fidelity template: [assets/reference-implementation/index.html](assets/reference-implementation/index.html), [styles.css](assets/reference-implementation/styles.css), and [script.js](assets/reference-implementation/script.js). It demonstrates a shared scene model, rounded RG field, SVG `feDisplacementMap`, world-coordinate alignment, themes, and baseline/enhanced switches.
-- Fidelity asset: [assets/fidelity-kit/index.tsx](assets/fidelity-kit/index.tsx) and [fidelity.css](assets/fidelity-kit/fidelity.css). It preserves the original Demo's scene complexity, geometry-specific SDF field, RGB filter, material tokens, coupled menu motion, and measured plate. Validate it with [scripts/verify-fidelity-kit.js](scripts/verify-fidelity-kit.js).
+- V2 reference: [assets/v2-reference-implementation/index.html](assets/v2-reference-implementation/index.html), [styles.css](assets/v2-reference-implementation/styles.css), and [script.js](assets/v2-reference-implementation/script.js). It demonstrates a temporary single-sample navigation lens, a stable 1.03 baseline, a continuous 1.03→1.12 edge field, deterministic pointer release, and baseline/enhanced switches. Validate it with [scripts/verify-v2-edge-field.js](scripts/verify-v2-edge-field.js).
+- V1 fidelity asset: [assets/v1-fidelity-kit/index.tsx](assets/v1-fidelity-kit/index.tsx) and [fidelity.css](assets/v1-fidelity-kit/fidelity.css). It preserves the archived V1 scene complexity, RGB filter, material tokens, coupled menu motion, and measured persistent plate. Validate it with [scripts/verify-v1-fidelity-kit.js](scripts/verify-v1-fidelity-kit.js).
 - React production integration: [react-integration.md](references/react-integration.md). Use it for per-instance IDs, measurement lifecycle, clipping boundaries, and privacy limits.
 - Optical acceptance gate: [visual-acceptance.md](references/visual-acceptance.md). Do not call an implementation enhanced refraction unless every gate passes.
-- Field-only check: run `node skills/liquid-glass-interface/scripts/verify-edge-field.js`.
+- V2 field-only check: run `node skills/liquid-glass-interface/scripts/verify-v2-edge-field.js`.
 
 Match the filter region, clipping path, and corner radius. Keep every layer removable so the component remains usable when standard `filter`, `backdrop-filter`, or `-webkit-backdrop-filter` are unsupported or too expensive.
 
@@ -68,7 +68,7 @@ Drive motion from explicit interface state: open or closed, selected item, theme
 
 Treat material and motion as one system. Prefer changes in lensing, illumination, shape, connection, and apparent thickness over an ordinary fade-only transition. Keep the resting state visually quiet; let interaction energize the material. Larger menus may use deeper shadows, more pronounced lensing, and softer scattering than small controls while preserving a stable interior.
 
-Move one persistent selection plate between items. Keep hover feedback quieter than the selected plate. Avoid continuous pointer-following effects unless they communicate a real interaction.
+For ordinary navigation, commit selection with a flat low-contrast fill and show glass only during a click, press, or mouse drag. Use `click → dragging → settling → fading`; remove the lens after it settles, then commit the flat selected state, content, and `aria-current`. Use a persistent glass selection plate only when durable material selection is explicitly required. Keep hover quieter than committed selection. Avoid continuous pointer-following effects unless they communicate a real interaction.
 
 Do not make ordinary menus draggable. Enable dragging only for a genuine floating panel, canvas tool, spatial workspace, or an explicit user request; then follow the pointer, focus, capture, and boundary rules in the interaction reference.
 
@@ -90,4 +90,4 @@ Honor `prefers-reduced-motion`; remove nonessential spring, morphing, and parall
 
 ## Output Expectations
 
-Report the Apple material variant, Web rendering tier, theme, component and states changed, material layers used, fallback behavior, accessibility coverage, validation performed, and any browser or performance risks. State any deliberate deviation from official Apple guidance. Keep demo-specific behavior out of reusable recommendations.
+Report the selected asset version, Apple material variant, Web rendering tier, theme, component and states changed, material layers used, fallback behavior, accessibility coverage, validation performed, and any browser or performance risks. State any deliberate deviation from official Apple guidance. Keep archived V1 behavior out of default V2 recommendations.

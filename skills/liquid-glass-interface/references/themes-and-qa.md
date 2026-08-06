@@ -78,6 +78,10 @@ The following are not enhanced refraction and must be described honestly as text
 - Is hover visibly quieter than selection?
 - Are text, focus, keyboard behavior, and hit targets intact?
 - Does the selection plate remeasure after font loading, resize, scrolling, item mutation, and narrow-screen reflow?
+- During a V2 navigation interaction, does exactly one continuous replica appear with no hard core/edge boundary, folded text, duplicate glyph, missing glyph, or colored material strip below the lens?
+- Does the center remain at the stable sampling scale while edge magnification and normal refraction increase continuously toward the rounded contour?
+- Does the temporary lens hide the idle flat selection, then fade before the target content, `aria-current`, and flat selection commit?
+- Does a release between rows use the final pointer position and settle to the nearest item, while only cancellation or lost capture returns to the origin?
 - Does an optical sweep use the prior-to-next measured two-dimensional center vector, including wrapped rows, RTL, vertical writing, scroll containers, and rapid selections; and remain absent for layout-only remeasurement?
 - Are clipping/masking rules confined to the optical wrapper, with focus and overlays outside it or in a portal?
 - Does every SVG `clipPath` declare a valid `objectBoundingBox` or explicit `userSpaceOnUse` coordinate system rather than ambiguous percentage geometry in zero-sized defs?

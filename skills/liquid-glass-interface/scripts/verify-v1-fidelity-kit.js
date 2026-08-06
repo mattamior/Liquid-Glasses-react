@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const root = path.join(skillRoot, "assets/fidelity-kit");
+const root = path.join(skillRoot, "assets/v1-fidelity-kit");
 const source = fs.readFileSync(path.join(root, "index.tsx"), "utf8");
 const css = fs.readFileSync(path.join(root, "fidelity.css"), "utf8");
 const skill = fs.readFileSync(path.join(skillRoot, "SKILL.md"), "utf8");
@@ -51,7 +51,7 @@ for (const [name, expression] of checks) {
   if (!passes) throw new Error(`Missing fidelity invariant: ${name}`);
 }
 const governanceChecks = [
-  ["official Apple authority is routed before mechanics", skill.includes("## Apple Design Authority") && skill.indexOf("apple-design-logic.en.md") < skill.indexOf("## Fidelity Mode")],
+  ["official Apple authority is routed before mechanics", skill.includes("## Apple Design Authority") && skill.indexOf("apple-design-logic.en.md") < skill.indexOf("## Versioned Asset Selection")],
   ["official source priority is explicit", /Human Interface Guidelines[\s\S]*Apple Developer Documentation[\s\S]*Apple WWDC[\s\S]*Community/.test(appleEnglish)],
   ["Apple variants and Web tiers cannot be conflated", appleEnglish.includes("Baseline/Enhanced are not aliases") && appleChinese.includes("Baseline/Enhanced 不是 Regular/Clear 的别名")],
   ["Apple-aligned design has vetoes", acceptance.includes("## Official Apple Design Vetoes") && appleEnglish.includes("## Apple-Aligned Vetoes")],
@@ -60,5 +60,5 @@ const governanceChecks = [
 for (const [name, passes] of governanceChecks) {
   if (!passes) throw new Error(`Missing design-governance invariant: ${name}`);
 }
-console.log(`fidelity-kit assertions passed (${checks.length + governanceChecks.length} invariants)`);
+console.log(`v1-fidelity-kit assertions passed (${checks.length + governanceChecks.length} invariants)`);
 console.log("manual geometry gate: measure desktop and <=560px toolbar height (56-76px), three non-overlapping columns, centered title, and an in-viewport popover.");

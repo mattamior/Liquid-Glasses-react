@@ -1,9 +1,9 @@
 # Liquid Glasses React
 
-An interactive React study of Apple-inspired Liquid Glass — refraction, adaptive
-highlights, fluid menu motion, drag interactions, and light/dark themes.
+An interactive React study of Apple-inspired Liquid Glass — continuous refraction,
+adaptive highlights, transient navigation lenses, and light/dark themes.
 
-一个基于 React 的液态玻璃交互实验，展示背景折射、自适应高光、菜单流体动效、自由拖动与亮暗主题。
+一个基于 React 的液态玻璃交互实验，展示连续背景折射、自适应高光、临时导航透镜与亮暗主题。
 
 [Live Demo](https://liquid.hkooii.com) ·
 [中文说明](./README.zh.md) ·
@@ -13,10 +13,10 @@ highlights, fluid menu motion, drag interactions, and light/dark themes.
 
 ## Highlights
 
-- Real-time SVG displacement refraction with theme-specific optical tuning
-- Apple-style toolbar and function menu with coupled opening motion
-- Draggable glass menu with bounded positioning
-- Animated selection plate, hover feedback, and material controls
+- V2 default route with one continuous SVG displacement lens
+- Flat committed selection plus a temporary click/drag navigation lens
+- V1 archived Demo retained at `/v1`
+- Independent light/dark tuning and accessible baseline fallbacks
 - Responsive light and dark themes
 - Cloudflare Workers deployment
 
@@ -37,8 +37,8 @@ npm test
 
 The reusable `liquid-glass-interface` Skill is versioned in
 [`skills/liquid-glass-interface`](./skills/liquid-glass-interface/). It teaches
-agents to build layered Web refraction, semantic menu motion, independent theme
-tuning, accessible fallbacks, and optional floating-panel dragging.
+agents to select a versioned V1/V2 asset, build layered Web refraction, and ship
+semantic motion with accessible fallbacks.
 
 The Skill contains guidance only. It does not access credentials, personal
 data, remote assets, telemetry, or hidden network services.

@@ -17,16 +17,17 @@ The public version is deployed on Cloudflare Workers:
 
 <https://liquid.hkooii.com>
 
+`/` redirects to the current V2 navigation study. `/v1` remains directly
+available as a frozen archived Demo.
+
 ## Features
 
-- Real-time background refraction using an SVG displacement map（位移贴图）
-- Separately tuned optical parameters for light and dark themes
-- Coupled opening motion between an Apple-style toolbar and function menu
-- Free pointer dragging with bounded positioning（边界限制）
-- A moving glass selection plate for menu transitions
-- Controls for refraction, frost, and elasticity（弹性）
-- Liquid, Clear, and Frost material states
-- Reduced motion behavior through `prefers-reduced-motion`
+- V2 default route with one continuous SVG displacement map（位移贴图） sample
+- Flat committed selection plus a temporary click/drag navigation lens
+- Deterministic mouse release, nearest-item snapping, and delayed content commit
+- Separately tuned light/dark optics with baseline/enhanced rendering tiers
+- Direct compact, touch/pen, reduced-motion, and forced-color fallbacks
+- Frozen V1 Demo retained at `/v1`
 
 ## Technical Implementation
 
@@ -34,15 +35,16 @@ The interface does not use a static glass image. It combines these browser and
 runtime capabilities:
 
 - React 19 and TypeScript
-- SVG `feDisplacementMap`, `feColorMatrix`, and channel blending（通道混合）
+- One SVG `feDisplacementMap` with a 2× rounded-SDF field
 - CSS `backdrop-filter`, gradients, inset shadows, and blend modes（混合模式）
-- Pointer Events for dragging
+- Pointer Events, capture, and final-release snapping for mouse dragging
 - vinext and Vite for building
 - Cloudflare Workers for hosting
 
-Dark mode preserves stronger RGB dispersion（RGB 色散）. Light mode uses neutral
-displacement refraction and white caustic highlights（焦散高光） to avoid a fixed
-blue outline around the glass.
+Enhanced V2 refraction uses one complete controlled replica: sampling stays at
+`1.03` in the center and rises continuously to `1.12` in the final `16px` near
+the rounded contour. It avoids core/edge seams, duplicated labels, and fixed
+blue outlines.
 
 ## Local Development
 
@@ -98,7 +100,7 @@ docs/
 
 ## Agent Skill
 
-The reusable `liquid-glass-interface` Skill lives in [`skills/liquid-glass-interface`](./skills/liquid-glass-interface/). It guides agents through layered refraction, semantic menu motion, independent theme tuning, accessible fallbacks, and floating-panel dragging only when the product context justifies it.
+The reusable `liquid-glass-interface` Skill lives in [`skills/liquid-glass-interface`](./skills/liquid-glass-interface/). Its `v2-reference-implementation` is the current default for navigation; `v1-fidelity-kit` is an archived asset used only for explicit V1 Demo reproduction. Future generations use parallel `vN-*` assets rather than overwriting earlier baselines.
 
 The Skill contains implementation guidance only. It does not access credentials, personal data, remote assets, telemetry（遥测）, or hidden network services.
 

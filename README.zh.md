@@ -14,29 +14,29 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 
 <https://liquid.hkooii.com>
 
+`/` 会进入当前的 V2 导航实验；`/v1` 仍可直接访问，但作为冻结的归档 Demo 保留。
+
 ## 功能特性
 
-- 使用 SVG 位移贴图实时模拟背景折射
-- 为亮色与暗色主题分别调校光学参数
-- Apple 风格顶栏与功能菜单的耦合展开动效
-- 菜单支持鼠标和指针自由拖动，并限制在展示区域内
-- 菜单选项切换时，高亮玻璃底板平滑移动
-- 提供折射、磨砂和弹性参数控制
-- 支持 Liquid、Clear 和 Frost 三种材质状态
-- 尊重 `prefers-reduced-motion`，降低不必要的动画
+- `/v2` 作为默认入口，使用单层连续 SVG 位移透镜
+- 已提交选中态保持扁平；点击/鼠标拖拽期间才出现临时玻璃透镜
+- 鼠标最终释放位置决定就近吸附，并在淡出后提交内容
+- 亮暗主题独立调校，提供 Baseline/Enhanced 渲染层级
+- 窄屏、触摸/笔、减少动态和强制颜色环境直接降级
+- `/v1` 作为冻结归档 Demo 保留
 
 ## 技术实现
 
 界面没有使用静态玻璃图片，而是组合以下浏览器能力：
 
 - React 19 与 TypeScript
-- SVG `feDisplacementMap`、`feColorMatrix` 和通道混合
+- 单个 SVG `feDisplacementMap` 与 2× 圆角 SDF 位移场
 - CSS `backdrop-filter`、渐变、内阴影和混合模式
-- Pointer Events 实现拖动交互
+- Pointer Events、指针捕获和最终释放位置吸附
 - vinext 与 Vite 构建
 - Cloudflare Workers 托管
 
-暗色模式保留较明显的 RGB 色散；亮色模式使用中性位移折射和白色焦散高光，避免出现固定的蓝色闭合描边。
+V2 增强折射使用一个完整的可控副本：中心采样保持 `1.03`，靠近圆角轮廓最后 `16px` 连续升至 `1.12`，避免核心/边缘接缝、文字重影和固定蓝色闭合描边。
 
 ## 本地开发
 
@@ -92,7 +92,7 @@ docs/
 
 ## Agent Skill
 
-可复用的 `liquid-glass-interface` Skill 位于 [`skills/liquid-glass-interface`](./skills/liquid-glass-interface/)，用于指导 Agent 实现分层折射、语义菜单动效、亮暗主题独立调校、可访问降级，以及仅在合理场景启用的浮动面板拖动。
+可复用的 `liquid-glass-interface` Skill 位于 [`skills/liquid-glass-interface`](./skills/liquid-glass-interface/)。其中 `v2-reference-implementation` 是当前导航默认参考；`v1-fidelity-kit` 仅用于明确的 V1 原 Demo 复刻。未来版本以并列的 `vN-*` 资产加入，不覆盖历史基线。
 
 Skill 只包含实现指导，不访问凭证、个人数据、远程资源、遥测或隐藏网络服务。
 

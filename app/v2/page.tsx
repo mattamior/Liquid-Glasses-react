@@ -6,7 +6,6 @@ import {
   type RefObject,
   memo,
   useCallback,
-  useDeferredValue,
   useEffect,
   useId,
   useMemo,
@@ -659,6 +658,7 @@ export default function V2Page() {
   const [opticsTier, setOpticsTier] = useState<OpticsTier>("baseline");
   const glassInteractionRef = useRef<GlassInteraction | null>(null);
   const dragSessionRef = useRef<DragSession | null>(null);
+  const lastMenuPointerTypeRef = useRef<string | null>(null);
   const motionTimerRef = useRef<number | null>(null);
   const fadeTimerRef = useRef<number | null>(null);
   const motionFrameRef = useRef<number | null>(null);
@@ -671,7 +671,6 @@ export default function V2Page() {
     ) => void
   >(() => undefined);
   const sweepIdRef = useRef(0);
-  const deferredContentItemId = useDeferredValue(selectedItemId);
   const committedPlatePosition: PlatePosition = {
     y: getMenuItemY(selectedItemId),
     height: MENU_ITEM_HEIGHT,
@@ -689,8 +688,7 @@ export default function V2Page() {
     "--v2-selection-height": `${platePosition.height}px`,
   } as CSSProperties;
   const activeItem =
-    MENU_ITEMS.find((item) => item.id === deferredContentItemId) ??
-    MENU_ITEMS[0];
+    MENU_ITEMS.find((item) => item.id === selectedItemId) ?? MENU_ITEMS[0];
 
   useEffect(() => {
     if (!sweep) {
@@ -817,6 +815,17 @@ export default function V2Page() {
     itemId: MenuItemId,
     target: HTMLButtonElement,
   ) => {
+    const pointerType = lastMenuPointerTypeRef.current;
+    lastMenuPointerTypeRef.current = null;
+
+    if (pointerType === "touch" || pointerType === "pen") {
+      if (!glassInteractionRef.current) {
+        setSelectedItemId(itemId);
+        setSweep(null);
+      }
+      return;
+    }
+
     if (itemId === selectedItemId || glassInteractionRef.current) {
       return;
     }
@@ -876,6 +885,8 @@ export default function V2Page() {
     event: ReactPointerEvent<HTMLButtonElement>,
     itemId: MenuItemId,
   ) => {
+    lastMenuPointerTypeRef.current = event.pointerType;
+
     if (
       itemId !== selectedItemId ||
       event.pointerType !== "mouse" ||

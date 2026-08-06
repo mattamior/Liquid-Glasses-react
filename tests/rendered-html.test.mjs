@@ -22,12 +22,12 @@ async function render(pathname = "/") {
   );
 }
 
-test("redirects the root route to the frozen V1 demo", async () => {
+test("redirects the root route to the current V2 demo", async () => {
   const response = await render("/");
   assert.equal(response.status, 307);
   assert.equal(
     new URL(response.headers.get("location"), "http://localhost/").pathname,
-    "/v1",
+    "/v2",
   );
 });
 
@@ -37,7 +37,7 @@ test("renders the frozen Liquid Lab V1 demo", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>Liquid Lab/);
+  assert.match(html, /<title>Liquid Lab V1 — Archived Demo/);
   assert.match(html, /demo-shell theme-light/);
   assert.match(html, /LIGHT,/);
   assert.match(html, /ENTER PLAYGROUND/);

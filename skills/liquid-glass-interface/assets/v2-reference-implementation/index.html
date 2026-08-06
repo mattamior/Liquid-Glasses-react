@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Liquid Glass V2 navigation reference</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-theme="light" data-mode="baseline">
+    <main class="demo">
+      <header class="demo-header">
+        <div>
+          <p class="eyebrow">V2 REFERENCE IMPLEMENTATION</p>
+          <h1>One continuous<br /><span>navigation lens.</span></h1>
+        </div>
+        <div class="control-row" aria-label="Reference controls">
+          <button type="button" data-action="mode" aria-pressed="false">Enhanced refraction</button>
+          <button type="button" data-action="theme" aria-pressed="false">Dark theme</button>
+        </div>
+      </header>
+
+      <section class="stage" data-stage>
+        <div class="ambient-scene" aria-hidden="true">
+          <div class="ambient-orb ambient-orb--blue"></div>
+          <div class="ambient-orb ambient-orb--violet"></div>
+          <div class="ambient-band"></div>
+        </div>
+
+        <aside class="sidebar">
+          <div class="sidebar-heading"><span aria-hidden="true">‹‹</span><strong>Navigation</strong></div>
+          <nav class="menu" data-menu aria-label="Reference navigation" data-glass-active="false">
+            <div class="menu-world menu-world--base" data-menu-world="base" aria-hidden="true"></div>
+
+            <div class="glass-plate" data-glass-phase="idle" data-entered="false" aria-hidden="true">
+              <svg class="filter-definitions" focusable="false">
+                <defs>
+                  <filter id="v2-reference-lens" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feImage id="v2-lens-field" preserveAspectRatio="none" result="lens-field"></feImage>
+                    <feDisplacementMap in="SourceGraphic" in2="lens-field" scale="42" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+                  </filter>
+                </defs>
+              </svg>
+              <div class="optical-clip">
+                <div class="lens-replica-overscan">
+                  <div class="lens-filter-window">
+                    <div class="menu-world menu-world--lens" data-menu-world="lens"></div>
+                  </div>
+                </div>
+                <div class="lens-fill"></div>
+                <div class="lens-edge"></div>
+                <div class="lens-sweep"></div>
+              </div>
+            </div>
+
+            <button type="button" class="menu-hit" data-menu-item="overview" aria-label="Overview"></button>
+            <button type="button" class="menu-hit" data-menu-item="products" aria-label="Products"></button>
+            <button type="button" class="menu-hit" data-menu-item="activity" aria-label="Activity"></button>
+            <button type="button" class="menu-hit" data-menu-item="about" aria-label="About"></button>
+          </nav>
+        </aside>
+
+        <section class="content" aria-live="polite">
+          <p class="eyebrow" data-content-eyebrow>OVERVIEW / 01</p>
+          <h2 data-content-title>Overview</h2>
+          <p data-content-copy>Committed state stays flat. The lens exists only while the navigation is moving.</p>
+          <div class="content-grid" aria-hidden="true"><span></span><span></span><span></span></div>
+        </section>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>

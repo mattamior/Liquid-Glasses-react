@@ -1,6 +1,6 @@
 # React Integration Reference
 
-Use the standalone implementation in `assets/reference-implementation/` as the behavioral reference. Its visible environment and optical copy are both generated from one `SceneArtwork` model; React should follow the same rule.
+Use `assets/v2-reference-implementation/` as the default behavioral reference for current navigation. Its controlled visual world and temporary lens copy are generated from one menu model; React should follow the same rule. Use `assets/v1-fidelity-kit/` only for explicit archived-V1 reproduction.
 
 ## Instance-safe SVG IDs
 
@@ -39,3 +39,11 @@ At closed steady state, unmount popover optics or otherwise remove their border,
 Only `.glass__optical-clip` is rounded and clipped. It contains the aligned scene replica, fill, and edge optics. The content layer, focus ring, menus, and popovers remain separate and unfiltered; do not set `overflow: hidden` on the outer glass shell when overlays may escape.
 
 Render only an application-owned, deterministic visual scene into the replica. Never use DOM screenshots, canvas capture of arbitrary page pixels, screen capture APIs, forms, messages, user data, private content, or third-party embeds. If a controlled scene model and coordinate alignment are unavailable, ship baseline glass and do not advertise refraction.
+
+## V2 transient-lens contract
+
+Keep the committed item ID separate from transient interaction state. Model the latter as `{ phase: "click" | "dragging" | "settling" | "fading", targetId, y, isVisible } | null`. The committed ID drives content and `aria-current`; do not update it until the temporary lens finishes fading.
+
+Use one full replica for the lens. Rebuild its 2× SDF field only when the lens width, height, or radius changes. Translate the replica world inversely to the plate's position so one filtered copy stays aligned with the visible navigation. Do not create separate core and edge trees, use XOR masks, or apply a filter to foreground controls.
+
+For mouse dragging, preserve the drag session in a ref. On every normal `pointerup`, first incorporate the final `clientY`, then calculate the nearest target. Call `setPointerCapture`; also install capture-phase window listeners for `pointerup` and `pointercancel`, and clean them up on unmount. Bypass the transient lens and commit directly for narrow layouts, touch or pen input, `prefers-reduced-motion`, and `forced-colors`.

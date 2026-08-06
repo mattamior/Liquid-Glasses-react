@@ -8,11 +8,13 @@ Drive toolbar and menu transitions from one open-state model. Express their rela
 
 Keep the motion directional and causal: the control changes state, the relationship field appears, and the menu settles. Reverse the same relationship when closing. Avoid an effect that visually connects only to the trigger icon when the intended relationship is between the toolbar and the menu surface.
 
-## Moving Selection Plates
+## Navigation Selection Lenses
 
-Render one persistent glass selection plate and interpolate its position and size to the selected item's measured geometry. Keep the plate within the menu's inner padding, and limit spring overshoot so it does not protrude beyond either side.
+For ordinary navigation, use a flat committed selection state and a temporary glass lens. The glass is an interaction artifact, not the durable selected style: show it for `click`, `dragging`, `settling`, and `fading`; hide the flat visual selected state while it exists; fade it out after arrival; then commit the target content, `aria-current`, and flat selected state.
 
-Use hover only as a low-contrast preview. Selected, hovered, focused, and pressed states must remain distinguishable. Update the selected state immediately for assistive technology even when the visual plate is still animating.
+On click, move the temporary lens from the committed item to the target, then fade before committing. On a mouse press of the committed item, reveal it without scaling; after movement exceeds a small threshold, clamp the drag to the first-to-last item rail. On release, update from the final `clientY` before choosing the nearest item, settle there, then fade. Only `pointercancel` and lost pointer capture return to the origin. Use Pointer Capture and a window-capture `pointerup` fallback so release outside the original button cannot leave the lens stranded.
+
+Keep a persistent measured glass selection plate only when the product explicitly needs a durable material-selected state. Use hover only as a low-contrast preview. Selected, hovered, focused, and pressed states must remain distinguishable.
 
 ### Geometry and Responsive Layout
 
@@ -67,7 +69,7 @@ Treat state as a deliberate hierarchy rather than one shared bright background:
 
 1. `pressed` is transient feedback and may be strongest while active.
 2. `focus-visible` remains an explicit, opaque-enough indicator above the optical layers.
-3. `selected` is the persistent selection plate and semantic current state.
+3. `selected` is the committed semantic current state. In the V2 default, it is a flat visual fill while idle and is temporarily hidden while the interaction lens is active.
 4. `hover` is a quieter preview and must not visually equal selected.
 
 Do not remove the selected plate when a selected item receives hover or focus. Keyboard focus may move independently of selection; preserve both signals without relying solely on transparency or animation.

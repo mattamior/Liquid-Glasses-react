@@ -26,6 +26,8 @@ An implementation may be called **enhanced refraction** only when all of these a
 5. Replica overscan and SVG filter region cover maximum displacement plus blur, and only the optical wrapper is clipped.
 6. Foreground labels, focus treatments, hit targets, menus, and popovers are outside the filtered/captured layer.
 7. Light mode has independently reduced chroma so there is no static cyan, purple, or blue perimeter ring.
+8. A V2 navigation lens uses one complete filtered replica and one continuous distance-driven field. It has no core/edge seam, doubled text, folded labels, missing glyphs, or material-colored strip outside its clipped capsule.
+9. During temporary-lens interaction, the flat committed selection is hidden; after the lens fades, the target content, semantic current state, and flat selected visual appear together.
 
 If any item is missing, call the result **baseline glass**: fill, border, shadow, and optional ordinary backdrop blur. Do not describe blur alone, a fixed colored outline, `feTurbulence`, or a repeated local gradient as enhanced refraction.
 

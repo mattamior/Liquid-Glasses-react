@@ -41,10 +41,10 @@ skills/liquid-glass-interface/
     material-system.md
     interactions.md
     themes-and-qa.md
-  assets/fidelity-kit/
+  assets/v1-fidelity-kit/
     index.tsx
     fidelity.css
-  scripts/verify-fidelity-kit.js
+  scripts/verify-v1-fidelity-kit.js
 
 docs/
   liquid-glass-interface.zh.md
