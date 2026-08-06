@@ -23,7 +23,7 @@ body:has(.v3-demo) { overflow: hidden; background: #050f13; }
 .v3-tab-actions button { min-width: 0; border: 0; background: transparent; color: transparent; cursor: pointer; }
 .v3-tab-actions button:focus-visible { outline: 2px solid #57e4d0; outline-offset: -10px; border-radius: 999px; }
 .v3-filter-definitions { position: absolute; width: 0; height: 0; overflow: hidden; }
-.v3-lens-position { position: absolute; z-index: 3; top: 50%; left: 0; width: 224px; height: 184px; pointer-events: none; transform: translate3d(calc(var(--v3-lens-x) - 112px), calc(var(--v3-lens-y) - 92px), 0); will-change: transform; }
+.v3-lens-position { position: absolute; z-index: 3; top: 0; left: 0; width: 224px; height: 184px; pointer-events: none; transform: translate3d(calc(var(--v3-lens-x) - 112px), calc(var(--v3-lens-y) - 92px), 0); will-change: transform; }
 .v3-lens-position[data-phase="idle"] { visibility: hidden; }
 .v3-lens-position[data-phase="travelling"] { transition: transform 680ms cubic-bezier(.18,.82,.22,1); }
 .v3-lens-shell { position: absolute; inset: 0; overflow: hidden; border: 1px solid rgb(230 237 245 / 68%); border-radius: 50%; background: #363844; box-shadow: inset 0 1px 1px rgb(255 255 255 / 34%), inset 0 -12px 20px rgb(5 8 15 / 28%), 0 13px 28px rgb(0 3 9 / 42%); opacity: 0; transform: scale(.53); transition: transform 190ms cubic-bezier(.18,.82,.22,1), opacity 100ms linear; }
