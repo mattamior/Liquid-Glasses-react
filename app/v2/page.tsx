@@ -5,6 +5,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type RefObject,
   memo,
+  useCallback,
   useDeferredValue,
   useEffect,
   useId,
@@ -55,6 +56,7 @@ interface GlassInteraction {
   phase: GlassPhase;
   targetItemId: MenuItemId;
   y: number;
+  isVisible: boolean;
 }
 
 interface DragSession {
@@ -113,13 +115,18 @@ const MENU_ITEMS: MenuItem[] = [
 ];
 
 const OVERSCAN = 40;
-const LENS_FIELD_STRENGTH = 62;
+const LENS_ZOOM_MINIMUM = 1.03;
+const LENS_ZOOM_MAXIMUM = 1.12;
+const LENS_EDGE_ZONE = 16;
+const LENS_EDGE_REFRACTION = 5.4;
+const LENS_FIELD_SCALE = 42;
+const LENS_FIELD_RESOLUTION = 2;
 const MENU_ITEM_HEIGHT = 58;
 const MENU_ITEM_GAP = 8;
 const MENU_TOP_PADDING = 10;
 const NAVIGATION_LENS_DURATION = 680;
 const DRAG_SETTLE_DURATION = 260;
-const GLASS_FADE_DURATION = 120;
+const GLASS_FADE_DURATION = 160;
 const DRAG_THRESHOLD = 5;
 
 function getMenuItemY(itemId: MenuItemId) {
@@ -147,51 +154,77 @@ function smoothstep(edge0: number, edge1: number, value: number) {
   return normalized * normalized * (3 - 2 * normalized);
 }
 
+function encodeDisplacement(value: number) {
+  return Math.round(
+    clamp(127.5 + (value / LENS_FIELD_SCALE) * 255, 0, 255),
+  );
+}
+
 function createCapsuleLensField(width: number, height: number) {
   const safeWidth = Math.max(2, Math.round(width));
   const safeHeight = Math.max(2, Math.round(height));
   const canvas = document.createElement("canvas");
-  canvas.width = safeWidth;
-  canvas.height = safeHeight;
+  canvas.width = safeWidth * LENS_FIELD_RESOLUTION;
+  canvas.height = safeHeight * LENS_FIELD_RESOLUTION;
 
   const context = canvas.getContext("2d", { willReadFrequently: true });
   if (!context) {
-    return "";
+    return null;
   }
 
-  const imageData = context.createImageData(safeWidth, safeHeight);
+  const fieldWidth = canvas.width;
+  const fieldHeight = canvas.height;
+  const imageData = context.createImageData(fieldWidth, fieldHeight);
   const halfWidth = safeWidth / 2;
   const halfHeight = safeHeight / 2;
+  const radius = Math.min(22, halfWidth, halfHeight);
 
-  for (let y = 0; y < safeHeight; y += 1) {
-    for (let x = 0; x < safeWidth; x += 1) {
-      const normalizedX = (x - halfWidth) / halfWidth;
-      const normalizedY = (y - halfHeight) / halfHeight;
-      const normalizedRadius = Math.hypot(normalizedX, normalizedY);
-      const directionLength = normalizedRadius || 1;
-      const lensBand =
-        smoothstep(0.12, 0.5, normalizedRadius) *
-        (1 - smoothstep(0.72, 1, normalizedRadius));
-      const edgeFade = 1 - smoothstep(0.9, 1.08, normalizedRadius);
-      const displacementStrength =
-        lensBand * edgeFade * LENS_FIELD_STRENGTH;
-      const index = (y * safeWidth + x) * 4;
+  for (let y = 0; y < fieldHeight; y += 1) {
+    for (let x = 0; x < fieldWidth; x += 1) {
+      const relativeX = (x + 0.5) / LENS_FIELD_RESOLUTION - halfWidth;
+      const relativeY = (y + 0.5) / LENS_FIELD_RESOLUTION - halfHeight;
+      const edgeX = Math.abs(relativeX) - (halfWidth - radius);
+      const edgeY = Math.abs(relativeY) - (halfHeight - radius);
+      const outsideX = Math.max(edgeX, 0);
+      const outsideY = Math.max(edgeY, 0);
+      const signedDistance =
+        Math.hypot(outsideX, outsideY) +
+        Math.min(Math.max(edgeX, edgeY), 0) -
+        radius;
+      const distanceFromEdge = Math.max(0, -signedDistance);
+      const edgeProgress = 1 - smoothstep(0, LENS_EDGE_ZONE, distanceFromEdge);
+      const steepEdgeProgress = Math.pow(edgeProgress, 2.7);
+      const zoom =
+        LENS_ZOOM_MINIMUM +
+        (LENS_ZOOM_MAXIMUM - LENS_ZOOM_MINIMUM) *
+          steepEdgeProgress;
+      const zoomOffsetX = relativeX * (1 / zoom - 1);
+      const zoomOffsetY = relativeY * (1 / zoom - 1);
+      const rimFade = smoothstep(0, 1.25, distanceFromEdge);
+      const refractionProgress = rimFade * steepEdgeProgress;
+      let normalX = 0;
+      let normalY = 0;
 
-      imageData.data[index] = Math.round(
-        clamp(
-          128 +
-            (normalizedX / directionLength) * displacementStrength,
-          0,
-          255,
-        ),
+      if (outsideX > 0 || outsideY > 0) {
+        const cornerX = outsideX * Math.sign(relativeX);
+        const cornerY = outsideY * Math.sign(relativeY);
+        const cornerLength = Math.hypot(cornerX, cornerY) || 1;
+        normalX = cornerX / cornerLength;
+        normalY = cornerY / cornerLength;
+      } else if (edgeX > edgeY) {
+        normalX = Math.sign(relativeX) || 1;
+      } else {
+        normalY = Math.sign(relativeY) || 1;
+      }
+
+      const refractionStrength = refractionProgress * LENS_EDGE_REFRACTION;
+      const index = (y * fieldWidth + x) * 4;
+
+      imageData.data[index] = encodeDisplacement(
+        zoomOffsetX + normalX * refractionStrength,
       );
-      imageData.data[index + 1] = Math.round(
-        clamp(
-          128 +
-            (normalizedY / directionLength) * displacementStrength,
-          0,
-          255,
-        ),
+      imageData.data[index + 1] = encodeDisplacement(
+        zoomOffsetY + normalY * refractionStrength,
       );
       imageData.data[index + 2] = 128;
       imageData.data[index + 3] = 255;
@@ -215,16 +248,12 @@ function SelectionLensFilter({
   displacementField,
   width,
   height,
-  theme,
 }: {
   id: string;
   displacementField: string;
   width: number;
   height: number;
-  theme: ThemeMode;
 }) {
-  const scale = theme === "dark" ? 16 : 14;
-
   return (
     <filter
       id={id}
@@ -242,12 +271,12 @@ function SelectionLensFilter({
         width={width}
         height={height}
         preserveAspectRatio="none"
-        result="edge-field"
+        result="lens-field"
       />
       <feDisplacementMap
         in="SourceGraphic"
-        in2="edge-field"
-        scale={scale}
+        in2="lens-field"
+        scale={LENS_FIELD_SCALE}
         x="0"
         y="0"
         width={width}
@@ -353,36 +382,15 @@ const AmbientScene = memo(function AmbientScene({
   );
 });
 
-const MenuMaterialScene = memo(function MenuMaterialScene({
-  copy,
-}: {
-  copy: "visible" | "replica";
-}) {
-  return (
-    <span
-      className="v2-menu-material-scene"
-      data-v2-menu-scene={copy}
-      aria-hidden="true"
-    >
-      <span className="v2-menu-material-band" />
-      <span className="v2-menu-material-line v2-menu-material-line--one" />
-      <span className="v2-menu-material-line v2-menu-material-line--two" />
-    </span>
-  );
-});
-
 const MenuVisualWorld = memo(function MenuVisualWorld({
   className,
-  copy,
   selectedItemId,
 }: {
   className: string;
-  copy: "visible" | "replica";
   selectedItemId?: MenuItemId;
 }) {
   return (
     <span className={className} aria-hidden="true">
-      <MenuMaterialScene copy={copy} />
       {MENU_ITEMS.map((item) => (
         <span
           key={item.id}
@@ -483,18 +491,18 @@ function LiquidSelectionPlate({
   sceneRef,
   plateRef,
   position,
-  theme,
   collapsed,
   enhancedOptics,
+  isVisible,
   phase,
   sweep,
 }: {
   sceneRef: RefObject<HTMLElement | null>;
   plateRef: RefObject<HTMLSpanElement | null>;
   position: PlatePosition;
-  theme: ThemeMode;
   collapsed: boolean;
   enhancedOptics: boolean;
+  isVisible: boolean;
   phase: GlassPhase;
   sweep: SelectionSweep | null;
 }) {
@@ -532,8 +540,8 @@ function LiquidSelectionPlate({
   const replicaStyle = {
     inset: `${OVERSCAN}px`,
   } as CSSProperties;
-  const edgeFilterStyle = {
-    inset: `${OVERSCAN}px`,
+  const lensFilterStyle = {
+    ...replicaStyle,
     filter:
       geometry.ready && displacementField
         ? `url("#${filterId}")`
@@ -588,6 +596,7 @@ function LiquidSelectionPlate({
       className={`v2-selection-plate${position.ready ? " is-ready" : ""}`}
       style={plateStyle}
       data-moving={phase === "fading" ? "false" : "true"}
+      data-entered={isVisible ? "true" : "false"}
       data-phase={phase}
       data-refraction={
         geometry.ready && displacementField ? "candidate" : "baseline"
@@ -602,53 +611,27 @@ function LiquidSelectionPlate({
               displacementField={displacementField}
               width={geometry.width}
               height={geometry.height}
-              theme={theme}
             />
           </defs>
         </svg>
       ) : null}
       <span className="v2-selection-optical-clip">
         <span
-          className="v2-selection-replica-overscan v2-selection-replica-overscan--stable"
+          className="v2-selection-replica-overscan v2-selection-replica-overscan--lens"
           data-ready={geometry.ready ? "true" : "false"}
           style={{ inset: -OVERSCAN }}
         >
-          <span className="v2-selection-replica-filter" style={replicaStyle}>
-            <span
-              className="v2-selection-world"
-              style={worldStyle}
-            >
+          <span
+            className="v2-selection-replica-filter"
+            style={lensFilterStyle}
+          >
+            <span className="v2-selection-world" style={worldStyle}>
               <MenuVisualWorld
                 className="v2-menu-visual-world v2-menu-visual-world--lens"
-                copy="replica"
               />
             </span>
           </span>
         </span>
-        {geometry.ready && displacementField ? (
-          <span className="v2-selection-edge-optics">
-            <span
-              className="v2-selection-replica-overscan v2-selection-replica-overscan--edge"
-              data-ready="true"
-              style={{ inset: -OVERSCAN }}
-            >
-              <span
-                className="v2-selection-replica-filter"
-                style={edgeFilterStyle}
-              >
-                <span
-                  className="v2-selection-world"
-                  style={worldStyle}
-                >
-                  <MenuVisualWorld
-                    className="v2-menu-visual-world v2-menu-visual-world--lens"
-                    copy="replica"
-                  />
-                </span>
-              </span>
-            </span>
-          </span>
-        ) : null}
         <span className="v2-selection-fill" />
         <span className="v2-selection-edge" />
         <span ref={sweepRef} className="v2-selection-sweep" />
@@ -679,6 +662,14 @@ export default function V2Page() {
   const motionTimerRef = useRef<number | null>(null);
   const fadeTimerRef = useRef<number | null>(null);
   const motionFrameRef = useRef<number | null>(null);
+  const finishMouseDragRef = useRef<
+    (
+      pointerId: number,
+      wasCancelled: boolean,
+      finalClientY?: number,
+      pointerTarget?: HTMLButtonElement,
+    ) => void
+  >(() => undefined);
   const sweepIdRef = useRef(0);
   const deferredContentItemId = useDeferredValue(selectedItemId);
   const committedPlatePosition: PlatePosition = {
@@ -714,10 +705,13 @@ export default function V2Page() {
     return () => window.clearTimeout(settleTimer);
   }, [sweep]);
 
-  const setTransientGlass = (nextInteraction: GlassInteraction | null) => {
-    glassInteractionRef.current = nextInteraction;
-    setGlassInteraction(nextInteraction);
-  };
+  const setTransientGlass = useCallback(
+    (nextInteraction: GlassInteraction | null) => {
+      glassInteractionRef.current = nextInteraction;
+      setGlassInteraction(nextInteraction);
+    },
+    [],
+  );
 
   const clearPendingGlassWork = () => {
     if (motionTimerRef.current !== null) {
@@ -746,59 +740,77 @@ export default function V2Page() {
     window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
     window.matchMedia("(forced-colors: active)").matches;
 
-  const playSweepBetween = (origin: DOMRect | undefined, target: DOMRect) => {
-    if (!origin) {
-      setSweep(null);
-      return;
-    }
-
-    const dx =
-      target.left + target.width / 2 - (origin.left + origin.width / 2);
-    const dy = target.top + target.height / 2 - (origin.top + origin.height / 2);
-    if (Math.hypot(dx, dy) < 1) {
-      setSweep(null);
-      return;
-    }
-
-    sweepIdRef.current += 1;
-    setSweep({ id: sweepIdRef.current, dx, dy });
-  };
-
-  const finishGlassInteraction = (
-    targetItemId: MenuItemId,
-    targetY: number,
-    duration: number,
-    shouldCommit: boolean,
-  ) => {
-    if (motionTimerRef.current !== null) {
-      window.clearTimeout(motionTimerRef.current);
-    }
-    if (fadeTimerRef.current !== null) {
-      window.clearTimeout(fadeTimerRef.current);
-    }
-
-    motionTimerRef.current = window.setTimeout(() => {
-      const currentInteraction = glassInteractionRef.current;
-      if (!currentInteraction) {
+  const playSweepBetween = useCallback(
+    (origin: DOMRect | undefined, target: DOMRect) => {
+      if (!origin) {
+        setSweep(null);
         return;
       }
 
-      setTransientGlass({
-        ...currentInteraction,
-        phase: "fading",
-        targetItemId,
-        y: targetY,
-      });
-      fadeTimerRef.current = window.setTimeout(() => {
-        if (shouldCommit) {
-          setSelectedItemId(targetItemId);
-        }
+      const dx =
+        target.left + target.width / 2 - (origin.left + origin.width / 2);
+      const dy =
+        target.top + target.height / 2 - (origin.top + origin.height / 2);
+      if (Math.hypot(dx, dy) < 1) {
         setSweep(null);
-        setTransientGlass(null);
-        motionTimerRef.current = null;
-        fadeTimerRef.current = null;
-      }, GLASS_FADE_DURATION);
-    }, duration);
+        return;
+      }
+
+      sweepIdRef.current += 1;
+      setSweep({ id: sweepIdRef.current, dx, dy });
+    },
+    [],
+  );
+
+  const finishGlassInteraction = useCallback(
+    (
+      targetItemId: MenuItemId,
+      targetY: number,
+      duration: number,
+      shouldCommit: boolean,
+    ) => {
+      if (motionTimerRef.current !== null) {
+        window.clearTimeout(motionTimerRef.current);
+      }
+      if (fadeTimerRef.current !== null) {
+        window.clearTimeout(fadeTimerRef.current);
+      }
+
+      motionTimerRef.current = window.setTimeout(() => {
+        const currentInteraction = glassInteractionRef.current;
+        if (!currentInteraction) {
+          return;
+        }
+
+        setTransientGlass({
+          ...currentInteraction,
+          phase: "fading",
+          targetItemId,
+          y: targetY,
+        });
+        fadeTimerRef.current = window.setTimeout(() => {
+          if (shouldCommit) {
+            setSelectedItemId(targetItemId);
+          }
+          setSweep(null);
+          setTransientGlass(null);
+          motionTimerRef.current = null;
+          fadeTimerRef.current = null;
+        }, GLASS_FADE_DURATION);
+      }, duration);
+    },
+    [setTransientGlass],
+  );
+
+  const revealTransientGlass = () => {
+    motionFrameRef.current = window.requestAnimationFrame(() => {
+      const currentInteraction = glassInteractionRef.current;
+      if (!currentInteraction || currentInteraction.phase === "fading") {
+        return;
+      }
+      setTransientGlass({ ...currentInteraction, isVisible: true });
+      motionFrameRef.current = null;
+    });
   };
 
   const startClickInteraction = (
@@ -821,10 +833,24 @@ export default function V2Page() {
     const targetBounds = target.getBoundingClientRect();
 
     clearPendingGlassWork();
-    setTransientGlass({ phase: "click", targetItemId: itemId, y: originY });
+    setTransientGlass({
+      phase: "click",
+      targetItemId: itemId,
+      y: originY,
+      isVisible: false,
+    });
     playSweepBetween(origin, targetBounds);
 
     motionFrameRef.current = window.requestAnimationFrame(() => {
+      const appearingInteraction = glassInteractionRef.current;
+      if (
+        !appearingInteraction ||
+        appearingInteraction.phase !== "click" ||
+        appearingInteraction.targetItemId !== itemId
+      ) {
+        return;
+      }
+      setTransientGlass({ ...appearingInteraction, isVisible: true });
       motionFrameRef.current = window.requestAnimationFrame(() => {
         const currentInteraction = glassInteractionRef.current;
         if (
@@ -878,79 +904,138 @@ export default function V2Page() {
     };
     event.currentTarget.setPointerCapture(event.pointerId);
     event.preventDefault();
-    setTransientGlass({ phase: "dragging", targetItemId: itemId, y: originY });
+    setTransientGlass({
+      phase: "dragging",
+      targetItemId: itemId,
+      y: originY,
+      isVisible: false,
+    });
+    revealTransientGlass();
   };
+
+  const updateDragSessionPosition = useCallback(
+    (dragSession: DragSession, clientY: number) => {
+      const navigationBounds = navRef.current?.getBoundingClientRect();
+      if (!navigationBounds) {
+        return null;
+      }
+
+      const maximumY = getMenuItemY(MENU_ITEMS[MENU_ITEMS.length - 1].id);
+      const nextY = clamp(
+        clientY -
+          navigationBounds.top -
+          MENU_TOP_PADDING -
+          dragSession.grabOffset,
+        0,
+        maximumY,
+      );
+      dragSession.y = nextY;
+      dragSession.hasMoved =
+        dragSession.hasMoved ||
+        Math.abs(nextY - dragSession.originY) > DRAG_THRESHOLD;
+      return nextY;
+    },
+    [],
+  );
 
   const continueMouseDrag = (
     event: ReactPointerEvent<HTMLButtonElement>,
-  ) => {
-    const dragSession = dragSessionRef.current;
-    const navigationBounds = navRef.current?.getBoundingClientRect();
-    if (
-      !dragSession ||
-      dragSession.pointerId !== event.pointerId ||
-      !navigationBounds
-    ) {
-      return;
-    }
-
-    const maximumY = getMenuItemY(MENU_ITEMS[MENU_ITEMS.length - 1].id);
-    const nextY = clamp(
-      event.clientY - navigationBounds.top - MENU_TOP_PADDING - dragSession.grabOffset,
-      0,
-      maximumY,
-    );
-    dragSession.y = nextY;
-    dragSession.hasMoved =
-      dragSession.hasMoved || Math.abs(nextY - dragSession.originY) > DRAG_THRESHOLD;
-    event.preventDefault();
-    setTransientGlass({
-      phase: "dragging",
-      targetItemId: getMenuItemIdAt(nextY),
-      y: nextY,
-    });
-  };
-
-  const finishMouseDrag = (
-    event: ReactPointerEvent<HTMLButtonElement>,
-    wasCancelled: boolean,
   ) => {
     const dragSession = dragSessionRef.current;
     if (!dragSession || dragSession.pointerId !== event.pointerId) {
       return;
     }
 
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
+    const nextY = updateDragSessionPosition(dragSession, event.clientY);
+    if (nextY === null) {
+      return;
     }
-    dragSessionRef.current = null;
-
-    const targetItemId =
-      wasCancelled || !dragSession.hasMoved
-        ? selectedItemId
-        : getMenuItemIdAt(dragSession.y);
-    const targetY = getMenuItemY(targetItemId);
-    const shouldCommit = !wasCancelled && targetItemId !== selectedItemId;
-    const origin = plateRef.current?.getBoundingClientRect();
-    const target = itemRefs.current[targetItemId]?.getBoundingClientRect();
-
+    event.preventDefault();
     setTransientGlass({
-      phase: "settling",
-      targetItemId,
-      y: targetY,
+      phase: "dragging",
+      targetItemId: getMenuItemIdAt(nextY),
+      y: nextY,
+      isVisible: glassInteractionRef.current?.isVisible ?? false,
     });
-    if (!wasCancelled && target) {
-      playSweepBetween(origin, target);
-    } else {
-      setSweep(null);
-    }
-    finishGlassInteraction(
-      targetItemId,
-      targetY,
-      DRAG_SETTLE_DURATION,
-      shouldCommit,
-    );
   };
+
+  const finishMouseDrag = useCallback(
+    (
+      pointerId: number,
+      wasCancelled: boolean,
+      finalClientY?: number,
+      pointerTarget?: HTMLButtonElement,
+    ) => {
+      const dragSession = dragSessionRef.current;
+      if (!dragSession || dragSession.pointerId !== pointerId) {
+        return;
+      }
+
+      if (!wasCancelled && finalClientY !== undefined) {
+        updateDragSessionPosition(dragSession, finalClientY);
+      }
+
+      dragSessionRef.current = null;
+      if (pointerTarget?.hasPointerCapture(pointerId)) {
+        pointerTarget.releasePointerCapture(pointerId);
+      }
+
+      const targetItemId =
+        wasCancelled || !dragSession.hasMoved
+          ? selectedItemId
+          : getMenuItemIdAt(dragSession.y);
+      const targetY = getMenuItemY(targetItemId);
+      const shouldCommit = !wasCancelled && targetItemId !== selectedItemId;
+      const origin = plateRef.current?.getBoundingClientRect();
+      const target = itemRefs.current[targetItemId]?.getBoundingClientRect();
+
+      setTransientGlass({
+        phase: "settling",
+        targetItemId,
+        y: targetY,
+        isVisible: true,
+      });
+      if (!wasCancelled && target) {
+        playSweepBetween(origin, target);
+      } else {
+        setSweep(null);
+      }
+      finishGlassInteraction(
+        targetItemId,
+        targetY,
+        DRAG_SETTLE_DURATION,
+        shouldCommit,
+      );
+    },
+    [
+      finishGlassInteraction,
+      playSweepBetween,
+      selectedItemId,
+      setTransientGlass,
+      updateDragSessionPosition,
+    ],
+  );
+
+  useEffect(() => {
+    finishMouseDragRef.current = finishMouseDrag;
+  }, [finishMouseDrag]);
+
+  useEffect(() => {
+    const settleDragFromWindow = (event: PointerEvent) => {
+      finishMouseDragRef.current(event.pointerId, false, event.clientY);
+    };
+    const cancelDragFromWindow = (event: PointerEvent) => {
+      finishMouseDragRef.current(event.pointerId, true);
+    };
+
+    window.addEventListener("pointerup", settleDragFromWindow, true);
+    window.addEventListener("pointercancel", cancelDragFromWindow, true);
+
+    return () => {
+      window.removeEventListener("pointerup", settleDragFromWindow, true);
+      window.removeEventListener("pointercancel", cancelDragFromWindow, true);
+    };
+  }, []);
 
   return (
     <main
@@ -1034,21 +1119,17 @@ export default function V2Page() {
             <>
               <MenuVisualWorld
                 className="v2-menu-visual-world v2-menu-visual-world--base v2-menu-visual-world--above"
-                copy="visible"
-                selectedItemId={selectedItemId}
               />
               <MenuVisualWorld
                 className="v2-menu-visual-world v2-menu-visual-world--base v2-menu-visual-world--below"
-                copy="visible"
-                selectedItemId={selectedItemId}
               />
               <LiquidSelectionPlate
                 sceneRef={navRef}
                 plateRef={plateRef}
                 position={platePosition}
-                theme={theme}
                 collapsed={collapsed}
                 enhancedOptics={opticsTier === "enhanced"}
+                isVisible={glassInteraction.isVisible}
                 phase={glassInteraction.phase}
                 sweep={sweep}
               />
@@ -1056,7 +1137,6 @@ export default function V2Page() {
           ) : (
             <MenuVisualWorld
               className="v2-menu-visual-world v2-menu-visual-world--base"
-              copy="visible"
               selectedItemId={selectedItemId}
             />
           )}
@@ -1074,8 +1154,20 @@ export default function V2Page() {
               title={collapsed ? item.label : undefined}
               onPointerDown={(event) => startMouseDrag(event, item.id)}
               onPointerMove={continueMouseDrag}
-              onPointerUp={(event) => finishMouseDrag(event, false)}
-              onPointerCancel={(event) => finishMouseDrag(event, true)}
+              onPointerUp={(event) =>
+                finishMouseDrag(
+                  event.pointerId,
+                  false,
+                  event.clientY,
+                  event.currentTarget,
+                )
+              }
+              onPointerCancel={(event) =>
+                finishMouseDrag(event.pointerId, true, undefined, event.currentTarget)
+              }
+              onLostPointerCapture={(event) =>
+                finishMouseDrag(event.pointerId, true)
+              }
               onClick={(event) =>
                 startClickInteraction(item.id, event.currentTarget)
               }
