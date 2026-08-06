@@ -69,3 +69,26 @@ test("renders the Liquid Lab V2 navigation demo", async () => {
   assert.doesNotMatch(html, /data-lens-source/);
   assert.doesNotMatch(html, /REFRACT|LIGHT/);
 });
+
+test("renders the independent Liquid Lab V3 navigation lens demo", async () => {
+  const response = await render("/v3");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /<title>Liquid Lab V3 — Horizontal navigation lens/);
+  assert.match(html, /aria-label="V3 liquid glass study"/);
+  assert.match(html, /data-optics="baseline"/);
+  assert.match(html, /<nav\b[^>]*aria-label="主导航"/);
+
+  for (const label of ["关注", "市场", "动态", "开户"]) {
+    assert.match(
+      html,
+      new RegExp(`<button\\b[^>]*aria-label="切换到${label}"`),
+    );
+  }
+
+  assert.equal((html.match(/aria-current="page"/g) ?? []).length, 1);
+  assert.doesNotMatch(html, /data-lens="moving"/);
+  assert.doesNotMatch(html, /data-visible="true"|data-moving="true"/);
+});
