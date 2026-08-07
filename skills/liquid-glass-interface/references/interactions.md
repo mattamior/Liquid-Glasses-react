@@ -16,6 +16,14 @@ On click, move the temporary lens from the committed item to the target, then fa
 
 Keep a persistent measured glass selection plate only when the product explicitly needs a durable material-selected state. Use hover only as a low-contrast preview. Selected, hovered, focused, and pressed states must remain distinguishable.
 
+## Explicit V3 Horizontal Navigation Exception
+
+V3 is a separate, opt-in pattern; it does not change the V2 default above. Use a navigation-level inset selection slider rather than a per-tab active pseudo-element. The slider fills the measured inner grid cell and owns both the durable material plate and a clipped white visual replica of the committed or previewed tab. Keep the underlying native buttons gray and semantic.
+
+Exactly one committed button has `aria-current="page"`. The slider preview must never move this attribute. A click on a non-current button starts the large horizontal lens; it may cross intermediate tabs, but only the destination becomes current after its transition completes. Block click and drag re-entry while the large lens, a release snap, a fallback path, or unmount cleanup is running.
+
+Only the current button begins a V3 drag. Accept primary mouse, touch, and pen. Set `touch-action: none` on this V3 control, call `setPointerCapture(pointerId)`, and wait for a `5px` threshold before suppressing ordinary click behavior. After the threshold, clamp the slider to the rail and preview the nearest measured tab. On normal release, snap within `260ms` to the nearest tab and commit directly; do not replay the travelling lens. On `pointercancel`, lost capture, or a `ResizeObserver` result during the drag, restore the committed tab. Every terminal path releases capture and cancels pending timers and animation frames.
+
 ### Geometry and Responsive Layout
 
 Do not measure the plate only when `selectedId` changes. Measure the selected item relative to the plate's positioning container, including the container's scroll offset when the menu itself scrolls. Recalculate when any of these can change geometry:
@@ -76,7 +84,7 @@ Do not remove the selected plate when a selected item receives hover or focus. K
 
 ## Optional Floating-Panel Dragging
 
-Do not add dragging to ordinary menus. Use it only when the component represents a movable tool, floating panel, spatial workspace object, or the user explicitly asks for it.
+Do not add dragging to ordinary menus. The documented V3 horizontal navigation is a narrow opt-in exception with the current-tab and semantic protections above. Otherwise, use dragging only when the component represents a movable tool, floating panel, spatial workspace object, or the user explicitly asks for it.
 
 When dragging is justified:
 

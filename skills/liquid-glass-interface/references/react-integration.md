@@ -1,6 +1,6 @@
 # React Integration Reference
 
-Use `assets/v2-reference-implementation/` as the default behavioral reference for current navigation. Its controlled visual world and temporary lens copy are generated from one menu model; React should follow the same rule. Use `assets/v1-fidelity-kit/` only for explicit archived-V1 reproduction.
+Use `assets/v2-reference-implementation/` as the default behavioral reference for current navigation. Its controlled visual world and temporary lens copy are generated from one menu model; React should follow the same rule. Use `assets/v1-fidelity-kit/` only for explicit archived-V1 reproduction. Treat `/v3` as an independent, opt-in horizontal navigation reference rather than a replacement for V2.
 
 ## Instance-safe SVG IDs
 
@@ -47,3 +47,11 @@ Keep the committed item ID separate from transient interaction state. Model the 
 Use one full replica for the lens. Rebuild its 2× SDF field only when the lens width, height, or radius changes. Translate the replica world inversely to the plate's position so one filtered copy stays aligned with the visible navigation. Do not create separate core and edge trees, use XOR masks, or apply a filter to foreground controls.
 
 For mouse dragging, preserve the drag session in a ref. On every normal `pointerup`, first incorporate the final `clientY`, then calculate the nearest target. Call `setPointerCapture`; also install capture-phase window listeners for `pointerup` and `pointercancel`, and clean them up on unmount. Bypass the transient lens and commit directly for narrow layouts, touch or pen input, `prefers-reduced-motion`, and `forced-colors`.
+
+## V3 slider, input, and Edge optics contract
+
+Keep V3's committed ID, drag-preview ID, and transition phase separate. Render native gray base buttons, then place one navigation-level selection slider from the measured `x`, `width`, and `center` of the committed or previewed button. The slider contains the material plate and a clipped white visual replica; do not split those into per-tab pseudo-elements. Only the committed base button receives `aria-current="page"`, so SSR and every runtime state expose exactly one current item.
+
+Normal clicks on non-current tabs run the large lens transition and leave the committed ID unchanged until the lens arrives. Only the current button may start dragging. Store the Pointer Events session in a ref, reject non-primary mouse input and overlapping phases, set pointer capture, and use a `5px` threshold before moving the slider. During an accepted mouse/touch/pen drag, clamp the measured slider position to the rail and derive the nearest preview item. On normal release, animate a `260ms` snap and commit without starting the large lens. On cancellation, lost capture, resize, or unmount, restore the committed geometry and release capture, timers, and queued frames. Under reduced motion or when measured geometry is unavailable, select directly.
+
+For V3 Edge optics, separate the world replica from the optical filter viewport. The navigation world replica keeps its full measured navigation dimensions and its transform/scale in world coordinates. Put it inside a fixed viewport with exactly the lens width and height, offset the world replica within that viewport, and apply `feDisplacementMap` to the viewport only. Never filter the translated full-width world element: its filter region is evaluated in the wrong local coordinates and can transparently crop the icon and label. Recalculate both spaces from the same measured tab geometry after resize. The current Baseline path keeps the slider and travelling lens without Edge displacement; reduced motion selects directly. Forced-colors and explicit filter-support gates require future implementation and validation.

@@ -4,7 +4,9 @@ This method turns the Demo's iterated（迭代调校的） visual findings into 
 
 ## Versioned Demo and Asset Routing（版本路由与资产）
 
-`/` redirects to the current V2 navigation study. `/v1` remains directly reachable as a frozen archived Demo; its visual and interaction behavior are not the current default. For ordinary navigation, start from [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/). Use [`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/) only when the request explicitly requires reproduction of the V1 original Demo. Add future generations as parallel `vN-*` assets; do not overwrite an archived baseline.
+`/` redirects to the current V2 navigation study. `/v1` remains directly reachable as a frozen archived Demo; its visual and interaction behavior are not the current default. `/v3` is a separate horizontal-navigation lens study, not a replacement for V2. For ordinary navigation, start from [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/). Use [`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/) only when the request explicitly requires reproduction of the V1 original Demo. Add future generations as parallel `vN-*` assets; do not overwrite an archived baseline.
+
+`/brand-preview` is the project mark review page. Authoritative public brand assets live under `public/brand/`; they are project assets, not a prescription for a reusable Liquid Glass color palette.
 
 ## Scope（适用范围）
 
@@ -132,12 +134,25 @@ Describe implementations as inspired by Apple Liquid Glass. Do not copy Apple so
 | V2 selection（V2 选择） | Flat committed state plus a temporary click/drag lens that fades before committing content |
 | V2 dragging（V2 拖拽） | Mouse-only Pointer Capture, final-release nearest-item snapping, cancellation rollback |
 | Motion fallback（动效降级） | Direct commit for narrow, touch/pen, reduced-motion, forced-color, and baseline paths |
+| V3 horizontal lens（V3 横向透镜） | Opt-in four-column rail, inset navigation-level slider, click-travel lens, and all-pointer direct drag snapping |
+| V3 Edge optics（V3 边缘光学） | Full navigation world replica inside a fixed lens-sized filter viewport |
+| Brand review（品牌审阅） | `/brand-preview` reviews the project mark; authoritative public assets are in `public/brand/` |
 
 ## V2 Foundation and Transferable Core（V2 基础与可迁移核心）
 
 V2 establishes a single continuous lens sampler: a 2× rounded-SDF field combines a stable `1.03` center, a steep continuous rise to `1.12` across the final `16px`, and normal refraction that peaks inside the same band. This replaces core/edge masking, preventing seams, folded text, duplicate glyphs, missing glyphs, and a colored strip below the lens. Automated checks support review, but an isolated runnable page and explicit human experience remain required before design acceptance.
 
 The V1 Demo remains an archived fidelity source, not the default behavior. The transferable V2 core is five-layer separation, independently tuned themes, one filtered controlled replica, isolated optical clipping, final-release pointer handling, temporary-lens state, and direct accessible fallbacks.
+
+## V3 Horizontal Navigation Lens（V3 横向导航透镜）
+
+V3 is an independent, opt-in navigation pattern. Keep V2 as the default unless a request explicitly selects V3. V3 uses a four-column rail with an inset navigation-level selection slider. The slider fills the measured inner grid cell rather than a tab edge, and contains both the selected material plate and a clipped, white visual replica of the selected or drag-preview item. The underlying semantic buttons remain gray; the replica, not a per-tab pseudo-element, supplies the active white icon and label. This keeps the plate and its selected content coupled while it moves.
+
+Each tab remains a real button. Exactly one committed tab exposes `aria-current="page"`; a preview under the slider never changes that semantic state. A normal click on a non-current tab starts the large horizontal lens transition. The lens travels through intervening tabs without activating them, then the slider lands on the target after the transition. Reject clicks and new drags while a transition, settling animation, fallback, or unmount cleanup is active.
+
+Only the committed tab starts a V3 drag. Support primary mouse, touch, and pen through Pointer Events with `touch-action: none`, `setPointerCapture`, a `5px` movement threshold, and rail-boundary clamping. Before the threshold, retain ordinary button behavior; after it, continuously move the slider and show the nearest tab as a visual preview while preserving the original `aria-current`. On normal release, snap to the nearest measured tab in `260ms` and commit it directly without replaying the large lens. On `pointercancel`, lost capture, or a resize during a drag, return to the committed tab. Release capture, timers, and animation frames on every terminal path.
+
+V3 enhanced Edge optics require two coordinate spaces. Keep the complete navigation world replica responsible for world translation and scale. Place the SVG `feDisplacementMap` on a fixed lens-sized optics viewport, not on the translated full-width replica. The viewport has the exact lens width and height, while the world replica is offset inside it; this prevents transparent clipping and keeps icons and labels visible inside the refracted lens. The current V3 Baseline path retains the inset slider, semantic controls, and large lens transition while omitting only Edge displacement. `prefers-reduced-motion` and missing measured geometry select directly. Forced-colors and explicit filter-support detection are not current V3 gates; add and validate them before claiming that behavior.
 
 ## Acceptance Checklist（验收清单）
 
@@ -148,6 +163,9 @@ The V1 Demo remains an archived fidelity source, not the default behavior. The t
 - Toolbar and menu preserve rounded corners and hierarchy throughout opening and closing.
 - A V2 lens uses one complete replica and one continuous field: no hard core/edge seam, folded text, duplicate/missing glyphs, or colored strip outside the clipped capsule.
 - The flat committed selection disappears while the lens is active, then returns with content and `aria-current` only after the lens fades.
+- V3 remains opt-in: its inset navigation-level slider retains an outer rail gap, has one white visual replica, and leaves the semantic base buttons gray.
+- During V3 drag, exactly one `aria-current="page"` remains on the committed button; preview changes are visual only, release snaps to the nearest tab, and cancellation returns to the committed tab.
+- In V3 Edge optics, the fixed lens-sized filter viewport visibly contains the translated navigation world replica; no transparent crop hides its icon or label.
 - Normal release uses final pointer position and nearest-item snapping; only cancellation or lost capture returns to the origin.
 - A plate sweep occurs only for user selection and uses the measured previous-to-next two-dimensional center vector; wrapped rows, RTL, vertical writing, scrolling, and rapid selection work, while layout remeasurement emits no sweep.
 - Only the optical wrapper is clipped; overlays are outside it or in a portal, and each SVG `clipPath` has an explicit valid coordinate system.

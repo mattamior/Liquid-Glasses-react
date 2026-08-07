@@ -1,24 +1,27 @@
 # Liquid Glasses React
 
-An interactive React study of Apple-inspired Liquid Glass — continuous refraction,
-adaptive highlights, transient navigation lenses, and light/dark themes.
+An interactive React study of Apple-inspired Liquid Glass: continuous refraction,
+adaptive highlights, and navigation lenses.
 
-一个基于 React 的液态玻璃交互实验，展示连续背景折射、自适应高光、临时导航透镜与亮暗主题。
+一个基于 React 的液态玻璃交互实验，研究连续折射、自适应高光与导航透镜。
 
 [Live Demo](https://liquid.hkooii.com) ·
 [中文说明](./README.zh.md) ·
 [English Documentation](./README.en.md) ·
 [Liquid Glass Method](./docs/liquid-glass-interface.en.md) ·
+[Logo Decision Record](./docs/decisions/liquid-lab-logo.en.md) ·
+[标志决策记录](./docs/decisions/liquid-lab-logo.zh.md) ·
+[V3 Decision Record](./docs/decisions/v3-horizontal-navigation-lens.en.md) ·
+[V3 决策记录](./docs/decisions/v3-horizontal-navigation-lens.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Highlights
 
-- V2 default route with one continuous SVG displacement lens
-- Flat committed selection plus a temporary click/drag navigation lens
-- V1 archived Demo retained at `/v1`
-- Independent light/dark tuning and accessible baseline fallbacks
-- Responsive light and dark themes
-- Cloudflare Workers deployment
+- `/` redirects to the default `/v2` vertical navigation study; frozen `/v1` remains available for archival comparison.
+- Independent `/v3` explores a horizontal lens: an embedded selection slider, temporary click lens, full Pointer Events dragging, and a local Edge optics viewport.
+- `/brand-preview` is the review surface for the current Liquid Lab logo on light and dark backgrounds.
+- V2 remains the default reference implementation; V3 is an independent experiment and does not replace it.
+- The reusable Agent Skill documents versioned assets, layered Web refraction, semantic motion, and accessible fallbacks.
 
 ## Quick Start
 
@@ -27,7 +30,8 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by the development server.
+Open the local URL printed by the development server. Verify the rendered
+routes with:
 
 ```bash
 npm test
@@ -35,17 +39,13 @@ npm test
 
 ## Agent Skill
 
-The reusable `liquid-glass-interface` Skill is versioned in
-[`skills/liquid-glass-interface`](./skills/liquid-glass-interface/). It teaches
-agents to select a versioned V1/V2 asset, build layered Web refraction, and ship
-semantic motion with accessible fallbacks.
-
-The Skill contains guidance only. It does not access credentials, personal
-data, remote assets, telemetry, or hidden network services.
+The versioned [`liquid-glass-interface` Skill](./skills/liquid-glass-interface/)
+helps agents select an explicit V1/V2/V3 reference, build layered Web
+refraction, and preserve semantic interaction and accessible fallbacks. It is
+guidance only: it does not access credentials, personal data, remote assets,
+telemetry, or hidden network services.
 
 ## License
 
-Released under the [MIT License](./LICENSE).
-
-This project is an independent interface study and is not affiliated with or
-endorsed by Apple Inc.
+Released under the [MIT License](./LICENSE). This independent interface study
+is not affiliated with or endorsed by Apple Inc.

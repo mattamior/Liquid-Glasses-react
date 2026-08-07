@@ -28,6 +28,8 @@ An implementation may be called **enhanced refraction** only when all of these a
 7. Light mode has independently reduced chroma so there is no static cyan, purple, or blue perimeter ring.
 8. A V2 navigation lens uses one complete filtered replica and one continuous distance-driven field. It has no core/edge seam, doubled text, folded labels, missing glyphs, or material-colored strip outside its clipped capsule.
 9. During temporary-lens interaction, the flat committed selection is hidden; after the lens fades, the target content, semantic current state, and flat selected visual appear together.
+10. For the explicit V3 pattern, one inset navigation-level slider owns the active material and white visual replica while the underlying semantic buttons remain gray. Exactly one base button has `aria-current="page"` at rest and during preview.
+11. In V3 Edge optics, a transition-time frame visibly contains the expected icon and label inside the lens. The full navigation world replica is translated within a fixed lens-sized filter viewport; no transparent crop or full-width translated filter hides content.
 
 If any item is missing, call the result **baseline glass**: fill, border, shadow, and optional ordinary backdrop blur. Do not describe blur alone, a fixed colored outline, `feTurbulence`, or a repeated local gradient as enhanced refraction.
 
@@ -55,3 +57,5 @@ For a long page with a fixed lens, record enhanced and baseline scroll rAF mean,
 ## Manual visual check
 
 At rest and after scrolling/resizing, toggle baseline/enhanced and dark/light. In enhanced mode, the grid, color bands, and word must stay world-aligned while bending only near the lens boundary. In baseline mode, the same content remains readable but no SVG displacement is claimed. Open an overlay and confirm it can extend beyond the rounded optical wrapper.
+
+For V3, check desktop and narrow viewport inset spacing, current-button click travel, and release timing. Verify that a large lens crosses intermediate tabs without changing `aria-current`; verify mouse, touch, and pen drags from the current tab, `5px` threshold handling, rail clamping, nearest-tab preview, `260ms` snapping, and cancellation rollback. Repeat Edge verification around the travelling frame, not only at rest, with no console error or warning.

@@ -1,43 +1,76 @@
 # Liquid Glasses React
 
 Liquid Glasses React is an interactive study inspired by Apple's Liquid Glass
-design. It explores how glass material can refract（折射） its surroundings,
-adapt to environmental color, and communicate menu hierarchy through fluid
-motion（流体动效）.
+design. It explores continuous refraction（连续折射）, adaptive highlights（自适应
+高光）, and navigation hierarchy communicated through fluid motion（流体动效）.
 
 [Live Demo](https://liquid.hkooii.com) ·
 [中文](./README.zh.md) ·
 [Project Home](./README.md) ·
 [Liquid Glass Method](./docs/liquid-glass-interface.en.md) ·
+[Logo Decision Record](./docs/decisions/liquid-lab-logo.en.md) ·
+[V3 Decision Record](./docs/decisions/v3-horizontal-navigation-lens.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Live Demo
 
-The public version is deployed on Cloudflare Workers:
+The public version is hosted on Cloudflare Workers:
 
 <https://liquid.hkooii.com>
 
-`/` redirects to the current V2 navigation study. `/v1` remains directly
-available as a frozen archived Demo.
+| Route | Purpose |
+| --- | --- |
+| `/` | Redirects to `/v2`, the current default navigation study. |
+| `/v1` | Frozen archived Demo retained for comparison. |
+| `/v2` | Default vertical navigation-lens reference implementation. |
+| `/v3` | Independent horizontal navigation-lens experiment. |
+| `/brand-preview` | Light/dark review surface for the current Liquid Lab logo. |
+
+V2 remains the default reference. V3 is a separate experiment; it does not
+replace V2 or modify the frozen V1 Demo.
 
 ## Features
 
-- V2 default route with one continuous SVG displacement map（位移贴图） sample
-- Flat committed selection plus a temporary click/drag navigation lens
-- Deterministic mouse release, nearest-item snapping, and delayed content commit
-- Separately tuned light/dark optics with baseline/enhanced rendering tiers
-- Direct compact, touch/pen, reduced-motion, and forced-color fallbacks
-- Frozen V1 Demo retained at `/v1`
+### V2: default vertical navigation lens
+
+- One continuous SVG displacement map（位移贴图） sample for the moving lens.
+- Flat committed selection with a temporary lens during click or mouse drag.
+- Separately tuned light/dark optics and baseline/enhanced rendering tiers.
+- Compact, touch/pen, reduced-motion, and forced-color fallback paths.
+
+### V3: independent horizontal navigation lens
+
+- A navigation-level embedded selection slider fills the active inner grid slot;
+  the base navigation stays muted while the slider renders the active label and
+  icon in white.
+- Clicking a non-active tab launches a large temporary lens across the horizontal
+  navigation. Tabs passed during travel do not become active.
+- The active tab accepts primary mouse, touch, and pen Pointer Events. After a
+  `5px` movement threshold, the slider follows the pointer within the track,
+  previews the nearest tab, and snaps to it on release without replaying the
+  large lens.
+- The Edge optics mode filters a lens-sized local viewport, while a translated
+  navigation replica supplies the content being refracted（折射）. This keeps the
+  icon and label available inside the large lens instead of filtering an
+  already-shifted whole navigation surface.
+
+### Brand review
+
+- `/brand-preview` compares the adopted Liquid Lab logo on dark and light
+  backgrounds at 48px, 32px, and 24px sizes.
+- The accepted logo assets are in `public/brand/`; the browser icon is
+  `public/favicon.svg`.
 
 ## Technical Implementation
 
-The interface does not use a static glass image. It combines these browser and
-runtime capabilities:
+The interface does not use a static glass image. It combines:
 
 - React 19 and TypeScript
-- One SVG `feDisplacementMap` with a 2× rounded-SDF field
+- SVG `feDisplacementMap`, with a 2× rounded-SDF field in V2 and a local
+  elliptical field in V3
 - CSS `backdrop-filter`, gradients, inset shadows, and blend modes（混合模式）
-- Pointer Events, capture, and final-release snapping for mouse dragging
+- Pointer Events, pointer capture（指针捕获）, thresholded drag handling, and
+  nearest-item snapping in V3
 - vinext and Vite for building
 - Cloudflare Workers for hosting
 
@@ -68,7 +101,8 @@ Open the local URL printed by the development server.
 npm test
 ```
 
-This command creates a production build and validates the server-rendered page.
+This command creates a production build and validates the server-rendered
+routes.
 
 ## Available Commands
 
@@ -83,26 +117,44 @@ This command creates a production build and validates the server-rendered page.
 ## Project Structure
 
 ```text
+AGENTS.md                         Repository workflow and bilingual decision-record rule
 app/
-  globals.css        Global visual system and Liquid Glass styles
-  layout.tsx         Metadata and root layout
-  page.tsx           Interaction logic, SVG filters, and demo interface
+  page.tsx                        Redirect from / to /v2
+  v1/                             Frozen archived Demo
+  v2/                             Default vertical navigation-lens study
+  v3/                             Independent horizontal navigation-lens study
+  brand-preview/                  Logo review route
 public/
-  favicon.svg        Project icon
-tests/
-  rendered-html.test.mjs
-skills/
-  liquid-glass-interface/  Versioned Skill source for agents and stores
+  brand/                          Current logo assets and static previews
+  favicon.svg                     Browser icon
 docs/
-  liquid-glass-interface.zh.md
-  liquid-glass-interface.en.md
+  decisions/                      Bilingual decision records for important completed work
+  liquid-glass-interface.*.md     Liquid Glass method documentation
+tests/
+  rendered-html.test.mjs          Server-rendered route assertions
+skills/
+  liquid-glass-interface/         Versioned Skill source for agents and stores
 ```
 
 ## Agent Skill
 
-The reusable `liquid-glass-interface` Skill lives in [`skills/liquid-glass-interface`](./skills/liquid-glass-interface/). Its `v2-reference-implementation` is the current default for navigation; `v1-fidelity-kit` is an archived asset used only for explicit V1 Demo reproduction. Future generations use parallel `vN-*` assets rather than overwriting earlier baselines.
+The reusable `liquid-glass-interface` Skill lives in
+[`skills/liquid-glass-interface`](./skills/liquid-glass-interface/). Its
+`v2-reference-implementation` remains the current default reference;
+`v1-fidelity-kit` is an archived asset for explicit V1 reproduction. V3 is an
+independent `v3-*` study that can be selected deliberately rather than
+overwriting either baseline.
 
-The Skill contains implementation guidance only. It does not access credentials, personal data, remote assets, telemetry（遥测）, or hidden network services.
+The Skill contains implementation guidance only. It does not access
+credentials, personal data, remote assets, telemetry（遥测）, or hidden network
+services.
+
+## Decision Records
+
+Important completed work is recorded in structurally equivalent English and
+Chinese documents under [`docs/decisions`](./docs/decisions/). Each record
+covers scope, decision, changed areas, verification evidence, release status,
+and follow-up limits. See [AGENTS.md](./AGENTS.md) for the repository rule.
 
 ## Deployment
 
@@ -119,8 +171,8 @@ before deploying.
 
 ## Project Notice
 
-This project is an independent interface and optical-effects study. It is not an
-official Apple product and is not endorsed or authorized by Apple Inc. Apple and
-related names and trademarks belong to their respective owners.
+This project is an independent interface and optical-effects study. It is not
+an official Apple product and is not endorsed or authorized by Apple Inc. Apple
+and related names and trademarks belong to their respective owners.
 
 The project is released under the [MIT License](./LICENSE).
