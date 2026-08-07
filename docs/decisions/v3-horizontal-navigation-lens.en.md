@@ -13,6 +13,12 @@ the primary pointer continuously after the `5px` threshold, and snaps to the
 nearest tab only on release. The semantic active tab and `aria-current` remain
 committed only after a click travel or drag settle completes.
 
+On 2026-08-07, adopt the user-supplied Longbridge screenshot set as the V3
+visual-reference baseline（视觉参考基准） for future fidelity（保真） work. The set is
+stored at [`docs/references/v3-longbridge`](../references/v3-longbridge/) with
+a bilingual manifest（双语清单）. It guides visual review only; it does not
+change the released interaction, semantic, accessibility, or test contracts.
+
 ## Delivered Result and Changed Areas
 
 - [`/v3`](../../app/v3/page.tsx) exposes explicit base, selection, and lens
@@ -38,6 +44,10 @@ committed only after a click travel or drag settle completes.
   regression coverage; [`package.json`](../../package.json) adds `test:e2e`
   and `test:all`. The Edge drag screenshot is the visual regression baseline
   （视觉回归基线）.
+- [`docs/references/v3-longbridge`](../references/v3-longbridge/) now contains
+  the nine original-filename JPEG reference copies and structurally equivalent
+  Chinese and English indexes. Each entry records its `1264 × 948` dimensions,
+  SHA-256 digest, captured state, and visual purpose.
 
 ## Verification Evidence
 
@@ -61,6 +71,12 @@ committed only after a click travel or drag settle completes.
   The V1 `react-hooks/set-state-in-effect` finding has a documented source-line
   suppression and must be resolved with the next V1 source change. The V3 files
   and new Playwright files pass their scoped lint command.
+- The Longbridge reference copies were compared with the user-provided source
+  directory by filename, dimensions, and SHA-256 digest. The bilingual indexes
+  have the same nine-entry state mapping.
+- Reference-only verification passed with `cmp -s`, `shasum -a 256`, and
+  `sips -g pixelWidth -g pixelHeight` for all nine files; `git diff --check`
+  also passed. No runtime test or Playwright screenshot baseline was changed.
 
 ## Release Status
 
@@ -69,6 +85,10 @@ The V3 implementation was pushed from commit
 and released as Worker version `35abc13a-02a5-4637-801f-f2e90350483a`.
 Deployment used the generated `dist/server/wrangler.json` and `--keep-vars`;
 no bindings, variables, secrets, quotas, or production configuration changed.
+
+The 2026-08-07 screenshot-reference batch did not modify runtime code,
+Playwright snapshots, deployment configuration, or the published Worker. It
+creates no new release.
 
 ## Known Limits and Follow-Up
 
@@ -80,4 +100,7 @@ no bindings, variables, secrets, quotas, or production configuration changed.
   still need physical-device confirmation.
 - Playwright browsers are installed separately with
   `npx playwright install chromium`; browser binaries are not committed.
+- Future V3 visual-fidelity changes must review the complete Longbridge set.
+  Static screenshots are not evidence for exact timing, filter parameters, or
+  accessible interaction behavior; validate those changes independently.
 - Keep this record and the README updated after each completed work batch.

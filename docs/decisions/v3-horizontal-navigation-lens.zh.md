@@ -11,6 +11,10 @@ V3 继续作为独立的横向导航透镜实验。基础层、静态选中层�
 指针；仅在释放后吸附到最近标签。语义激活标签和 `aria-current` 仍只会在点击旅程
 或拖拽吸附结束后提交。
 
+2026-08-07 起，用户提供的 Longbridge 截图集被采纳为未来 V3 保真工作的视觉参考基准。
+该集合保存在 [`docs/references/v3-longbridge`](../references/v3-longbridge/) 并附有结构一致
+的中英文清单。它仅指导视觉审阅，不改变已发布的交互、语义、无障碍或测试契约。
+
 ## 已交付结果与改动区域
 
 - [`/v3`](../../app/v3/page.tsx) 提供明确的基础层、选中层和镜片层标记。基础层只在
@@ -28,6 +32,9 @@ V3 继续作为独立的横向导航透镜实验。基础层、静态选中层�
   [`tests/e2e/v3.spec.ts`](../../tests/e2e/v3.spec.ts) 新增无头 Chromium 回归覆盖；
   [`package.json`](../../package.json) 新增 `test:e2e` 与 `test:all`。Edge 拖拽截图
   作为视觉回归基线。
+- [`docs/references/v3-longbridge`](../references/v3-longbridge/) 现保存 9 张保留原始
+  文件名的 JPEG 参考副本及结构一致的中英文索引。每项记录 `1264 × 948` 尺寸、SHA-256
+  摘要、捕获状态和视觉用途。
 
 ## 验证证据
 
@@ -46,6 +53,11 @@ V3 继续作为独立的横向导航透镜实验。基础层、静态选中层�
   `react-hooks/set-state-in-effect` 结果已有记录在案的源码行级豁免，必须在下次修改
   V1 源码时一并修复。
   V3 文件与新增 Playwright 文件的范围内 lint 已通过。
+- Longbridge 参考副本已按文件名、尺寸和 SHA-256 摘要与用户提供的源目录进行比对；
+  中英文索引具有相同的 9 项状态映射。
+- 仅参考资料的验证已通过：9 个文件均使用 `cmp -s`、`shasum -a 256` 和
+  `sips -g pixelWidth -g pixelHeight` 检查，`git diff --check` 亦通过；没有更改
+  运行时测试或 Playwright 截图基线。
 
 ## 发布状态
 
@@ -53,6 +65,9 @@ V3 实现已从提交
 [`170f1ddeaade72c16e543e983b6ba5d4c9ef8ab1`](../../../../commit/170f1ddeaade72c16e543e983b6ba5d4c9ef8ab1)
 推送，并发布为 Worker 版本 `35abc13a-02a5-4637-801f-f2e90350483a`。部署使用生成的
 `dist/server/wrangler.json` 和 `--keep-vars`；没有修改绑定、变量、密钥、配额或生产配置。
+
+2026-08-07 的截图参考批次没有修改运行时代码、Playwright 快照、部署配置或已发布的
+Worker，也没有产生新的发布。
 
 ## 已知限制与后续工作
 
@@ -62,4 +77,6 @@ V3 实现已从提交
 - 触控取消与触控笔提交已有合成 Pointer Events 覆盖，但仍需真机确认。
 - Playwright 浏览器需单独执行 `npx playwright install chromium` 安装；浏览器二进制
   不会提交到仓库。
+- 未来 V3 视觉保真改动必须审阅完整的 Longbridge 截图集。静态截图不能作为精确时序、
+  滤镜参数或无障碍交互行为的证据；这些改动仍需独立验证。
 - 每次完成工作批次后都要同步更新本记录与 README。

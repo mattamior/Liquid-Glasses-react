@@ -154,6 +154,13 @@ Only the committed tab starts a V3 drag. Support primary mouse, touch, and pen t
 
 V3 enhanced Edge optics require two coordinate spaces. Keep the complete navigation world replica responsible for world translation and scale. Place the SVG `feDisplacementMap` on a fixed lens-sized optics viewport, not on the translated full-width replica. The viewport has the exact lens width and height, while the world replica is offset inside it; this prevents transparent clipping and keeps icons and labels visible inside the refracted lens. The current V3 Baseline path retains the inset slider, semantic controls, and large lens transition while omitting only Edge displacement. `prefers-reduced-motion` and missing measured geometry select directly. Forced-colors and explicit filter-support detection are not current V3 gates; add and validate them before claiming that behavior.
 
+For V3 visual-fidelity（视觉保真） changes, review the complete user-supplied
+[Longbridge screenshot reference set](./references/v3-longbridge/reference-index.en.md).
+Its nine images cover the Open, Activity, and Market resting states, moving
+thick-glass lens positions, and a chart-context（图表上下文） state. The set defines visual
+review targets only; do not infer exact timing, filter values, semantic
+behavior, or accessibility behavior from static captures.
+
 ## Acceptance Checklist（验收清单）
 
 - Refraction responds to the background and component position instead of behaving like a fixed outline（固定描边）.
