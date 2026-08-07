@@ -54,8 +54,8 @@ replace V2 or modify the frozen V1 Demo.
   navigation replica supplies the content being refracted（折射）. Its
   displacement is limited to a restrained edge band, preserving stable icon and
   label shapes in the lens interior.
-- The linked V3 decision record tracks this locally verified follow-up revision;
-  deployment remains pending.
+- The linked V3 decision record tracks the released follow-up revision and its
+  public verification evidence.
 
 ### Brand review
 

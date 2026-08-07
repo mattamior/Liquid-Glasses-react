@@ -19,7 +19,7 @@ adaptive highlights, and navigation lenses.
 
 - `/` redirects to the default `/v2` vertical navigation study; frozen `/v1` remains available for archival comparison.
 - Independent `/v3` explores a horizontal lens: an exclusive embedded selection layer, temporary click/drag lens, full Pointer Events dragging, and a local Edge optics viewport with restrained rim refraction.
-- The linked V3 decision records describe the current locally verified follow-up revision; deployment remains pending.
+- The linked V3 decision records describe the released V3 follow-up revision and its public verification evidence.
 - `/brand-preview` is the review surface for the current Liquid Lab logo on light and dark backgrounds.
 - V2 remains the default reference implementation; V3 is an independent experiment and does not replace it.
 - The reusable Agent Skill documents versioned assets, layered Web refraction, semantic motion, and accessible fallbacks.

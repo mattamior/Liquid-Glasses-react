@@ -1,9 +1,8 @@
 # V3 横向导航透镜决策记录
 
-状态：本地验证完成，等待发布<br>
+状态：已发布<br>
 记录日期：2026-08-07<br>
-当前实现：未提交的本地修订<br>
-上一公开发布：[`de33e654cfecf5f73e56b6afa18dd1806d00d800`](../../../../commit/de33e654cfecf5f73e56b6afa18dd1806d00d800)
+实现提交：[`170f1ddeaade72c16e543e983b6ba5d4c9ef8ab1`](../../../../commit/170f1ddeaade72c16e543e983b6ba5d4c9ef8ab1)
 
 ## 范围与决策
 
@@ -40,20 +39,24 @@ V3 继续作为独立的横向导航透镜实验。基础层、静态选中层�
 - 已本地检查 Edge 拖拽基线截图：中心文字完整，只有边缘存在克制且连续的折射效果。
 - 无头 Firefox 与 Playwright WebKit 的 Edge 拖拽冒烟检查均激活了本地滤镜，且没有
   控制台或页面错误。其稳定截图保留了完整的中文标签，没有重复选中层。
+- 对 [`https://liquid.hkooii.com/v3?optics=edge`](https://liquid.hkooii.com/v3?optics=edge)
+  的公开验证返回 HTTP 200。在 `1365 × 769` 下，真实 Edge 拖拽显示镜片、隐藏静态
+  滑块、在释放前保留原选中项、吸附后提交市场标签，并应用本地滤镜；控制台零错误。
 - 全仓 `npm run lint` 仍被本批次外的既有问题阻断：V1 的
   `react-hooks/set-state-in-effect` 错误，以及生成的 `output/blind-tests` lint 结果。
   V3 文件与新增 Playwright 文件的范围内 lint 已通过。
 
 ## 发布状态
 
-本修订没有执行提交、推送、部署、生产配置修改或公开 smoke test。上一公开发布仍是
-上方列出的提交；必须先经正常发布流程提交并部署，才能将本地修订的行为声明为公开
-可用。
+V3 实现已从提交
+[`170f1ddeaade72c16e543e983b6ba5d4c9ef8ab1`](../../../../commit/170f1ddeaade72c16e543e983b6ba5d4c9ef8ab1)
+推送，并发布为 Worker 版本 `35abc13a-02a5-4637-801f-f2e90350483a`。部署使用生成的
+`dist/server/wrangler.json` 和 `--keep-vars`；没有修改绑定、变量、密钥、配额或生产配置。
 
 ## 已知限制与后续工作
 
 - Chromium 具备完整回归覆盖；Firefox 与 Playwright WebKit 已有无头 Edge 拖拽冒烟
-  证据。发布前仍需验证原生 Safari，因为 SVG `feDisplacementMap` 在原生 Safari
+  证据。未来发布前仍需验证原生 Safari，因为 SVG `feDisplacementMap` 在原生 Safari
   与 Playwright WebKit 中的表现和性能仍可能不同。
 - 触控取消与触控笔提交已有合成 Pointer Events 覆盖，但仍需真机确认。
 - Playwright 浏览器需单独执行 `npx playwright install chromium` 安装；浏览器二进制
