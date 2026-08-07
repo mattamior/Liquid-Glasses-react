@@ -70,6 +70,20 @@ test("renders the Liquid Lab V2 navigation demo", async () => {
   assert.doesNotMatch(html, /REFRACT|LIGHT/);
 });
 
+test("renders the local Liquid Lab brand preview", async () => {
+  const response = await render("/brand-preview");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /<title>Liquid Lab — Brand preview/);
+  assert.match(html, /LIQUID LAB \/ MARK REVIEW/);
+  assert.match(html, /标志深浅色预览/);
+  assert.match(html, /暗色模式/);
+  assert.match(html, /亮色模式/);
+  assert.match(html, /brand-preview__mark--hero/);
+});
+
 test("renders the independent Liquid Lab V3 navigation lens demo", async () => {
   const response = await render("/v3");
   assert.equal(response.status, 200);
@@ -80,6 +94,8 @@ test("renders the independent Liquid Lab V3 navigation lens demo", async () => {
   assert.match(html, /aria-label="V3 liquid glass study"/);
   assert.match(html, /data-optics="baseline"/);
   assert.match(html, /<nav\b[^>]*aria-label="主导航"/);
+  assert.match(html, /class="v3-selection-slider"[^>]*data-active-id="open"[^>]*data-phase="idle"/);
+  assert.match(html, /class="v3-lens-optics-viewport"/);
 
   for (const label of ["关注", "市场", "动态", "开户"]) {
     assert.match(

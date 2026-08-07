@@ -1104,6 +1104,10 @@ export default function V2Page() {
 
       <aside className="v2-sidebar" aria-label="主菜单">
         <div className="v2-sidebar-header">
+          <a className="v2-brand" href="/v2" aria-label="Liquid Lab">
+            <span className="v2-brand-mark" aria-hidden="true" />
+            <span className="v2-brand-name">LIQUID LAB</span>
+          </a>
           <button
             type="button"
             className="v2-collapse-button"
@@ -1113,9 +1117,6 @@ export default function V2Page() {
           >
             <Icon name={collapsed ? "expand" : "collapse"} />
           </button>
-          <span className="v2-sidebar-title" aria-hidden={collapsed}>
-            导航
-          </span>
         </div>
 
         <nav

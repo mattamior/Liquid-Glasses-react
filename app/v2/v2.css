@@ -305,9 +305,40 @@ body:has(.v2-demo) {
 .v2-sidebar-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   min-height: 54px;
   padding: 0 7px 10px;
   border-bottom: 1px solid color-mix(in srgb, var(--v2-ink) 8%, transparent);
+}
+
+.v2-brand {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+  color: var(--v2-ink);
+  text-decoration: none;
+}
+
+.v2-brand-mark {
+  display: block;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  background: url("/brand/liquid-lab-logo-light.svg") center / 100% no-repeat;
+}
+
+.v2-demo[data-theme="dark"] .v2-brand-mark {
+  background-image: url("/brand/liquid-lab-logo.svg");
+}
+
+.v2-brand-name {
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
 }
 
 .v2-collapse-button {
@@ -327,6 +358,10 @@ body:has(.v2-demo) {
   transition: background-color 180ms ease, transform 180ms ease;
 }
 
+.v2-demo[data-sidebar="collapsed"] .v2-brand {
+  display: none;
+}
+
 .v2-collapse-button:hover {
   background: color-mix(in srgb, var(--v2-control-fill) 92%, transparent);
 }
@@ -338,27 +373,6 @@ body:has(.v2-demo) {
 .v2-collapse-button svg {
   width: 21px;
   height: 21px;
-}
-
-.v2-sidebar-title {
-  max-width: 120px;
-  margin-left: 13px;
-  overflow: hidden;
-  font-size: 14px;
-  font-weight: 760;
-  letter-spacing: 0.04em;
-  opacity: 0.72;
-  white-space: nowrap;
-  transition:
-    max-width 360ms cubic-bezier(0.22, 0.78, 0.24, 1),
-    margin 360ms cubic-bezier(0.22, 0.78, 0.24, 1),
-    opacity 180ms ease;
-}
-
-.v2-demo[data-sidebar="collapsed"] .v2-sidebar-title {
-  max-width: 0;
-  margin-left: 0;
-  opacity: 0;
 }
 
 .v2-menu {
