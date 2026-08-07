@@ -63,7 +63,7 @@
 已将已验证构建部署到既有 Cloudflare Worker `liquid-lab-optics-demo`，版本为
 `5785df5f-f296-43d3-ad31-73e45bbc6bc9`；现通过
 `https://liquid.hkooii.com/v3` 提供公开演示。部署使用 `--keep-vars`，没有修改
-生产绑定、变量、密钥或配额。提交与远端推送将在本次发布记录更新后完成。
+生产绑定、变量、密钥或配额。校准实现提交 `a4be49a` 已推送至 `origin/main`。
 
 ## 已知限制与后续工作
 

@@ -82,7 +82,7 @@ The verified build is deployed to the existing Cloudflare Worker
 `liquid-lab-optics-demo` as version `5785df5f-f296-43d3-ad31-73e45bbc6bc9` and
 is publicly available at `https://liquid.hkooii.com/v3`. The deployment used
 `--keep-vars`; it did not change production bindings, variables, secrets, or
-quotas. The commit and remote push follow this release-record update.
+quotas. Calibration commit `a4be49a` was pushed to `origin/main`.
 
 ## Known Limits and Follow-Up
 
