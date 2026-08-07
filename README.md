@@ -13,6 +13,8 @@ adaptive highlights, and navigation lenses.
 [标志决策记录](./docs/decisions/liquid-lab-logo.zh.md) ·
 [V3 Decision Record](./docs/decisions/v3-horizontal-navigation-lens.en.md) ·
 [V3 决策记录](./docs/decisions/v3-horizontal-navigation-lens.zh.md) ·
+[Lint Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
+[Lint 决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Highlights

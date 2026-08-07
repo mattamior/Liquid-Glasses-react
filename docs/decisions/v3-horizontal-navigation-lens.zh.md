@@ -42,8 +42,9 @@ V3 继续作为独立的横向导航透镜实验。基础层、静态选中层�
 - 对 [`https://liquid.hkooii.com/v3?optics=edge`](https://liquid.hkooii.com/v3?optics=edge)
   的公开验证返回 HTTP 200。在 `1365 × 769` 下，真实 Edge 拖拽显示镜片、隐藏静态
   滑块、在释放前保留原选中项、吸附后提交市场标签，并应用本地滤镜；控制台零错误。
-- 全仓 `npm run lint` 仍被本批次外的既有问题阻断：V1 的
-  `react-hooks/set-state-in-effect` 错误，以及生成的 `output/blind-tests` lint 结果。
+- 生成的 `output/**` 实验产物已排除出仓库 lint 范围。V1 的
+  `react-hooks/set-state-in-effect` 结果已有记录在案的源码行级豁免，必须在下次修改
+  V1 源码时一并修复。
   V3 文件与新增 Playwright 文件的范围内 lint 已通过。
 
 ## 发布状态

@@ -57,10 +57,10 @@ committed only after a click travel or drag settle completes.
   returned HTTP 200. At `1365 × 769`, a real Edge drag showed the lens, hid the
   static slider, kept the original selection until release, committed Market
   after settling, applied the local filter, and emitted zero console errors.
-- Repository-wide `npm run lint` remains blocked by pre-existing issues outside
-  this batch: a V1 `react-hooks/set-state-in-effect` error and generated
-  `output/blind-tests` lint findings. The V3 files and new Playwright files
-  pass their scoped lint command.
+- Generated `output/**` fixtures are excluded from the repository lint surface.
+  The V1 `react-hooks/set-state-in-effect` finding has a documented source-line
+  suppression and must be resolved with the next V1 source change. The V3 files
+  and new Playwright files pass their scoped lint command.
 
 ## Release Status
 

@@ -10,6 +10,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [Liquid Glass Method](./docs/liquid-glass-interface.en.md) ·
 [Logo Decision Record](./docs/decisions/liquid-lab-logo.en.md) ·
 [V3 Decision Record](./docs/decisions/v3-horizontal-navigation-lens.en.md) ·
+[Lint Scope Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Live Demo

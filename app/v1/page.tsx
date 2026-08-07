@@ -437,6 +437,7 @@ export default function Home() {
   const [isMenuDragging, setIsMenuDragging] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Deferred by docs/decisions/lint-scope-maintenance.en.md until the next V1 source change makes this initialization render-safe.
     setDisplacementMap(createDisplacementMap());
   }, []);
 
