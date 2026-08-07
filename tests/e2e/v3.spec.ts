@@ -24,6 +24,7 @@ async function dragSelectedTabTo(page: Page, target: "follow" | "market" | "acti
 }
 
 async function openV3(page: Page, path = "/v3") {
+  await page.setViewportSize({ width: 1264, height: 948 });
   await page.goto(path);
   await expect(page.getByRole("navigation", { name: navigationName }).locator(".v3-selection-slider")).toHaveAttribute("data-ready", "true");
 }
@@ -66,6 +67,27 @@ test("keeps the initial selection in one visual layer", async ({ page }) => {
   const slider = navigation.locator(".v3-selection-slider");
   const lens = navigation.locator(".v3-lens-position");
   const baseVisual = navigation.locator('[data-visual-layer="base"]');
+  const dock = navigation.locator("xpath=..");
+  const [dockBox, navigationBox, sliderBox, lensBox] = await Promise.all([
+    dock.boundingBox(),
+    navigation.boundingBox(),
+    slider.boundingBox(),
+    lens.boundingBox(),
+  ]);
+
+  if (!dockBox || !navigationBox || !sliderBox || !lensBox) {
+    throw new Error("The reference-calibrated V3 dock must have measurable geometry.");
+  }
+
+  expect(Math.round(dockBox.width)).toBe(1124);
+  expect(Math.round(dockBox.height)).toBe(210);
+  expect(Math.round(dockBox.y + dockBox.height)).toBe(901);
+  expect(Math.round(navigationBox.width)).toBe(872);
+  expect(Math.round(navigationBox.height)).toBe(210);
+  expect(Math.round(sliderBox.width)).toBe(210);
+  expect(Math.round(sliderBox.height)).toBe(182);
+  expect(Math.round(lensBox.width)).toBe(296);
+  expect(Math.round(lensBox.height)).toBe(242);
 
   await expect(navigation).toHaveAttribute("data-lens-phase", "idle");
   await expect(slider).toHaveAttribute("data-visible", "true");
@@ -99,6 +121,7 @@ test("shows a pointer-following lens during drag and commits only after it settl
   const navigation = page.getByRole("navigation", { name: navigationName });
   const slider = navigation.locator(".v3-selection-slider");
   const lens = navigation.locator(".v3-lens-position");
+  const opticsViewport = lens.locator(".v3-lens-optics-viewport");
   const activity = page.getByRole("button", { name: labels.activity });
   const targetBox = await activity.boundingBox();
 
@@ -107,11 +130,15 @@ test("shows a pointer-following lens during drag and commits only after it settl
   await dragSelectedTabTo(page, "activity");
   await expect(slider).toHaveAttribute("data-visible", "false");
   await expect(lens).toHaveAttribute("data-phase", "dragging");
+  await expect(opticsViewport).toHaveCSS("filter", /url\(/);
   await expect(page.getByRole("button", { name: labels.open })).toHaveAttribute("aria-current", "page");
 
   const lensBox = await lens.boundingBox();
   if (!lensBox) throw new Error("The dragging lens must be visible.");
+  expect(Math.round(lensBox.width)).toBe(296);
+  expect(Math.round(lensBox.height)).toBe(242);
   expect(Math.abs(lensBox.x + lensBox.width / 2 - (targetBox.x + targetBox.width / 2))).toBeLessThan(4);
+  await expect(lens).toHaveScreenshot("v3-baseline-drag.png", { animations: "disabled" });
 
   await page.mouse.up();
   await expect(navigation).toHaveAttribute("data-lens-phase", "drag-settling");
@@ -175,7 +202,7 @@ test("recovers from touch cancellation and commits a pen drag", async ({ page })
   await expect(navigation).toHaveAttribute("data-lens-phase", "idle");
 });
 
-test("applies edge optics only to the active dragging lens", async ({ page }) => {
+test("uses the stronger edge field with the same active-lens geometry", async ({ page }) => {
   await openV3(page, "/v3?optics=edge");
 
   const navigation = page.getByRole("navigation", { name: navigationName });
@@ -187,7 +214,26 @@ test("applies edge optics only to the active dragging lens", async ({ page }) =>
   await dragSelectedTabTo(page, "market");
   await expect(slider).toHaveAttribute("data-visible", "false");
   await expect(opticsViewport).toHaveCSS("filter", /url\(/);
+  const lensBox = await lens.boundingBox();
+  if (!lensBox) throw new Error("The edge lens must be visible during drag.");
+  expect(Math.round(lensBox.width)).toBe(296);
+  expect(Math.round(lensBox.height)).toBe(242);
   await page.waitForTimeout(250);
   await expect(lens).toHaveScreenshot("v3-edge-drag.png", { animations: "disabled" });
   await page.mouse.up();
+});
+
+test("commits reduced-motion selection without exposing a temporary lens", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openV3(page);
+
+  const navigation = page.getByRole("navigation", { name: navigationName });
+  const slider = navigation.locator(".v3-selection-slider");
+  const lens = navigation.locator(".v3-lens-position");
+
+  await page.getByRole("button", { name: labels.market }).click();
+  await expect(page.getByRole("button", { name: labels.market })).toHaveAttribute("aria-current", "page");
+  await expect(navigation).toHaveAttribute("data-lens-phase", "idle");
+  await expect(slider).toHaveAttribute("data-visible", "true");
+  await expect(lens).toHaveCSS("visibility", "hidden");
 });

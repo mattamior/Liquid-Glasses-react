@@ -10,6 +10,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [Liquid Glass Method](./docs/liquid-glass-interface.en.md) ·
 [Logo Decision Record](./docs/decisions/liquid-lab-logo.en.md) ·
 [V3 Decision Record](./docs/decisions/v3-horizontal-navigation-lens.en.md) ·
+[V3 Reference Calibration](./docs/decisions/v3-reference-calibration.en.md) ·
 [Lint Scope Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
@@ -24,7 +25,7 @@ The public version is hosted on Cloudflare Workers:
 | `/` | Redirects to `/v2`, the current default navigation study. |
 | `/v1` | Frozen archived Demo retained for comparison. |
 | `/v2` | Default vertical navigation-lens reference implementation. |
-| `/v3` | Independent horizontal navigation-lens experiment. |
+| `/v3` | Independent horizontal navigation-lens experiment; this checkout has a local, reference-calibrated implementation. |
 | `/brand-preview` | Light/dark review surface for the current Liquid Lab logo. |
 
 V2 remains the default reference. V3 is a separate experiment; it does not
@@ -51,12 +52,19 @@ replace V2 or modify the frozen V1 Demo.
   `5px` movement threshold, the glass lens follows the pointer within the
   track, previews the nearest tab, and snaps to it on release before the
   selection is committed.
-- The Edge optics mode filters a lens-sized local viewport, while a translated
-  navigation replica supplies the content being refracted（折射）. Its
-  displacement is limited to a restrained edge band, preserving stable icon and
-  label shapes in the lens interior.
-- The linked V3 decision record tracks the released follow-up revision and its
-  public verification evidence.
+- The reference-calibrated desktop frame locks a `1124 × 210` dock with an
+  `872 × 210` rail at `1264 × 948`; the `296 × 242` temporary lens overlaps the
+  rail while the `210 × 182` static slider remains visibly smaller. Narrow
+  layouts derive these dimensions from the live rail ratio rather than a fixed
+  transform scale.
+- SSR starts with `data-optics="baseline"`. After hydration（客户端接管）, both
+  optics modes filter a lens-sized local viewport and a translated navigation
+  replica supplies the refracted content. Baseline uses a complete, restrained
+  elliptical convex field; Edge keeps the same geometry and raises only rim
+  refraction by 14%.
+- The historical V3 decision record tracks the released follow-up revision.
+  The reference-calibration record captures the publicly deployed calibration
+  at [`/v3`](https://liquid.hkooii.com/v3).
 
 ### Brand review
 

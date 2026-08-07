@@ -62,13 +62,17 @@ const TABS: readonly TabDefinition[] = [
   { id: "open", label: "开户", icon: "open" },
 ];
 
-const LENS_WIDTH = 224;
-const LENS_HEIGHT = 184;
-const FIELD_SCALE = 42;
+const REFERENCE_NAVIGATION_WIDTH = 872;
+const REFERENCE_NAVIGATION_HEIGHT = 210;
+const REFERENCE_LENS_WIDTH = 296;
+const REFERENCE_LENS_HEIGHT = 242;
+const FIELD_SCALE = 26;
 const FIELD_RESOLUTION = 2;
-const EDGE_BAND_WIDTH = 15;
-const EDGE_REFRACTION = 4.5;
-const EDGE_ZOOM = 0.04;
+const FILTER_PADDING = 36;
+const EDGE_BAND_WIDTH = 20;
+const BASELINE_BULGE = 0.18;
+const BASELINE_EDGE_REFRACTION = 3.4;
+const EDGE_REFRACTION_MULTIPLIER = 1.14;
 const DRAG_THRESHOLD = 5;
 const DRAG_SETTLE_DURATION = 260;
 const LENS_TRAVEL_DURATION = 680;
@@ -86,7 +90,22 @@ function encodeDisplacement(value: number) {
   return Math.round(clamp(127.5 + (value / FIELD_SCALE) * 255, 0, 255));
 }
 
-function createEllipticalField(width: number, height: number) {
+function createLensDimensions(geometry: NavigationGeometry) {
+  const ratio = clamp(
+    Math.min(
+      geometry.width / REFERENCE_NAVIGATION_WIDTH,
+      geometry.height / REFERENCE_NAVIGATION_HEIGHT,
+    ),
+    0.52,
+    1,
+  );
+  return {
+    width: Math.round(REFERENCE_LENS_WIDTH * ratio),
+    height: Math.round(REFERENCE_LENS_HEIGHT * ratio),
+  };
+}
+
+function createEllipticalField(width: number, height: number, optics: OpticsMode) {
   const canvas = document.createElement("canvas");
   canvas.width = width * FIELD_RESOLUTION;
   canvas.height = height * FIELD_RESOLUTION;
@@ -111,9 +130,10 @@ function createEllipticalField(width: number, height: number) {
       const normalLength = Math.hypot(normalGradientX, normalGradientY) || 1;
       const normalX = normalGradientX / normalLength;
       const normalY = normalGradientY / normalLength;
-      const localZoom = edge * EDGE_ZOOM;
-      const offsetX = x * -localZoom + normalX * edge * EDGE_REFRACTION;
-      const offsetY = y * -localZoom + normalY * edge * EDGE_REFRACTION;
+      const interiorFalloff = 1 - smoothstep(0.7, 1, radius);
+      const edgeRefraction = BASELINE_EDGE_REFRACTION * (optics === "edge" ? EDGE_REFRACTION_MULTIPLIER : 1);
+      const offsetX = x * -BASELINE_BULGE * interiorFalloff + normalX * edge * edgeRefraction;
+      const offsetY = y * -BASELINE_BULGE * interiorFalloff + normalY * edge * edgeRefraction;
       const index = (pixelY * canvas.width + pixelX) * 4;
       pixels.data[index] = encodeDisplacement(offsetX);
       pixels.data[index + 1] = encodeDisplacement(offsetY);
@@ -126,28 +146,28 @@ function createEllipticalField(width: number, height: number) {
   return canvas.toDataURL("image/png");
 }
 
-function LensFilter({ id, field }: { id: string; field: string }) {
+function LensFilter({ id, field, width, height }: { id: string; field: string; width: number; height: number }) {
   return (
     <filter
       id={id}
-      x="-24"
-      y="-24"
-      width={LENS_WIDTH + 48}
-      height={LENS_HEIGHT + 48}
+      x={-FILTER_PADDING}
+      y={-FILTER_PADDING}
+      width={width + FILTER_PADDING * 2}
+      height={height + FILTER_PADDING * 2}
       filterUnits="userSpaceOnUse"
       colorInterpolationFilters="sRGB"
     >
-      <feImage href={field} x="0" y="0" width={LENS_WIDTH} height={LENS_HEIGHT} preserveAspectRatio="none" result="field" />
+      <feImage href={field} x="0" y="0" width={width} height={height} preserveAspectRatio="none" result="field" />
       <feDisplacementMap
         in="SourceGraphic"
         in2="field"
         scale={FIELD_SCALE}
         xChannelSelector="R"
         yChannelSelector="G"
-        x="-24"
-        y="-24"
-        width={LENS_WIDTH + 48}
-        height={LENS_HEIGHT + 48}
+        x={-FILTER_PADDING}
+        y={-FILTER_PADDING}
+        width={width + FILTER_PADDING * 2}
+        height={height + FILTER_PADDING * 2}
       />
     </filter>
   );
@@ -187,16 +207,17 @@ function NavVisual({ layer, suppressedId }: { layer: VisualLayer; suppressedId?:
   );
 }
 
-function getSliderInsets() {
-  if (window.matchMedia("(max-width: 720px)").matches) {
-    return { horizontal: 3, vertical: 8 };
-  }
-  return { horizontal: 10, vertical: 10 };
+function getSliderInsets(geometry: NavigationGeometry) {
+  const ratio = clamp(geometry.height / REFERENCE_NAVIGATION_HEIGHT, 0.52, 1);
+  return {
+    horizontal: Math.max(2, Math.round(4 * ratio)),
+    vertical: Math.max(8, Math.round(14 * ratio)),
+  };
 }
 
 function positionForTab(id: TabId, geometry: NavigationGeometry): SliderPosition {
   const tab = geometry.tabs[id];
-  const insets = getSliderInsets();
+  const insets = getSliderInsets(geometry);
   return {
     x: tab.x - tab.width / 2,
     y: insets.vertical,
@@ -234,6 +255,10 @@ export default function V3Page() {
   const [targetId, setTargetId] = useState<TabId | null>(null);
   const [optics, setOptics] = useState<OpticsMode>("baseline");
   const [field, setField] = useState("");
+  const [lensDimensions, setLensDimensions] = useState({
+    width: REFERENCE_LENS_WIDTH,
+    height: REFERENCE_LENS_HEIGHT,
+  });
 
   const updateSliderPhase = useCallback((nextPhase: SliderPhase) => {
     sliderPhaseRef.current = nextPhase;
@@ -253,13 +278,21 @@ export default function V3Page() {
   }, [targetId]);
 
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("optics") !== "edge") return;
     const frame = window.requestAnimationFrame(() => {
-      setOptics("edge");
-      setField(createEllipticalField(LENS_WIDTH, LENS_HEIGHT));
+      const requestedOptics = new URLSearchParams(window.location.search).get("optics") === "edge"
+        ? "edge"
+        : "baseline";
+      setOptics(requestedOptics);
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setField(createEllipticalField(lensDimensions.width, lensDimensions.height, optics));
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [lensDimensions, optics]);
 
   const clearPendingTravel = useCallback(() => {
     if (travelTimeoutRef.current !== null) {
@@ -395,6 +428,12 @@ export default function V3Page() {
       ) cancelActiveDrag();
       geometryRef.current = nextGeometry;
       setGeometry(nextGeometry);
+      setLensDimensions((currentDimensions) => {
+        const nextDimensions = createLensDimensions(nextGeometry);
+        return currentDimensions.width === nextDimensions.width && currentDimensions.height === nextDimensions.height
+          ? currentDimensions
+          : nextDimensions;
+      });
       const currentTarget = targetIdRef.current;
       if (sliderPhaseRef.current !== "dragging") {
         const sliderTabId = lensPhaseRef.current !== "idle" && currentTarget
@@ -509,8 +548,8 @@ export default function V3Page() {
 
   const selectOptics = useCallback((nextMode: OpticsMode) => {
     setOptics(nextMode);
-    setField(nextMode === "edge" ? createEllipticalField(LENS_WIDTH, LENS_HEIGHT) : "");
-  }, []);
+    setField(createEllipticalField(lensDimensions.width, lensDimensions.height, nextMode));
+  }, [lensDimensions]);
 
   const handleLensExpansionEnd = useCallback((event: TransitionEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget || event.propertyName !== "transform" || lensPhaseRef.current !== "expanding") return;
@@ -542,8 +581,8 @@ export default function V3Page() {
     const nav = navRef.current;
     if (!nextGeometry || !nav) return false;
     const navBox = nav.getBoundingClientRect();
-    const minimumLensX = LENS_WIDTH / 2;
-    const maximumLensX = Math.max(minimumLensX, nextGeometry.width - LENS_WIDTH / 2);
+    const minimumLensX = lensDimensions.width / 2;
+    const maximumLensX = Math.max(minimumLensX, nextGeometry.width - lensDimensions.width / 2);
     const nextX = clamp(clientX - navBox.left, minimumLensX, maximumLensX);
     dragSession.hasMoved = dragSession.hasMoved || Math.abs(clientX - dragSession.startClientX) > DRAG_THRESHOLD;
     if (!dragSession.hasMoved) return true;
@@ -559,7 +598,7 @@ export default function V3Page() {
       updateSliderPhase("dragging");
     }
     return true;
-  }, [nearestTabForLensX, queueDragLensPosition, updateSliderPhase]);
+  }, [lensDimensions.width, nearestTabForLensX, queueDragLensPosition, updateSliderPhase]);
 
   const finishDrag = useCallback((pointerId: number, wasCancelled: boolean, clientX?: number) => {
     const dragSession = dragSessionRef.current;
@@ -667,7 +706,9 @@ export default function V3Page() {
   const sliderStyle = sliderPosition
     ? {
         "--v3-slider-x": `${sliderPosition.x}px`,
+        "--v3-slider-y": `${sliderPosition.y}px`,
         "--v3-slider-width": `${sliderPosition.width}px`,
+        "--v3-slider-height": `${sliderPosition.height}px`,
       } as CSSProperties
     : undefined;
   const navStyle = {
@@ -675,6 +716,10 @@ export default function V3Page() {
     "--v3-lens-y": `${lensPosition.y}px`,
     "--v3-world-width": `${geometry?.width ?? 0}px`,
     "--v3-world-height": `${geometry?.height ?? 0}px`,
+    "--v3-lens-width": `${lensDimensions.width}px`,
+    "--v3-lens-height": `${lensDimensions.height}px`,
+    "--v3-lens-half-width": `${lensDimensions.width / 2}px`,
+    "--v3-lens-half-height": `${lensDimensions.height / 2}px`,
   } as CSSProperties;
   const lensOpticsStyle = {
     "--v3-lens-filter": field ? `url("#${filterId}")` : "none",
@@ -721,7 +766,7 @@ export default function V3Page() {
               </button>
             ))}
           </div>
-          {field ? <svg className="v3-filter-definitions" aria-hidden="true"><defs><LensFilter id={filterId} field={field} /></defs></svg> : null}
+          {field ? <svg className="v3-filter-definitions" aria-hidden="true"><defs><LensFilter id={filterId} field={field} width={lensDimensions.width} height={lensDimensions.height} /></defs></svg> : null}
           <div className="v3-lens-position" aria-hidden="true" data-phase={lensPhase} onTransitionEnd={handleLensTravelEnd}>
             <div className="v3-lens-shell" onTransitionEnd={handleLensExpansionEnd}>
               <div className="v3-lens-optics-viewport" style={lensOpticsStyle}>

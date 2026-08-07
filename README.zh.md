@@ -9,6 +9,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 [液态玻璃方法](./docs/liquid-glass-interface.zh.md) ·
 [标志决策记录](./docs/decisions/liquid-lab-logo.zh.md) ·
 [V3 决策记录](./docs/decisions/v3-horizontal-navigation-lens.zh.md) ·
+[V3 参考校准](./docs/decisions/v3-reference-calibration.zh.md) ·
 [Lint 范围决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
@@ -23,7 +24,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 | `/` | 重定向至当前默认导航实验 `/v2`。 |
 | `/v1` | 保留用于对照的冻结归档 Demo。 |
 | `/v2` | 默认的纵向导航透镜参考实现。 |
-| `/v3` | 独立的横向导航透镜实验。 |
+| `/v3` | 独立的横向导航透镜实验；公开版本已使用参考校准实现。 |
 | `/brand-preview` | 当前 Liquid Lab 标志的亮暗背景审阅页。 |
 
 V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修改冻结的 V1 Demo。
@@ -46,9 +47,14 @@ V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修�
 - 当前激活标签接受主鼠标、触控和触控笔的 Pointer Events。移动超过 `5px` 后，
   玻璃镜片会在轨道边界内跟随指针、预览最近标签，并在释放后吸附到该标签，再提交
   选中状态。
-- Edge optics 模式只过滤镜片尺寸的局部 viewport；经过平移的导航副本负责提供被
-  折射内容。位移只作用于克制的边缘带，使镜片中心的图标与文字保持稳定。
-- 链接的 V3 决策记录跟踪本次已发布修订及其公开验证证据。
+- 参考校准在 `1264 × 948` 锁定 `1124 × 210` 的 dock 与 `872 × 210` 的轨道；
+  暂态透镜为 `296 × 242`，会在上下略微越过轨道，`210 × 182` 的静态滑块则保持
+  明显更小。窄屏尺寸从实时轨道比例派生，不使用固定缩放。
+- SSR 仍从 `data-optics="baseline"` 开始。hydration 后，两种 optics 都会过滤镜片
+  尺寸的局部 viewport，平移后的导航副本负责提供被折射内容。Baseline 使用完整且
+  克制的椭圆凸透镜位移场；Edge 保持相同几何，只将边缘折射增强 14%。
+- 历史 V3 决策记录描述已发布的后续修订；参考校准记录描述已公开部署并验证的
+  [`/v3`](https://liquid.hkooii.com/v3) 校准实现。
 
 ### 品牌审阅
 
