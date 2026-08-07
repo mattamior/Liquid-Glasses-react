@@ -41,18 +41,21 @@ replace V2 or modify the frozen V1 Demo.
 ### V3: independent horizontal navigation lens
 
 - A navigation-level embedded selection slider fills the active inner grid slot;
-  the base navigation stays muted while the slider renders the active label and
-  icon in white.
+  the base navigation stays muted while the slider is the only static owner of
+  the active white label and icon.
 - Clicking a non-active tab launches a large temporary lens across the horizontal
-  navigation. Tabs passed during travel do not become active.
+  navigation. The slider is hidden for the full lens phase, so tabs passed
+  during travel do not become active or create a duplicate visual.
 - The active tab accepts primary mouse, touch, and pen Pointer Events. After a
-  `5px` movement threshold, the slider follows the pointer within the track,
-  previews the nearest tab, and snaps to it on release without replaying the
-  large lens.
+  `5px` movement threshold, the glass lens follows the pointer within the
+  track, previews the nearest tab, and snaps to it on release before the
+  selection is committed.
 - The Edge optics mode filters a lens-sized local viewport, while a translated
-  navigation replica supplies the content being refracted（折射）. This keeps the
-  icon and label available inside the large lens instead of filtering an
-  already-shifted whole navigation surface.
+  navigation replica supplies the content being refracted（折射）. Its
+  displacement is limited to a restrained edge band, preserving stable icon and
+  label shapes in the lens interior.
+- The linked V3 decision record tracks this locally verified follow-up revision;
+  deployment remains pending.
 
 ### Brand review
 

@@ -14,8 +14,9 @@ import "./v3.css";
 
 type TabId = "follow" | "market" | "activity" | "open";
 type OpticsMode = "baseline" | "edge";
-type LensPhase = "idle" | "primed" | "expanding" | "travelling";
+type LensPhase = "idle" | "primed" | "expanding" | "travelling" | "dragging" | "drag-settling";
 type SliderPhase = "idle" | "dragging" | "settling";
+type VisualLayer = "base" | "selection" | "lens";
 
 interface TabDefinition {
   id: TabId;
@@ -50,8 +51,6 @@ interface DragSession {
   pointerId: number;
   pointerTarget: HTMLButtonElement;
   startClientX: number;
-  grabOffset: number;
-  origin: SliderPosition;
   x: number;
   hasMoved: boolean;
 }
@@ -67,6 +66,9 @@ const LENS_WIDTH = 224;
 const LENS_HEIGHT = 184;
 const FIELD_SCALE = 42;
 const FIELD_RESOLUTION = 2;
+const EDGE_BAND_WIDTH = 15;
+const EDGE_REFRACTION = 4.5;
+const EDGE_ZOOM = 0.04;
 const DRAG_THRESHOLD = 5;
 const DRAG_SETTLE_DURATION = 260;
 const LENS_TRAVEL_DURATION = 680;
@@ -102,13 +104,16 @@ function createEllipticalField(width: number, height: number) {
       const normalizedX = x / halfWidth;
       const normalizedY = y / halfHeight;
       const radius = Math.hypot(normalizedX, normalizedY);
-      const edge = Math.pow(smoothstep(0.52, 1, radius), 2.15);
-      const centerZoom = 0.14 + edge * 0.19;
-      const normalLength = Math.hypot(normalizedX, normalizedY) || 1;
-      const normalX = normalizedX / normalLength;
-      const normalY = normalizedY / normalLength;
-      const offsetX = x * -centerZoom + normalX * edge * 22;
-      const offsetY = y * -centerZoom + normalY * edge * 17;
+      const edgeDistance = Math.max(0, (1 - radius) * Math.min(halfWidth, halfHeight));
+      const edge = 1 - smoothstep(0, EDGE_BAND_WIDTH, edgeDistance);
+      const normalGradientX = x / (halfWidth * halfWidth);
+      const normalGradientY = y / (halfHeight * halfHeight);
+      const normalLength = Math.hypot(normalGradientX, normalGradientY) || 1;
+      const normalX = normalGradientX / normalLength;
+      const normalY = normalGradientY / normalLength;
+      const localZoom = edge * EDGE_ZOOM;
+      const offsetX = x * -localZoom + normalX * edge * EDGE_REFRACTION;
+      const offsetY = y * -localZoom + normalY * edge * EDGE_REFRACTION;
       const index = (pixelY * canvas.width + pixelX) * 4;
       pixels.data[index] = encodeDisplacement(offsetX);
       pixels.data[index + 1] = encodeDisplacement(offsetY);
@@ -132,13 +137,17 @@ function LensFilter({ id, field }: { id: string; field: string }) {
       filterUnits="userSpaceOnUse"
       colorInterpolationFilters="sRGB"
     >
-      <feImage href={field} width={LENS_WIDTH} height={LENS_HEIGHT} result="field" />
+      <feImage href={field} x="0" y="0" width={LENS_WIDTH} height={LENS_HEIGHT} preserveAspectRatio="none" result="field" />
       <feDisplacementMap
         in="SourceGraphic"
         in2="field"
         scale={FIELD_SCALE}
         xChannelSelector="R"
         yChannelSelector="G"
+        x="-24"
+        y="-24"
+        width={LENS_WIDTH + 48}
+        height={LENS_HEIGHT + 48}
       />
     </filter>
   );
@@ -161,13 +170,13 @@ function Glyph({ name }: { name: TabDefinition["icon"] | "sparkle" }) {
   return <svg {...props}><path d="m12 2 1.8 7.1L21 12l-7.2 2.9L12 22l-2.8-7.1L2 12l7.2-2.9Z" /></svg>;
 }
 
-function NavVisual({ highlightedId }: { highlightedId?: TabId }) {
+function NavVisual({ layer, suppressedId }: { layer: VisualLayer; suppressedId?: TabId }) {
   return (
-    <div className="v3-nav-visual" aria-hidden="true">
+    <div className="v3-nav-visual" data-visual-layer={layer} aria-hidden="true">
       {TABS.map((tab) => (
         <div
           className="v3-tab-visual"
-          data-active={tab.id === highlightedId ? "true" : undefined}
+          data-suppressed={tab.id === suppressedId ? "true" : undefined}
           key={tab.id}
         >
           <Glyph name={tab.icon} />
@@ -202,12 +211,13 @@ export default function V3Page() {
   const travelTimeoutRef = useRef<number | null>(null);
   const sliderTimeoutRef = useRef<number | null>(null);
   const animationFramesRef = useRef<number[]>([]);
+  const dragAnimationFrameRef = useRef<number | null>(null);
+  const pendingDragLensPositionRef = useRef<LensPosition | null>(null);
   const sessionRef = useRef(0);
   const dragSessionRef = useRef<DragSession | null>(null);
   const activeIdRef = useRef<TabId>("open");
   const lensPhaseRef = useRef<LensPhase>("idle");
   const sliderPhaseRef = useRef<SliderPhase>("idle");
-  const settleTargetIdRef = useRef<TabId | null>(null);
   const targetIdRef = useRef<TabId | null>(null);
   const geometryRef = useRef<NavigationGeometry | null>(null);
   const suppressNextClickRef = useRef(false);
@@ -267,6 +277,35 @@ export default function V3Page() {
     }
   }, []);
 
+  const clearPendingDragLensPosition = useCallback(() => {
+    if (dragAnimationFrameRef.current !== null) {
+      window.cancelAnimationFrame(dragAnimationFrameRef.current);
+      dragAnimationFrameRef.current = null;
+    }
+    pendingDragLensPositionRef.current = null;
+  }, []);
+
+  const queueDragLensPosition = useCallback((nextPosition: LensPosition) => {
+    pendingDragLensPositionRef.current = nextPosition;
+    if (dragAnimationFrameRef.current !== null) return;
+    dragAnimationFrameRef.current = window.requestAnimationFrame(() => {
+      dragAnimationFrameRef.current = null;
+      const position = pendingDragLensPositionRef.current;
+      pendingDragLensPositionRef.current = null;
+      if (position) setLensPosition(position);
+    });
+  }, []);
+
+  const flushQueuedDragLensPosition = useCallback(() => {
+    if (dragAnimationFrameRef.current !== null) {
+      window.cancelAnimationFrame(dragAnimationFrameRef.current);
+      dragAnimationFrameRef.current = null;
+    }
+    const position = pendingDragLensPositionRef.current;
+    pendingDragLensPositionRef.current = null;
+    if (position) setLensPosition(position);
+  }, []);
+
   const setCommittedTab = useCallback((nextId: TabId, nextGeometry = geometryRef.current) => {
     activeIdRef.current = nextId;
     setActiveId(nextId);
@@ -283,9 +322,10 @@ export default function V3Page() {
     setCommittedTab(completedId);
     targetIdRef.current = null;
     setTargetId(null);
+    updateSliderPhase("idle");
     lensPhaseRef.current = "idle";
     setLensPhase("idle");
-  }, [clearPendingTravel, setCommittedTab]);
+  }, [clearPendingTravel, setCommittedTab, updateSliderPhase]);
 
   const readNavigationGeometry = useCallback((): NavigationGeometry | null => {
     const nav = navRef.current;
@@ -312,38 +352,35 @@ export default function V3Page() {
     }
   }, []);
 
-  const settleSlider = useCallback((nextId: TabId, shouldCommit: boolean) => {
-    const nextGeometry = geometryRef.current;
-    if (!nextGeometry) {
-      if (shouldCommit) setCommittedTab(nextId, nextGeometry);
-      settleTargetIdRef.current = null;
-      updateSliderPhase("idle");
-      return;
-    }
-    clearPendingSliderSettle();
-    settleTargetIdRef.current = nextId;
-    setPreviewId(nextId);
-    setSliderPosition(positionForTab(nextId, nextGeometry));
-    updateSliderPhase("settling");
-    sliderTimeoutRef.current = window.setTimeout(() => {
-      if (shouldCommit) setCommittedTab(nextId, geometryRef.current);
-      else {
-        setPreviewId(activeIdRef.current);
-        if (geometryRef.current) setSliderPosition(positionForTab(activeIdRef.current, geometryRef.current));
-      }
-      settleTargetIdRef.current = null;
-      updateSliderPhase("idle");
-      sliderTimeoutRef.current = null;
-    }, DRAG_SETTLE_DURATION);
-  }, [clearPendingSliderSettle, setCommittedTab, updateSliderPhase]);
-
   const cancelActiveDrag = useCallback(() => {
     const dragSession = dragSessionRef.current;
-    if (!dragSession) return;
-    dragSessionRef.current = null;
-    releaseDragPointer(dragSession);
-    settleSlider(activeIdRef.current, false);
-  }, [releaseDragPointer, settleSlider]);
+    if (dragSession) {
+      dragSessionRef.current = null;
+      releaseDragPointer(dragSession);
+    }
+    clearPendingSliderSettle();
+    clearPendingDragLensPosition();
+    if (lensPhaseRef.current !== "dragging" && lensPhaseRef.current !== "drag-settling") return;
+    targetIdRef.current = null;
+    setTargetId(null);
+    setPreviewId(activeIdRef.current);
+    if (geometryRef.current) setSliderPosition(positionForTab(activeIdRef.current, geometryRef.current));
+    updateSliderPhase("idle");
+    lensPhaseRef.current = "idle";
+    setLensPhase("idle");
+    suppressNextClickRef.current = false;
+  }, [clearPendingDragLensPosition, clearPendingSliderSettle, releaseDragPointer, updateSliderPhase]);
+
+  const completeDragSettle = useCallback((nextId: TabId) => {
+    clearPendingSliderSettle();
+    setCommittedTab(nextId);
+    targetIdRef.current = null;
+    setTargetId(null);
+    updateSliderPhase("idle");
+    lensPhaseRef.current = "idle";
+    setLensPhase("idle");
+    suppressNextClickRef.current = false;
+  }, [clearPendingSliderSettle, setCommittedTab, updateSliderPhase]);
 
   useEffect(() => {
     const nav = navRef.current;
@@ -351,17 +388,21 @@ export default function V3Page() {
     const updateGeometry = () => {
       const nextGeometry = readNavigationGeometry();
       if (!nextGeometry) return;
-      if (dragSessionRef.current) cancelActiveDrag();
+      if (
+        dragSessionRef.current ||
+        lensPhaseRef.current === "dragging" ||
+        lensPhaseRef.current === "drag-settling"
+      ) cancelActiveDrag();
       geometryRef.current = nextGeometry;
       setGeometry(nextGeometry);
+      const currentTarget = targetIdRef.current;
       if (sliderPhaseRef.current !== "dragging") {
-        const sliderTabId = sliderPhaseRef.current === "settling"
-          ? settleTargetIdRef.current ?? activeIdRef.current
+        const sliderTabId = lensPhaseRef.current !== "idle" && currentTarget
+          ? currentTarget
           : activeIdRef.current;
         setSliderPosition(positionForTab(sliderTabId, nextGeometry));
       }
 
-      const currentTarget = targetIdRef.current;
       if (lensPhaseRef.current !== "idle" && currentTarget) {
         const origin = nextGeometry.tabs[activeIdRef.current];
         const destination = nextGeometry.tabs[currentTarget];
@@ -394,7 +435,11 @@ export default function V3Page() {
   useEffect(() => {
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const handleMotionChange = (event: MediaQueryListEvent) => {
-      if (event.matches && targetIdRef.current) finishTravel(targetIdRef.current, sessionRef.current);
+      if (
+        event.matches &&
+        targetIdRef.current &&
+        (lensPhaseRef.current === "primed" || lensPhaseRef.current === "expanding" || lensPhaseRef.current === "travelling")
+      ) finishTravel(targetIdRef.current, sessionRef.current);
       if (event.matches) cancelActiveDrag();
     };
     motionQuery.addEventListener("change", handleMotionChange);
@@ -403,7 +448,11 @@ export default function V3Page() {
 
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden" && targetIdRef.current) {
+      if (
+        document.visibilityState === "hidden" &&
+        targetIdRef.current &&
+        (lensPhaseRef.current === "primed" || lensPhaseRef.current === "expanding" || lensPhaseRef.current === "travelling")
+      ) {
         finishTravel(targetIdRef.current, sessionRef.current);
       }
       if (document.visibilityState === "hidden") cancelActiveDrag();
@@ -415,10 +464,11 @@ export default function V3Page() {
   useEffect(() => () => {
     clearPendingTravel();
     clearPendingSliderSettle();
+    clearPendingDragLensPosition();
     const dragSession = dragSessionRef.current;
     if (dragSession) releaseDragPointer(dragSession);
     dragSessionRef.current = null;
-  }, [clearPendingSliderSettle, clearPendingTravel, releaseDragPointer]);
+  }, [clearPendingDragLensPosition, clearPendingSliderSettle, clearPendingTravel, releaseDragPointer]);
 
   const selectTab = useCallback((nextId: TabId) => {
     if (
@@ -438,6 +488,9 @@ export default function V3Page() {
     sessionRef.current = nextSession;
     setLensPosition(origin);
     setTargetPosition(destination);
+    setPreviewId(nextId);
+    setSliderPosition(positionForTab(nextId, nextGeometry));
+    updateSliderPhase("settling");
     targetIdRef.current = nextId;
     setTargetId(nextId);
     setTravelSession(nextSession);
@@ -452,7 +505,7 @@ export default function V3Page() {
     });
     animationFramesRef.current.push(firstFrame);
     travelTimeoutRef.current = window.setTimeout(() => finishTravel(nextId, nextSession), 1160);
-  }, [finishTravel, setCommittedTab]);
+  }, [finishTravel, setCommittedTab, updateSliderPhase]);
 
   const selectOptics = useCallback((nextMode: OpticsMode) => {
     setOptics(nextMode);
@@ -472,14 +525,13 @@ export default function V3Page() {
     finishTravel(completedId, travelSession);
   }, [finishTravel, travelSession]);
 
-  const nearestTabForSliderX = useCallback((x: number, width: number): TabId => {
+  const nearestTabForLensX = useCallback((x: number): TabId => {
     const nextGeometry = geometryRef.current;
     if (!nextGeometry) return activeIdRef.current;
-    const sliderCenter = x + width / 2;
     return TABS.reduce((closest, tab) => {
-      const candidate = positionForTab(tab.id, nextGeometry);
-      const current = positionForTab(closest, nextGeometry);
-      return Math.abs(candidate.x + candidate.width / 2 - sliderCenter) < Math.abs(current.x + current.width / 2 - sliderCenter)
+      const candidate = nextGeometry.tabs[tab.id];
+      const current = nextGeometry.tabs[closest];
+      return Math.abs(candidate.x - x) < Math.abs(current.x - x)
         ? tab.id
         : closest;
     }, TABS[0].id);
@@ -490,17 +542,24 @@ export default function V3Page() {
     const nav = navRef.current;
     if (!nextGeometry || !nav) return false;
     const navBox = nav.getBoundingClientRect();
-    const firstPosition = positionForTab(TABS[0].id, nextGeometry);
-    const lastPosition = positionForTab(TABS[TABS.length - 1].id, nextGeometry);
-    const nextX = clamp(clientX - navBox.left - dragSession.grabOffset, firstPosition.x, lastPosition.x);
+    const minimumLensX = LENS_WIDTH / 2;
+    const maximumLensX = Math.max(minimumLensX, nextGeometry.width - LENS_WIDTH / 2);
+    const nextX = clamp(clientX - navBox.left, minimumLensX, maximumLensX);
     dragSession.hasMoved = dragSession.hasMoved || Math.abs(clientX - dragSession.startClientX) > DRAG_THRESHOLD;
     if (!dragSession.hasMoved) return true;
     dragSession.x = nextX;
-    const nextPreviewId = nearestTabForSliderX(nextX, dragSession.origin.width);
+    const nextPreviewId = nearestTabForLensX(nextX);
     setPreviewId(nextPreviewId);
-    setSliderPosition({ ...dragSession.origin, x: nextX });
+    targetIdRef.current = nextPreviewId;
+    setTargetId(nextPreviewId);
+    queueDragLensPosition({ x: nextX, y: nextGeometry.height / 2 });
+    if (lensPhaseRef.current !== "dragging") {
+      lensPhaseRef.current = "dragging";
+      setLensPhase("dragging");
+      updateSliderPhase("dragging");
+    }
     return true;
-  }, [nearestTabForSliderX]);
+  }, [nearestTabForLensX, queueDragLensPosition, updateSliderPhase]);
 
   const finishDrag = useCallback((pointerId: number, wasCancelled: boolean, clientX?: number) => {
     const dragSession = dragSessionRef.current;
@@ -508,18 +567,47 @@ export default function V3Page() {
     if (!wasCancelled && clientX !== undefined) updateDrag(dragSession, clientX);
     dragSessionRef.current = null;
     releaseDragPointer(dragSession);
-    if (!wasCancelled && dragSession.hasMoved) suppressNextClickRef.current = true;
-    if (wasCancelled) suppressNextClickRef.current = false;
-    const nextId = wasCancelled || !dragSession.hasMoved
-      ? activeIdRef.current
-      : nearestTabForSliderX(dragSession.x, dragSession.origin.width);
-    settleSlider(nextId, !wasCancelled && dragSession.hasMoved && nextId !== activeIdRef.current);
-  }, [nearestTabForSliderX, releaseDragPointer, settleSlider, updateDrag]);
+    if (wasCancelled) {
+      cancelActiveDrag();
+      return;
+    }
+    if (!dragSession.hasMoved) {
+      updateSliderPhase("idle");
+      return;
+    }
+    suppressNextClickRef.current = true;
+    flushQueuedDragLensPosition();
+    const nextGeometry = geometryRef.current;
+    if (!nextGeometry) {
+      cancelActiveDrag();
+      return;
+    }
+    const nextId = nearestTabForLensX(dragSession.x);
+    const target = nextGeometry.tabs[nextId];
+    targetIdRef.current = nextId;
+    setTargetId(nextId);
+    setPreviewId(nextId);
+    setTargetPosition(target);
+    setSliderPosition(positionForTab(nextId, nextGeometry));
+    updateSliderPhase("settling");
+    lensPhaseRef.current = "drag-settling";
+    setLensPhase("drag-settling");
+    dragAnimationFrameRef.current = window.requestAnimationFrame(() => {
+      dragAnimationFrameRef.current = null;
+      setLensPosition(target);
+    });
+    clearPendingSliderSettle();
+    sliderTimeoutRef.current = window.setTimeout(() => {
+      sliderTimeoutRef.current = null;
+      completeDragSettle(nextId);
+    }, DRAG_SETTLE_DURATION);
+  }, [cancelActiveDrag, clearPendingSliderSettle, completeDragSettle, flushQueuedDragLensPosition, nearestTabForLensX, releaseDragPointer, updateDrag, updateSliderPhase]);
 
   const handlePointerDown = useCallback((event: ReactPointerEvent<HTMLButtonElement>, tabId: TabId) => {
     if (
       tabId !== activeIdRef.current ||
       !event.isPrimary ||
+      (event.pointerType === "mouse" && event.button !== 0) ||
       dragSessionRef.current ||
       lensPhaseRef.current !== "idle" ||
       sliderPhaseRef.current !== "idle" ||
@@ -528,28 +616,20 @@ export default function V3Page() {
     const nextGeometry = geometryRef.current;
     const nav = navRef.current;
     if (!nextGeometry || !nav) return;
-    const origin = positionForTab(tabId, nextGeometry);
-    const navBox = nav.getBoundingClientRect();
     dragSessionRef.current = {
       pointerId: event.pointerId,
       pointerTarget: event.currentTarget,
       startClientX: event.clientX,
-      grabOffset: clamp(event.clientX - navBox.left - origin.x, 0, origin.width),
-      origin,
-      x: origin.x,
+      x: nextGeometry.tabs[tabId].x,
       hasMoved: false,
     };
     event.currentTarget.setPointerCapture(event.pointerId);
-    event.preventDefault();
-    setPreviewId(tabId);
-    setSliderPosition(origin);
-    updateSliderPhase("dragging");
-  }, [updateSliderPhase]);
+  }, []);
 
   const handlePointerMove = useCallback((event: ReactPointerEvent<HTMLButtonElement>) => {
     const dragSession = dragSessionRef.current;
     if (!dragSession || dragSession.pointerId !== event.pointerId) return;
-    if (updateDrag(dragSession, event.clientX)) event.preventDefault();
+    if (updateDrag(dragSession, event.clientX) && dragSession.hasMoved) event.preventDefault();
   }, [updateDrag]);
 
   const handlePointerUp = useCallback((event: ReactPointerEvent<HTMLButtonElement>) => {
@@ -563,6 +643,17 @@ export default function V3Page() {
   const handleLostPointerCapture = useCallback((event: ReactPointerEvent<HTMLButtonElement>) => {
     const dragSession = dragSessionRef.current;
     if (dragSession?.pointerId === event.pointerId) finishDrag(event.pointerId, true);
+  }, [finishDrag]);
+
+  useEffect(() => {
+    const handleWindowPointerUp = (event: PointerEvent) => finishDrag(event.pointerId, false, event.clientX);
+    const handleWindowPointerCancel = (event: PointerEvent) => finishDrag(event.pointerId, true);
+    window.addEventListener("pointerup", handleWindowPointerUp, true);
+    window.addEventListener("pointercancel", handleWindowPointerCancel, true);
+    return () => {
+      window.removeEventListener("pointerup", handleWindowPointerUp, true);
+      window.removeEventListener("pointercancel", handleWindowPointerCancel, true);
+    };
   }, [finishDrag]);
 
   const handleTabClick = useCallback((tabId: TabId) => {
@@ -588,6 +679,7 @@ export default function V3Page() {
   const lensOpticsStyle = {
     "--v3-lens-filter": field ? `url("#${filterId}")` : "none",
   } as CSSProperties;
+  const selectionVisible = lensPhase === "idle";
 
   return (
     <main className="v3-demo" data-optics={optics}>
@@ -595,18 +687,19 @@ export default function V3Page() {
       <section className="v3-copy" aria-label="V3 liquid glass study"><p>LIQUID GLASS / V3</p><h1>横向导航透镜</h1><span>点击任意标签；经过的标签不会改变激活状态。</span></section>
       <div className="v3-optics" aria-label="Optics mode"><button type="button" className={optics === "baseline" ? "is-active" : ""} onClick={() => selectOptics("baseline")}>Baseline</button><button type="button" className={optics === "edge" ? "is-active" : ""} onClick={() => selectOptics("edge")}>Edge optics</button></div>
       <div className="v3-dock">
-        <nav ref={navRef} className="v3-nav" aria-label="主导航" style={navStyle}>
-          <NavVisual />
+        <nav ref={navRef} className="v3-nav" aria-label="主导航" data-lens-phase={lensPhase} data-slider-phase={sliderPhase} data-preview-id={previewId} style={navStyle}>
+          <NavVisual layer="base" suppressedId={selectionVisible ? activeId : undefined} />
           <div
             className="v3-selection-slider"
             data-active-id={activeId}
             data-phase={sliderPhase}
             data-ready={sliderPosition ? "true" : "false"}
+            data-visible={selectionVisible ? "true" : "false"}
             style={sliderStyle}
             aria-hidden="true"
           >
             <div className="v3-selection-optical-clip">
-              <div className="v3-selection-world"><NavVisual highlightedId={previewId} /></div>
+              <div className="v3-selection-world"><NavVisual layer="selection" /></div>
             </div>
           </div>
           <div className="v3-tab-actions">
@@ -632,7 +725,7 @@ export default function V3Page() {
           <div className="v3-lens-position" aria-hidden="true" data-phase={lensPhase} onTransitionEnd={handleLensTravelEnd}>
             <div className="v3-lens-shell" onTransitionEnd={handleLensExpansionEnd}>
               <div className="v3-lens-optics-viewport" style={lensOpticsStyle}>
-                <div className="v3-lens-content"><NavVisual highlightedId={targetId ?? activeId} /></div>
+                <div className="v3-lens-content"><NavVisual layer="lens" /></div>
               </div>
               <span className="v3-lens-inner" /><span className="v3-lens-pole v3-lens-pole--top" /><span className="v3-lens-pole v3-lens-pole--bottom" /><span className="v3-lens-sheen" />
             </div>

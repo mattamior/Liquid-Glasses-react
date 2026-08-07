@@ -95,7 +95,11 @@ test("renders the independent Liquid Lab V3 navigation lens demo", async () => {
   assert.match(html, /data-optics="baseline"/);
   assert.match(html, /<nav\b[^>]*aria-label="主导航"/);
   assert.match(html, /class="v3-selection-slider"[^>]*data-active-id="open"[^>]*data-phase="idle"/);
+  assert.match(html, /class="v3-selection-slider"[^>]*data-visible="true"/);
   assert.match(html, /class="v3-lens-optics-viewport"/);
+  assert.match(html, /data-visual-layer="base"/);
+  assert.match(html, /data-visual-layer="selection"/);
+  assert.match(html, /data-visual-layer="lens"/);
 
   for (const label of ["关注", "市场", "动态", "开户"]) {
     assert.match(
@@ -106,5 +110,5 @@ test("renders the independent Liquid Lab V3 navigation lens demo", async () => {
 
   assert.equal((html.match(/aria-current="page"/g) ?? []).length, 1);
   assert.doesNotMatch(html, /data-lens="moving"/);
-  assert.doesNotMatch(html, /data-visible="true"|data-moving="true"/);
+  assert.doesNotMatch(html, /data-moving="true"/);
 });
