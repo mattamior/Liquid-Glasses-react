@@ -15,6 +15,8 @@ adaptive highlights, and navigation lenses.
 [V3 决策记录](./docs/decisions/v3-horizontal-navigation-lens.zh.md) ·
 [V3 Reference Calibration](./docs/decisions/v3-reference-calibration.en.md) ·
 [V3 参考校准](./docs/decisions/v3-reference-calibration.zh.md) ·
+[V3 Visual Gap Analysis](./docs/reports/v3-liquid-glass-visual-gap-analysis.en.md) ·
+[V3 视觉差距分析](./docs/reports/v3-liquid-glass-visual-gap-analysis.zh.md) ·
 [Lint Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Lint 决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)

@@ -11,6 +11,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [Logo Decision Record](./docs/decisions/liquid-lab-logo.en.md) ·
 [V3 Decision Record](./docs/decisions/v3-horizontal-navigation-lens.en.md) ·
 [V3 Reference Calibration](./docs/decisions/v3-reference-calibration.en.md) ·
+[V3 Visual Gap Analysis](./docs/reports/v3-liquid-glass-visual-gap-analysis.en.md) ·
 [Lint Scope Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 

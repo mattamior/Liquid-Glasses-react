@@ -10,6 +10,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 [标志决策记录](./docs/decisions/liquid-lab-logo.zh.md) ·
 [V3 决策记录](./docs/decisions/v3-horizontal-navigation-lens.zh.md) ·
 [V3 参考校准](./docs/decisions/v3-reference-calibration.zh.md) ·
+[V3 视觉差距分析](./docs/reports/v3-liquid-glass-visual-gap-analysis.zh.md) ·
 [Lint 范围决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
