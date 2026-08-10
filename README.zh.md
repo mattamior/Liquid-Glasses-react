@@ -58,11 +58,11 @@ V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修�
   `coreZoom: 0.12`、轮廓处 `24px` 向内弯月面和 `11px` 折射；Edge 保持几何，只将
   弯月面强度提高 14%。`?chrome=demo` 显示审阅控件，`?optics=edge` 选择比较场。
 - V3 在无存储偏好时跟随系统颜色方案；右侧 sparkle 将合法 `dark` / `light` 写入
-  `liquid-lab:v3-theme`，刷新后恢复并跨标签页同步。不改变路由、既有查询参数、光学 field
-  或已发布的生产版本。详见[系统主题决策](./docs/decisions/v3-system-theme-toggle.zh.md)。本主题批次未部署、未发布。
-- V3 连续世界取样已发布为 Cloudflare Worker 版本 `3f2aff04-1693-4231-aee0-d7c757d7536d`，
-  承载 100% 流量。可使用 custom [`/v3`](https://liquid.hkooii.com/v3) 或 workers.dev
-  [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3)；详见[连续世界取样决策](./docs/decisions/v3-continuous-world-sampling.zh.md)。
+  `liquid-lab:v3-theme`，刷新后恢复并跨标签页同步。主题实现提交 `6fc3897` 已发布为 Cloudflare
+  Worker 版本 `590a19bb-8b64-4053-af13-a1b0f54fb387`，承载 100% 流量；可使用 custom
+  [`/v3`](https://liquid.hkooii.com/v3) 或 workers.dev [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3)。详见[系统主题决策](./docs/decisions/v3-system-theme-toggle.zh.md)。
+- 前一连续世界取样版本 `3f2aff04-1693-4231-aee0-d7c757d7536d` 是当前生产回滚目标；详见
+  [连续世界取样决策](./docs/decisions/v3-continuous-world-sampling.zh.md)。
 
 ### 品牌审阅
 

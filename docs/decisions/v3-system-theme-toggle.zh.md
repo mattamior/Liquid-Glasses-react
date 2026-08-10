@@ -2,7 +2,7 @@
 
 日期：2026-08-10
 
-状态：本地实现并验证完成；本主题批次未部署、未发布。
+状态：已生产发布；实现提交 `6fc3897` 对应 Cloudflare Worker 版本 `590a19bb-8b64-4053-af13-a1b0f54fb387`，承载 100% 流量。
 
 ## 1. 范围与决策
 
@@ -38,14 +38,17 @@
 
 ## 5. 部署与发布状态
 
-本主题批次未部署、未发布、未推送，也没有修改 Cloudflare Worker、生产绑定、变量、密钥或配额。既有 `/v3` 生产版本及其发布记录保持不变。
+2026-08-10 已将实现提交 `6fc3897` 发布到 Cloudflare Worker `liquid-lab-optics-demo`。Wrangler `4.92.0` 下，构建、dry-run 和正式 deploy 均以 exit 0 完成；dry-run 产出 8 个 modules 和 40 个 assets，正式发布上传 6 个修改/新增资产并复用 25 个资产，Worker startup 为 `18ms`。
+
+新版本 `590a19bb-8b64-4053-af13-a1b0f54fb387` 已承载 100% 流量。custom URL [`https://liquid.hkooii.com/v3`](https://liquid.hkooii.com/v3) 与 workers.dev URL [`https://liquid-lab-optics-demo.mattamior.workers.dev/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3) 均返回 200 HTML。生产真实 smoke 覆盖 system light/dark、持久化后刷新、跨标签页同步、clear 回到系统、相反系统下的 prepaint marker 移除、forced-colors、demo chrome、Edge 真实拖拽/释放和 console 零错误。
 
 ## 6. 已知风险、限制与后续工作
 
 - 未提供浅色参考图，因此浅色主题以可读性、材质连续性和当前 V3 几何为准，不宣称与外部产品逐像素高保真。
 - Firefox/WebKit 未配置为本批次自动化项目；原生 Safari 尚未完成手动验收。仍需在 Safari 中复核 `prefers-color-scheme`、`forced-colors`、CSS `:has()`、SVG filter 与合成性能。
+- 生产 smoke 的 CLI 没有独立订阅 `pageerror`；生产环境未精确比对主题切换前后的几何，但本地 E2E 26/26 覆盖该不变量。无浅色参考图的限制仍然适用。
 - 内联 bootstrap 是受信任的常量，当前没有 CSP 配置拦截它；若未来启用严格 `script-src`，必须为该内联脚本配置 nonce 或 hash，否则持久主题首帧会退化为系统主题。可分享主题 URL 仍未实现，若未来加入，必须单独定义它与 storage、系统偏好的优先级和迁移策略。
 
 ## 7. 回滚
 
-回滚以本主题实现提交为边界：移除 bootstrap、系统主题订阅、持久化主题状态、主题 token、主题快照和本记录即可恢复先前深色 V3。是否清除 `liquid-lab:v3-theme` 应作为独立迁移决定，避免未来重新启用时意外恢复旧偏好。不要回退连续 world sampling、DPR、fallback、ARIA、Pointer Events 或已发布的生产版本。
+生产回滚目标为前一 100% 流量版本 `3f2aff04-1693-4231-aee0-d7c757d7536d`；准确命令为 `npx wrangler rollback 3f2aff04-1693-4231-aee0-d7c757d7536d --name liquid-lab-optics-demo`。代码回滚以本主题实现提交为边界：移除 bootstrap、系统主题订阅、持久化主题状态、主题 token、主题快照和本记录即可恢复先前深色 V3。是否清除 `liquid-lab:v3-theme` 应作为独立迁移决定，避免未来重新启用时意外恢复旧偏好。不要回退连续 world sampling、DPR、fallback、ARIA、Pointer Events 或已发布的生产版本。

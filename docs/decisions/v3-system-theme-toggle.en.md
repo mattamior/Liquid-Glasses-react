@@ -2,7 +2,7 @@
 
 Date: 2026-08-10
 
-Status: locally implemented and verified（本地实现并验证完成）; this theme batch is not deployed or released.
+Status: released to production（已生产发布）; implementation commit `6fc3897` maps to Cloudflare Worker version `590a19bb-8b64-4053-af13-a1b0f54fb387`, serving 100% of traffic.
 
 ## 1. Scope and Decision（范围与决策）
 
@@ -38,14 +38,17 @@ This record covers system-theme following and persisted explicit themes（持久
 
 ## 5. Deployment and Release Status（部署与发布状态）
 
-This theme batch did not deploy, release, or push, and did not change the Cloudflare Worker, production bindings, variables, secrets, or quotas. The existing `/v3` production version and its release records remain unchanged.
+On 2026-08-10, implementation commit `6fc3897` was released to Cloudflare Worker `liquid-lab-optics-demo`. With Wrangler `4.92.0`, build, dry-run（预演）, and the production deploy（生产发布） all completed with exit 0. The dry run produced 8 modules and 40 assets; the production release uploaded 6 modified/new assets, reused 25 assets, and reported `18ms` Worker startup（Worker 启动）.
+
+New version `590a19bb-8b64-4053-af13-a1b0f54fb387` serves 100% of traffic. The custom URL（自定义 URL） [`https://liquid.hkooii.com/v3`](https://liquid.hkooii.com/v3) and workers.dev URL [`https://liquid-lab-optics-demo.mattamior.workers.dev/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3) both returned 200 HTML. Real production smoke checks（生产冒烟检查） covered system light/dark, persisted reload, cross-tab synchronization（跨标签同步）, clear-to-system, opposite-system prepaint marker removal, forced-colors, demo chrome, real Edge drag/release, and zero console errors.
 
 ## 6. Known Risks, Limits, and Follow-Up（已知风险、限制与后续工作）
 
 - No light reference images were supplied. The light theme is judged by legibility（可读性）, material continuity（材质连续性）, and current V3 geometry; it does not claim external-product pixel fidelity.
 - Firefox/WebKit are not configured as automation projects for this batch, and native Safari has not received manual acceptance. Safari still needs review of `prefers-color-scheme`, `forced-colors`, CSS `:has()`, SVG filters, and compositing（合成） performance.
+- The production-smoke CLI did not independently subscribe to `pageerror`; production did not precisely compare geometry before and after a theme change, although local E2E 26/26 covers that invariant（不变量）. The lack of a light reference remains a limit.
 - The inline bootstrap is a trusted constant and the current project configuration has no CSP blocking it. If strict（严格） `script-src` is added later, this inline script needs a nonce or hash; otherwise the persisted-theme first frame falls back to system theme. A shareable theme URL is still not implemented; any future version must separately define priority and migration strategy（迁移策略） against storage and system preference.
 
 ## 7. Rollback（回滚）
 
-Roll back at the theme-implementation commit boundary: remove the bootstrap, system-theme subscriptions, persisted-theme state, theme tokens, theme snapshots, and this record to restore the earlier dark V3. Clearing `liquid-lab:v3-theme` should be a separate migration decision, so a future re-enable does not unexpectedly restore an old preference. Do not roll back continuous world sampling, DPR, fallback, ARIA, Pointer Events, or the released production version.
+The production rollback target（生产回滚目标） is the prior 100%-traffic version `3f2aff04-1693-4231-aee0-d7c757d7536d`; the exact command is `npx wrangler rollback 3f2aff04-1693-4231-aee0-d7c757d7536d --name liquid-lab-optics-demo`. Code rollback remains at the theme-implementation commit boundary: remove the bootstrap, system-theme subscriptions, persisted-theme state, theme tokens, theme snapshots, and this record to restore the earlier dark V3. Clearing `liquid-lab:v3-theme` should be a separate migration decision, so a future re-enable does not unexpectedly restore an old preference. Do not roll back continuous world sampling, DPR, fallback, ARIA, Pointer Events, or the released production version.

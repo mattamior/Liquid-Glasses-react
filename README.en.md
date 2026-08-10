@@ -70,14 +70,14 @@ replace V2 or modify the frozen V1 Demo.
 - V3 follows the system color scheme（系统颜色方案） when no preference is stored.
   Its sparkle toggle persists（持久化） valid `dark` / `light` values in `liquid-lab:v3-theme`,
   restores them on reload, and synchronizes them across tabs（跨标签页）. It does not
-  change the route, existing query parameters, optical field, or released production
-  version. See the [system-theme decision（系统主题决策）](./docs/decisions/v3-system-theme-toggle.en.md).
-  This theme batch is not deployed or released.
-- V3 continuous world sampling is released as Cloudflare Worker version
-  `3f2aff04-1693-4231-aee0-d7c757d7536d` at 100% traffic. Use the custom
-  [`/v3`](https://liquid.hkooii.com/v3) or workers.dev（Cloudflare 默认域名）
-  [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3); see the
-  [continuous-world-sampling decision（连续世界取样决策）](./docs/decisions/v3-continuous-world-sampling.en.md).
+  change the route, existing query parameters, or optical field. Theme implementation
+  commit `6fc3897` is released as Cloudflare Worker version `590a19bb-8b64-4053-af13-a1b0f54fb387`
+  at 100% traffic. Use the custom [`/v3`](https://liquid.hkooii.com/v3) or workers.dev
+  （Cloudflare 默认域名） [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3); see the
+  [system-theme decision（系统主题决策）](./docs/decisions/v3-system-theme-toggle.en.md).
+- The preceding continuous-world-sampling release
+  `3f2aff04-1693-4231-aee0-d7c757d7536d` is the current production rollback target（生产回滚目标）;
+  see the [continuous-world-sampling decision（连续世界取样决策）](./docs/decisions/v3-continuous-world-sampling.en.md).
 
 ### Brand review
 
