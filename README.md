@@ -17,6 +17,8 @@ adaptive highlights, and navigation lenses.
 [V3 参考校准](./docs/decisions/v3-reference-calibration.zh.md) ·
 [V3 Visual Gap Analysis](./docs/reports/v3-liquid-glass-visual-gap-analysis.en.md) ·
 [V3 视觉差距分析](./docs/reports/v3-liquid-glass-visual-gap-analysis.zh.md) ·
+[V3 Continuous World Sampling](./docs/decisions/v3-continuous-world-sampling.en.md) ·
+[V3 连续世界取样](./docs/decisions/v3-continuous-world-sampling.zh.md) ·
 [Lint Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Lint 决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
@@ -25,8 +27,8 @@ adaptive highlights, and navigation lenses.
 
 - `/` redirects to the default `/v2` vertical navigation study; frozen `/v1` remains available for archival comparison.
 - The source `/v3` route is reference-calibrated at `1264 × 948`: a `1124 × 210` dock, `872 × 210` rail, `296 × 242` temporary lens, and `210 × 182` static selection slider.
-- `/v3` keeps the static slider when idle. Its default Baseline lens hydrates a complete, mild elliptical convex field during click travel and drag; Edge shares the frame geometry and strengthens only the rim refraction.
-- The historical V3 record covers the released follow-up revision. The V3 reference-calibration records document the publicly deployed calibration at [`/v3`](https://liquid.hkooii.com/v3).
+- `/v3` now defaults to the reference presentation and samples one continuous navigation world in padding-box coordinates. Its Baseline field uses `coreZoom: 0.12`, a `24px` inward water-drop meniscus, and `11px` contour refraction; Edge preserves geometry and raises only that meniscus strength by 14%. `?chrome=demo` exposes review controls and `?optics=edge` selects the comparison field.
+- The historical V3 and reference-calibration records retain their released-history scope. The local continuous-world-sampling decision records the current implementation verification; it does not record a new deployment.
 - `/brand-preview` is the review surface for the current Liquid Lab logo on light and dark backgrounds.
 - V2 remains the default reference implementation; V3 is an independent experiment and does not replace it.
 - The reusable Agent Skill documents versioned assets, layered Web refraction, semantic motion, and accessible fallbacks.

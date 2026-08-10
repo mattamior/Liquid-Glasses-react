@@ -31,6 +31,12 @@ body:has(.v3-demo) {
   pointer-events: none;
 }
 
+.v3-stage-glow[hidden],
+.v3-copy[hidden],
+.v3-optics[hidden] {
+  display: none !important;
+}
+
 .v3-copy {
   position: absolute;
   top: clamp(38px, 9vh, 96px);
@@ -113,10 +119,20 @@ body:has(.v3-demo) {
   box-shadow: inset 0 1px 1px rgb(255 255 255 / 9%), 0 20px 45px rgb(0 4 10 / 34%);
 }
 
+.v3-navigation-world,
 .v3-nav-visual,
 .v3-tab-actions {
   position: absolute;
   inset: 0;
+}
+
+.v3-navigation-world {
+  width: 100%;
+  height: 100%;
+}
+
+.v3-nav-visual,
+.v3-tab-actions {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -138,6 +154,14 @@ body:has(.v3-demo) {
   visibility: hidden;
 }
 
+.v3-navigation-world--lens .v3-tab-visual {
+  color: rgb(245 245 246 / 58%);
+}
+
+.v3-navigation-world--lens .v3-tab-visual[data-highlighted="true"] {
+  color: #fff;
+}
+
 .v3-tab-visual svg {
   width: 60px;
   height: 60px;
@@ -147,8 +171,8 @@ body:has(.v3-demo) {
 .v3-selection-slider {
   position: absolute;
   z-index: 2;
-  top: var(--v3-slider-y);
-  left: 0;
+  top: var(--v3-selection-inset-y);
+  left: var(--v3-selection-inset-x);
   width: var(--v3-slider-width);
   height: var(--v3-slider-height);
   overflow: hidden;
@@ -189,10 +213,10 @@ body:has(.v3-demo) {
 .v3-selection-world {
   position: absolute;
   z-index: 1;
-  inset: calc(0px - var(--v3-slider-y));
+  inset: calc(0px - var(--v3-selection-inset-y));
   width: var(--v3-world-width);
   height: var(--v3-world-height);
-  transform: translate3d(calc(0px - var(--v3-slider-x)), 0, 0);
+  transform: translate3d(calc(0px - var(--v3-selection-inset-x) - var(--v3-slider-x)), 0, 0);
   transform-origin: top left;
 }
 
@@ -221,7 +245,7 @@ body:has(.v3-demo) {
   background: transparent;
   color: transparent;
   cursor: pointer;
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 .v3-tab-actions button:focus-visible {
@@ -269,9 +293,10 @@ body:has(.v3-demo) {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  isolation: isolate;
   border: 1.5px solid rgb(204 216 228 / 72%);
   border-radius: 50%;
-  background: rgb(52 56 68 / 91%);
+  background: transparent;
   box-shadow:
     inset 1px 1px 1px rgb(255 255 255 / 34%),
     inset -12px -14px 24px rgb(4 7 13 / 32%),
@@ -279,15 +304,6 @@ body:has(.v3-demo) {
   opacity: 0;
   transform: scale(0.53);
   transition: transform 190ms cubic-bezier(0.18, 0.82, 0.22, 1), opacity 100ms linear;
-}
-
-.v3-demo[data-optics="edge"] .v3-lens-shell {
-  border-color: rgb(190 214 230 / 80%);
-  box-shadow:
-    inset 1px 1px 1px rgb(255 255 255 / 38%),
-    inset -12px -14px 24px rgb(4 7 13 / 32%),
-    0 0 0 1px rgb(87 152 176 / 14%),
-    12px 14px 30px rgb(0 3 9 / 42%);
 }
 
 .v3-lens-position[data-phase="primed"] .v3-lens-shell {
@@ -304,62 +320,63 @@ body:has(.v3-demo) {
 
 .v3-lens-optics-viewport {
   position: absolute;
+  z-index: 0;
   inset: 0;
   width: var(--v3-lens-width);
   height: var(--v3-lens-height);
   overflow: hidden;
-  background: rgb(52 56 68 / 90%);
+  background: transparent;
   filter: var(--v3-lens-filter, none);
 }
 
-.v3-lens-content {
+.v3-lens-world-sample {
   position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.v3-navigation-world--lens {
   width: var(--v3-world-width);
   height: var(--v3-world-height);
-  transform: translate3d(
-    calc(var(--v3-lens-half-width) - var(--v3-lens-x)),
-    calc(var(--v3-lens-half-height) - var(--v3-lens-y)),
-    0
-  ) scale(1.45);
-  transform-origin: var(--v3-lens-x) var(--v3-lens-y);
+  transform: translate3d(var(--v3-world-sample-x), var(--v3-world-sample-y), 0) scale(var(--v3-optic-scale));
+  transform-origin: top left;
 }
 
-.v3-lens-content .v3-nav-visual {
-  width: 100%;
-  height: 100%;
+.v3-navigation-world__rail {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+  background: rgb(32 35 44 / 94%);
 }
 
-.v3-lens-content .v3-tab-visual {
-  color: #fff;
-  font-size: 31px;
-}
-
-.v3-lens-content .v3-tab-visual svg {
-  width: 60px;
-  height: 60px;
+.v3-navigation-world--lens .v3-nav-visual {
+  width: var(--v3-world-width);
+  height: var(--v3-world-height);
 }
 
 .v3-lens-inner {
   position: absolute;
-  inset: 7px;
-  border: 1px solid rgb(6 9 16 / 56%);
+  z-index: 1;
+  inset: 5px;
+  border: 0;
   border-radius: inherit;
   box-shadow:
-    inset 0 0 0 6px rgb(5 8 14 / 24%),
-    inset 8px 7px 16px rgb(0 0 0 / 22%),
-    inset -5px -4px 10px rgb(255 255 255 / 10%);
+    inset 0 0 0 5px rgb(5 8 14 / 22%),
+    inset 8px 7px 16px rgb(0 0 0 / 13%);
   pointer-events: none;
 }
 
 .v3-lens-pole {
   position: absolute;
+  z-index: 3;
   left: 50%;
   width: 100px;
   height: 26px;
-  border: 1.5px solid rgb(211 221 231 / 58%);
+  border: 1px solid rgb(211 221 231 / 46%);
   border-radius: 50%;
-  background: rgb(9 12 21 / 46%);
-  box-shadow: inset 0 4px 8px rgb(0 0 0 / 44%), 0 1px 1px rgb(255 255 255 / 24%);
+  background: rgb(9 12 21 / 38%);
+  box-shadow: inset 0 4px 8px rgb(0 0 0 / 36%), 0 1px 1px rgb(255 255 255 / 18%);
   transform: translateX(-50%);
 }
 
@@ -373,9 +390,10 @@ body:has(.v3-demo) {
 
 .v3-lens-sheen {
   position: absolute;
+  z-index: 4;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgb(255 255 255 / 22%), transparent 22% 68%, rgb(255 255 255 / 10%));
+  background: linear-gradient(135deg, rgb(255 255 255 / 16%), transparent 22% 68%, rgb(255 255 255 / 7%));
   mix-blend-mode: screen;
   pointer-events: none;
 }
@@ -462,14 +480,6 @@ body:has(.v3-demo) {
     margin: -36px 0 0 34px;
   }
 
-  .v3-lens-content .v3-tab-visual {
-    font-size: clamp(19px, 5.2vw, 27px);
-  }
-
-  .v3-lens-content .v3-tab-visual svg {
-    width: clamp(42px, 9vw, 54px);
-    height: clamp(42px, 9vw, 54px);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -477,5 +487,25 @@ body:has(.v3-demo) {
   .v3-demo *::before {
     transition-duration: 0ms !important;
     animation-duration: 0ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .v3-lens-position {
+    visibility: hidden !important;
+  }
+
+  .v3-selection-slider {
+    border-color: CanvasText;
+    background: Canvas;
+    box-shadow: none;
+  }
+
+  .v3-selection-optical-clip {
+    background: Canvas;
+  }
+
+  .v3-selection-world .v3-tab-visual {
+    color: CanvasText;
   }
 }

@@ -10,10 +10,20 @@ import {
   useRef,
   useState,
 } from "react";
+import {
+  calculateRasterScale,
+  calculateWorldSampleTransform,
+  clamp,
+  createEllipticalField,
+  createLensCoordinateSpace,
+  type LensCoordinateSpace,
+  type LensOpticsMode,
+  V3_LENS_OPTICS,
+} from "./lens-optics";
 import "./v3.css";
 
 type TabId = "follow" | "market" | "activity" | "open";
-type OpticsMode = "baseline" | "edge";
+type OpticsMode = LensOpticsMode;
 type LensPhase = "idle" | "primed" | "expanding" | "travelling" | "dragging" | "drag-settling";
 type SliderPhase = "idle" | "dragging" | "settling";
 type VisualLayer = "base" | "selection" | "lens";
@@ -35,6 +45,7 @@ interface TabGeometry extends LensPosition {
 }
 
 interface NavigationGeometry {
+  worldOrigin: LensPosition;
   width: number;
   height: number;
   tabs: Record<TabId, TabGeometry>;
@@ -42,7 +53,6 @@ interface NavigationGeometry {
 
 interface SliderPosition {
   x: number;
-  y: number;
   width: number;
   height: number;
 }
@@ -62,39 +72,30 @@ const TABS: readonly TabDefinition[] = [
   { id: "open", label: "开户", icon: "open" },
 ];
 
-const REFERENCE_NAVIGATION_WIDTH = 872;
-const REFERENCE_NAVIGATION_HEIGHT = 210;
+const REFERENCE_NAVIGATION_CONTENT_WIDTH = 870;
+const REFERENCE_NAVIGATION_CONTENT_HEIGHT = 208;
 const REFERENCE_LENS_WIDTH = 296;
 const REFERENCE_LENS_HEIGHT = 242;
-const FIELD_SCALE = 26;
-const FIELD_RESOLUTION = 2;
-const FILTER_PADDING = 36;
-const EDGE_BAND_WIDTH = 20;
-const BASELINE_BULGE = 0.18;
-const BASELINE_EDGE_REFRACTION = 3.4;
-const EDGE_REFRACTION_MULTIPLIER = 1.14;
 const DRAG_THRESHOLD = 5;
 const DRAG_SETTLE_DURATION = 260;
 const LENS_TRAVEL_DURATION = 680;
+const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
-function clamp(value: number, minimum: number, maximum: number) {
-  return Math.min(Math.max(value, minimum), maximum);
-}
+function supportsLensFilter() {
+  if (typeof window === "undefined" || typeof document === "undefined") return false;
+  const { SVGFEImageElement, SVGFEDisplacementMapElement } = window;
+  if (!SVGFEImageElement || !SVGFEDisplacementMapElement) return false;
 
-function smoothstep(start: number, end: number, value: number) {
-  const progress = clamp((value - start) / (end - start), 0, 1);
-  return progress * progress * (3 - 2 * progress);
-}
-
-function encodeDisplacement(value: number) {
-  return Math.round(clamp(127.5 + (value / FIELD_SCALE) * 255, 0, 255));
+  const image = document.createElementNS(SVG_NAMESPACE, "feImage");
+  const displacementMap = document.createElementNS(SVG_NAMESPACE, "feDisplacementMap");
+  return image instanceof SVGFEImageElement && displacementMap instanceof SVGFEDisplacementMapElement;
 }
 
 function createLensDimensions(geometry: NavigationGeometry) {
   const ratio = clamp(
     Math.min(
-      geometry.width / REFERENCE_NAVIGATION_WIDTH,
-      geometry.height / REFERENCE_NAVIGATION_HEIGHT,
+      geometry.width / REFERENCE_NAVIGATION_CONTENT_WIDTH,
+      geometry.height / REFERENCE_NAVIGATION_CONTENT_HEIGHT,
     ),
     0.52,
     1,
@@ -105,55 +106,14 @@ function createLensDimensions(geometry: NavigationGeometry) {
   };
 }
 
-function createEllipticalField(width: number, height: number, optics: OpticsMode) {
-  const canvas = document.createElement("canvas");
-  canvas.width = width * FIELD_RESOLUTION;
-  canvas.height = height * FIELD_RESOLUTION;
-  const context = canvas.getContext("2d", { willReadFrequently: true });
-  if (!context) return "";
-
-  const pixels = context.createImageData(canvas.width, canvas.height);
-  const halfWidth = width / 2;
-  const halfHeight = height / 2;
-
-  for (let pixelY = 0; pixelY < canvas.height; pixelY += 1) {
-    for (let pixelX = 0; pixelX < canvas.width; pixelX += 1) {
-      const x = (pixelX + 0.5) / FIELD_RESOLUTION - halfWidth;
-      const y = (pixelY + 0.5) / FIELD_RESOLUTION - halfHeight;
-      const normalizedX = x / halfWidth;
-      const normalizedY = y / halfHeight;
-      const radius = Math.hypot(normalizedX, normalizedY);
-      const edgeDistance = Math.max(0, (1 - radius) * Math.min(halfWidth, halfHeight));
-      const edge = 1 - smoothstep(0, EDGE_BAND_WIDTH, edgeDistance);
-      const normalGradientX = x / (halfWidth * halfWidth);
-      const normalGradientY = y / (halfHeight * halfHeight);
-      const normalLength = Math.hypot(normalGradientX, normalGradientY) || 1;
-      const normalX = normalGradientX / normalLength;
-      const normalY = normalGradientY / normalLength;
-      const interiorFalloff = 1 - smoothstep(0.7, 1, radius);
-      const edgeRefraction = BASELINE_EDGE_REFRACTION * (optics === "edge" ? EDGE_REFRACTION_MULTIPLIER : 1);
-      const offsetX = x * -BASELINE_BULGE * interiorFalloff + normalX * edge * edgeRefraction;
-      const offsetY = y * -BASELINE_BULGE * interiorFalloff + normalY * edge * edgeRefraction;
-      const index = (pixelY * canvas.width + pixelX) * 4;
-      pixels.data[index] = encodeDisplacement(offsetX);
-      pixels.data[index + 1] = encodeDisplacement(offsetY);
-      pixels.data[index + 2] = 128;
-      pixels.data[index + 3] = 255;
-    }
-  }
-
-  context.putImageData(pixels, 0, 0);
-  return canvas.toDataURL("image/png");
-}
-
 function LensFilter({ id, field, width, height }: { id: string; field: string; width: number; height: number }) {
   return (
     <filter
       id={id}
-      x={-FILTER_PADDING}
-      y={-FILTER_PADDING}
-      width={width + FILTER_PADDING * 2}
-      height={height + FILTER_PADDING * 2}
+      x={-V3_LENS_OPTICS.filterPaddingCssPx}
+      y={-V3_LENS_OPTICS.filterPaddingCssPx}
+      width={width + V3_LENS_OPTICS.filterPaddingCssPx * 2}
+      height={height + V3_LENS_OPTICS.filterPaddingCssPx * 2}
       filterUnits="userSpaceOnUse"
       colorInterpolationFilters="sRGB"
     >
@@ -161,13 +121,13 @@ function LensFilter({ id, field, width, height }: { id: string; field: string; w
       <feDisplacementMap
         in="SourceGraphic"
         in2="field"
-        scale={FIELD_SCALE}
+        scale={V3_LENS_OPTICS.fieldScaleCssPx}
         xChannelSelector="R"
         yChannelSelector="G"
-        x={-FILTER_PADDING}
-        y={-FILTER_PADDING}
-        width={width + FILTER_PADDING * 2}
-        height={height + FILTER_PADDING * 2}
+        x={-V3_LENS_OPTICS.filterPaddingCssPx}
+        y={-V3_LENS_OPTICS.filterPaddingCssPx}
+        width={width + V3_LENS_OPTICS.filterPaddingCssPx * 2}
+        height={height + V3_LENS_OPTICS.filterPaddingCssPx * 2}
       />
     </filter>
   );
@@ -190,28 +150,42 @@ function Glyph({ name }: { name: TabDefinition["icon"] | "sparkle" }) {
   return <svg {...props}><path d="m12 2 1.8 7.1L21 12l-7.2 2.9L12 22l-2.8-7.1L2 12l7.2-2.9Z" /></svg>;
 }
 
-function NavVisual({ layer, suppressedId }: { layer: VisualLayer; suppressedId?: TabId }) {
+function NavigationWorld({
+  layer,
+  suppressedId,
+  includeRail = false,
+  highlightedId,
+}: {
+  layer: VisualLayer;
+  suppressedId?: TabId;
+  includeRail?: boolean;
+  highlightedId?: TabId;
+}) {
   return (
-    <div className="v3-nav-visual" data-visual-layer={layer} aria-hidden="true">
-      {TABS.map((tab) => (
-        <div
-          className="v3-tab-visual"
-          data-suppressed={tab.id === suppressedId ? "true" : undefined}
-          key={tab.id}
-        >
-          <Glyph name={tab.icon} />
-          <span>{tab.label}</span>
-        </div>
-      ))}
+    <div className={`v3-navigation-world v3-navigation-world--${layer}`} aria-hidden="true">
+      {includeRail ? <span className="v3-navigation-world__rail" /> : null}
+      <div className="v3-nav-visual" data-visual-layer={layer}>
+        {TABS.map((tab) => (
+          <div
+            className="v3-tab-visual"
+            data-highlighted={tab.id === highlightedId ? "true" : undefined}
+            data-suppressed={tab.id === suppressedId ? "true" : undefined}
+            key={tab.id}
+          >
+            <Glyph name={tab.icon} />
+            <span>{tab.label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 function getSliderInsets(geometry: NavigationGeometry) {
-  const ratio = clamp(geometry.height / REFERENCE_NAVIGATION_HEIGHT, 0.52, 1);
+  const ratio = clamp(geometry.height / REFERENCE_NAVIGATION_CONTENT_HEIGHT, 0.52, 1);
   return {
     horizontal: Math.max(2, Math.round(4 * ratio)),
-    vertical: Math.max(8, Math.round(14 * ratio)),
+    vertical: Math.max(8, Math.round(13 * ratio)),
   };
 }
 
@@ -220,7 +194,6 @@ function positionForTab(id: TabId, geometry: NavigationGeometry): SliderPosition
   const insets = getSliderInsets(geometry);
   return {
     x: tab.x - tab.width / 2,
-    y: insets.vertical,
     width: Math.max(0, tab.width - insets.horizontal * 2),
     height: Math.max(0, geometry.height - insets.vertical * 2),
   };
@@ -254,6 +227,9 @@ export default function V3Page() {
   const [travelSession, setTravelSession] = useState(0);
   const [targetId, setTargetId] = useState<TabId | null>(null);
   const [optics, setOptics] = useState<OpticsMode>("baseline");
+  const [demoChrome, setDemoChrome] = useState(false);
+  const [rasterScale, setRasterScale] = useState(1);
+  const [isLensFilterSupported, setLensFilterSupported] = useState(false);
   const [field, setField] = useState("");
   const [lensDimensions, setLensDimensions] = useState({
     width: REFERENCE_LENS_WIDTH,
@@ -283,16 +259,19 @@ export default function V3Page() {
         ? "edge"
         : "baseline";
       setOptics(requestedOptics);
+      setDemoChrome(new URLSearchParams(window.location.search).get("chrome") === "demo");
+      setRasterScale(calculateRasterScale(window.devicePixelRatio || 1));
+      setLensFilterSupported(supportsLensFilter());
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      setField(createEllipticalField(lensDimensions.width, lensDimensions.height, optics));
+      setField(createEllipticalField(lensDimensions.width, lensDimensions.height, optics, rasterScale));
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [lensDimensions, optics]);
+  }, [lensDimensions, optics, rasterScale]);
 
   const clearPendingTravel = useCallback(() => {
     if (travelTimeoutRef.current !== null) {
@@ -364,19 +343,23 @@ export default function V3Page() {
     const nav = navRef.current;
     if (!nav) return null;
     const navBox = nav.getBoundingClientRect();
+    const worldOrigin = {
+      x: navBox.left + nav.clientLeft,
+      y: navBox.top + nav.clientTop,
+    };
     const tabs = {} as Record<TabId, TabGeometry>;
     for (const tab of TABS) {
       const button = tabRefs.current[tab.id];
       if (!button) return null;
       const buttonBox = button.getBoundingClientRect();
       tabs[tab.id] = {
-        x: buttonBox.left - navBox.left + buttonBox.width / 2,
-        y: buttonBox.top - navBox.top + buttonBox.height / 2,
+        x: buttonBox.left - worldOrigin.x + buttonBox.width / 2,
+        y: buttonBox.top - worldOrigin.y + buttonBox.height / 2,
         width: buttonBox.width,
         height: buttonBox.height,
       };
     }
-    return { width: navBox.width, height: navBox.height, tabs };
+    return { worldOrigin, width: nav.clientWidth, height: nav.clientHeight, tabs };
   }, []);
 
   const releaseDragPointer = useCallback((dragSession: DragSession) => {
@@ -428,6 +411,10 @@ export default function V3Page() {
       ) cancelActiveDrag();
       geometryRef.current = nextGeometry;
       setGeometry(nextGeometry);
+      setRasterScale((currentRasterScale) => {
+        const nextRasterScale = calculateRasterScale(window.devicePixelRatio || 1);
+        return currentRasterScale === nextRasterScale ? currentRasterScale : nextRasterScale;
+      });
       setLensDimensions((currentDimensions) => {
         const nextDimensions = createLensDimensions(nextGeometry);
         return currentDimensions.width === nextDimensions.width && currentDimensions.height === nextDimensions.height
@@ -472,7 +459,42 @@ export default function V3Page() {
   }, [cancelActiveDrag, clearPendingTravel, finishTravel, readNavigationGeometry]);
 
   useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+
+    let removeResolutionListener: (() => void) | undefined;
+    const refreshRasterScale = () => {
+      setRasterScale((currentRasterScale) => {
+        const nextRasterScale = calculateRasterScale(window.devicePixelRatio || 1);
+        return currentRasterScale === nextRasterScale ? currentRasterScale : nextRasterScale;
+      });
+    };
+    const subscribeToResolution = () => {
+      removeResolutionListener?.();
+      const resolutionQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+      const handleResolutionChange = () => {
+        refreshRasterScale();
+        subscribeToResolution();
+      };
+
+      if (typeof resolutionQuery.addEventListener === "function") {
+        resolutionQuery.addEventListener("change", handleResolutionChange);
+        removeResolutionListener = () => resolutionQuery.removeEventListener("change", handleResolutionChange);
+      } else if (typeof resolutionQuery.addListener === "function") {
+        resolutionQuery.addListener(handleResolutionChange);
+        removeResolutionListener = () => resolutionQuery.removeListener(handleResolutionChange);
+      } else {
+        removeResolutionListener = undefined;
+      }
+    };
+
+    refreshRasterScale();
+    subscribeToResolution();
+    return () => removeResolutionListener?.();
+  }, []);
+
+  useEffect(() => {
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const forcedColorsQuery = window.matchMedia("(forced-colors: active)");
     const handleMotionChange = (event: MediaQueryListEvent) => {
       if (
         event.matches &&
@@ -481,8 +503,16 @@ export default function V3Page() {
       ) finishTravel(targetIdRef.current, sessionRef.current);
       if (event.matches) cancelActiveDrag();
     };
+    const handleForcedColorsChange = (event: MediaQueryListEvent) => {
+      if (event.matches && targetIdRef.current) finishTravel(targetIdRef.current, sessionRef.current);
+      if (event.matches) cancelActiveDrag();
+    };
     motionQuery.addEventListener("change", handleMotionChange);
-    return () => motionQuery.removeEventListener("change", handleMotionChange);
+    forcedColorsQuery.addEventListener("change", handleForcedColorsChange);
+    return () => {
+      motionQuery.removeEventListener("change", handleMotionChange);
+      forcedColorsQuery.removeEventListener("change", handleForcedColorsChange);
+    };
   }, [cancelActiveDrag, finishTravel]);
 
   useEffect(() => {
@@ -509,6 +539,13 @@ export default function V3Page() {
     dragSessionRef.current = null;
   }, [clearPendingDragLensPosition, clearPendingSliderSettle, clearPendingTravel, releaseDragPointer]);
 
+  const canUseLens = useCallback(() => (
+    Boolean(field)
+    && isLensFilterSupported
+    && !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    && !window.matchMedia("(forced-colors: active)").matches
+  ), [field, isLensFilterSupported]);
+
   const selectTab = useCallback((nextId: TabId) => {
     if (
       nextId === activeIdRef.current ||
@@ -519,7 +556,7 @@ export default function V3Page() {
     const nextGeometry = geometryRef.current;
     const origin = nextGeometry?.tabs[activeIdRef.current];
     const destination = nextGeometry?.tabs[nextId];
-    if (!origin || !destination || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!origin || !destination || !canUseLens()) {
       setCommittedTab(nextId, nextGeometry);
       return;
     }
@@ -544,12 +581,11 @@ export default function V3Page() {
     });
     animationFramesRef.current.push(firstFrame);
     travelTimeoutRef.current = window.setTimeout(() => finishTravel(nextId, nextSession), 1160);
-  }, [finishTravel, setCommittedTab, updateSliderPhase]);
+  }, [canUseLens, finishTravel, setCommittedTab, updateSliderPhase]);
 
   const selectOptics = useCallback((nextMode: OpticsMode) => {
     setOptics(nextMode);
-    setField(createEllipticalField(lensDimensions.width, lensDimensions.height, nextMode));
-  }, [lensDimensions]);
+  }, []);
 
   const handleLensExpansionEnd = useCallback((event: TransitionEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget || event.propertyName !== "transform" || lensPhaseRef.current !== "expanding") return;
@@ -578,12 +614,10 @@ export default function V3Page() {
 
   const updateDrag = useCallback((dragSession: DragSession, clientX: number) => {
     const nextGeometry = geometryRef.current;
-    const nav = navRef.current;
-    if (!nextGeometry || !nav) return false;
-    const navBox = nav.getBoundingClientRect();
+    if (!nextGeometry) return false;
     const minimumLensX = lensDimensions.width / 2;
     const maximumLensX = Math.max(minimumLensX, nextGeometry.width - lensDimensions.width / 2);
-    const nextX = clamp(clientX - navBox.left, minimumLensX, maximumLensX);
+    const nextX = clamp(clientX - nextGeometry.worldOrigin.x, minimumLensX, maximumLensX);
     dragSession.hasMoved = dragSession.hasMoved || Math.abs(clientX - dragSession.startClientX) > DRAG_THRESHOLD;
     if (!dragSession.hasMoved) return true;
     dragSession.x = nextX;
@@ -650,11 +684,10 @@ export default function V3Page() {
       dragSessionRef.current ||
       lensPhaseRef.current !== "idle" ||
       sliderPhaseRef.current !== "idle" ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      !canUseLens()
     ) return;
     const nextGeometry = geometryRef.current;
-    const nav = navRef.current;
-    if (!nextGeometry || !nav) return;
+    if (!nextGeometry) return;
     dragSessionRef.current = {
       pointerId: event.pointerId,
       pointerTarget: event.currentTarget,
@@ -663,7 +696,7 @@ export default function V3Page() {
       hasMoved: false,
     };
     event.currentTarget.setPointerCapture(event.pointerId);
-  }, []);
+  }, [canUseLens]);
 
   const handlePointerMove = useCallback((event: ReactPointerEvent<HTMLButtonElement>) => {
     const dragSession = dragSessionRef.current;
@@ -706,11 +739,24 @@ export default function V3Page() {
   const sliderStyle = sliderPosition
     ? {
         "--v3-slider-x": `${sliderPosition.x}px`,
-        "--v3-slider-y": `${sliderPosition.y}px`,
         "--v3-slider-width": `${sliderPosition.width}px`,
         "--v3-slider-height": `${sliderPosition.height}px`,
       } as CSSProperties
     : undefined;
+  const lensCoordinateSpace: LensCoordinateSpace | null = geometry
+    ? createLensCoordinateSpace(
+      geometry.worldOrigin,
+      { width: geometry.width, height: geometry.height },
+      lensDimensions,
+      lensPosition,
+    )
+    : null;
+  const worldSampleTransform = lensCoordinateSpace
+    ? calculateWorldSampleTransform(lensCoordinateSpace)
+    : { x: 0, y: 0 };
+  const selectionInsets = geometry
+    ? getSliderInsets(geometry)
+    : { horizontal: 4, vertical: 13 };
   const navStyle = {
     "--v3-lens-x": `${lensPosition.x}px`,
     "--v3-lens-y": `${lensPosition.y}px`,
@@ -720,20 +766,25 @@ export default function V3Page() {
     "--v3-lens-height": `${lensDimensions.height}px`,
     "--v3-lens-half-width": `${lensDimensions.width / 2}px`,
     "--v3-lens-half-height": `${lensDimensions.height / 2}px`,
+    "--v3-selection-inset-x": `${selectionInsets.horizontal}px`,
+    "--v3-selection-inset-y": `${selectionInsets.vertical}px`,
+    "--v3-world-sample-x": `${worldSampleTransform.x}px`,
+    "--v3-world-sample-y": `${worldSampleTransform.y}px`,
+    "--v3-optic-scale": `${lensCoordinateSpace?.opticScale ?? 1}`,
   } as CSSProperties;
   const lensOpticsStyle = {
-    "--v3-lens-filter": field ? `url("#${filterId}")` : "none",
+    "--v3-lens-filter": field && isLensFilterSupported ? `url("#${filterId}")` : "none",
   } as CSSProperties;
   const selectionVisible = lensPhase === "idle";
 
   return (
-    <main className="v3-demo" data-optics={optics}>
-      <div className="v3-stage-glow" aria-hidden="true" />
-      <section className="v3-copy" aria-label="V3 liquid glass study"><p>LIQUID GLASS / V3</p><h1>横向导航透镜</h1><span>点击任意标签；经过的标签不会改变激活状态。</span></section>
-      <div className="v3-optics" aria-label="Optics mode"><button type="button" className={optics === "baseline" ? "is-active" : ""} onClick={() => selectOptics("baseline")}>Baseline</button><button type="button" className={optics === "edge" ? "is-active" : ""} onClick={() => selectOptics("edge")}>Edge optics</button></div>
+    <main className="v3-demo" data-chrome={demoChrome ? "demo" : "reference"} data-optics={optics}>
+      <div className="v3-stage-glow" aria-hidden="true" hidden={!demoChrome} />
+      <section className="v3-copy" aria-label="V3 liquid glass study" hidden={!demoChrome}><p>LIQUID GLASS / V3</p><h1>横向导航透镜</h1><span>点击任意标签；经过的标签不会改变激活状态。</span></section>
+      <div className="v3-optics" aria-label="Optics mode" hidden={!demoChrome}><button type="button" className={optics === "baseline" ? "is-active" : ""} onClick={() => selectOptics("baseline")}>Baseline</button><button type="button" className={optics === "edge" ? "is-active" : ""} onClick={() => selectOptics("edge")}>Edge optics</button></div>
       <div className="v3-dock">
         <nav ref={navRef} className="v3-nav" aria-label="主导航" data-lens-phase={lensPhase} data-slider-phase={sliderPhase} data-preview-id={previewId} style={navStyle}>
-          <NavVisual layer="base" suppressedId={selectionVisible ? activeId : undefined} />
+          <NavigationWorld layer="base" suppressedId={selectionVisible ? activeId : undefined} />
           <div
             className="v3-selection-slider"
             data-active-id={activeId}
@@ -744,7 +795,7 @@ export default function V3Page() {
             aria-hidden="true"
           >
             <div className="v3-selection-optical-clip">
-              <div className="v3-selection-world"><NavVisual layer="selection" /></div>
+              <div className="v3-selection-world"><NavigationWorld layer="selection" /></div>
             </div>
           </div>
           <div className="v3-tab-actions">
@@ -766,11 +817,13 @@ export default function V3Page() {
               </button>
             ))}
           </div>
-          {field ? <svg className="v3-filter-definitions" aria-hidden="true"><defs><LensFilter id={filterId} field={field} width={lensDimensions.width} height={lensDimensions.height} /></defs></svg> : null}
+          {field && isLensFilterSupported ? <svg className="v3-filter-definitions" aria-hidden="true"><defs><LensFilter id={filterId} field={field} width={lensDimensions.width} height={lensDimensions.height} /></defs></svg> : null}
           <div className="v3-lens-position" aria-hidden="true" data-phase={lensPhase} onTransitionEnd={handleLensTravelEnd}>
             <div className="v3-lens-shell" onTransitionEnd={handleLensExpansionEnd}>
               <div className="v3-lens-optics-viewport" style={lensOpticsStyle}>
-                <div className="v3-lens-content"><NavVisual layer="lens" /></div>
+                <div className="v3-lens-world-sample">
+                  <NavigationWorld layer="lens" includeRail highlightedId={previewId} />
+                </div>
               </div>
               <span className="v3-lens-inner" /><span className="v3-lens-pole v3-lens-pole--top" /><span className="v3-lens-pole v3-lens-pole--bottom" /><span className="v3-lens-sheen" />
             </div>

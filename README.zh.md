@@ -11,6 +11,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 [V3 决策记录](./docs/decisions/v3-horizontal-navigation-lens.zh.md) ·
 [V3 参考校准](./docs/decisions/v3-reference-calibration.zh.md) ·
 [V3 视觉差距分析](./docs/reports/v3-liquid-glass-visual-gap-analysis.zh.md) ·
+[V3 连续世界取样](./docs/decisions/v3-continuous-world-sampling.zh.md) ·
 [Lint 范围决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
@@ -51,11 +52,12 @@ V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修�
 - 参考校准在 `1264 × 948` 锁定 `1124 × 210` 的 dock 与 `872 × 210` 的轨道；
   暂态透镜为 `296 × 242`，会在上下略微越过轨道，`210 × 182` 的静态滑块则保持
   明显更小。窄屏尺寸从实时轨道比例派生，不使用固定缩放。
-- SSR 仍从 `data-optics="baseline"` 开始。hydration 后，两种 optics 都会过滤镜片
-  尺寸的局部 viewport，平移后的导航副本负责提供被折射内容。Baseline 使用完整且
-  克制的椭圆凸透镜位移场；Edge 保持相同几何，只将边缘折射增强 14%。
-- 历史 V3 决策记录描述已发布的后续修订；参考校准记录描述已公开部署并验证的
-  [`/v3`](https://liquid.hkooii.com/v3) 校准实现。
+- SSR 仍从 `data-optics="baseline"` 开始。`/v3` 默认是 reference presentation，并在
+  hydration 后以同一 padding-box 坐标连续取样完整导航世界。Baseline field 使用
+  `coreZoom: 0.12`、轮廓处 `24px` 向内弯月面和 `11px` 折射；Edge 保持几何，只将
+  弯月面强度提高 14%。`?chrome=demo` 显示审阅控件，`?optics=edge` 选择比较场。
+- 历史 V3 与参考校准记录保留已发布历史的范围；连续世界取样决策记录描述当前本地
+  实现验证，不代表新的部署或发布。
 
 ### 品牌审阅
 

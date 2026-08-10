@@ -12,6 +12,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [V3 Decision Record](./docs/decisions/v3-horizontal-navigation-lens.en.md) ·
 [V3 Reference Calibration](./docs/decisions/v3-reference-calibration.en.md) ·
 [V3 Visual Gap Analysis](./docs/reports/v3-liquid-glass-visual-gap-analysis.en.md) ·
+[V3 Continuous World Sampling](./docs/decisions/v3-continuous-world-sampling.en.md) ·
 [Lint Scope Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
@@ -58,14 +59,16 @@ replace V2 or modify the frozen V1 Demo.
   rail while the `210 × 182` static slider remains visibly smaller. Narrow
   layouts derive these dimensions from the live rail ratio rather than a fixed
   transform scale.
-- SSR starts with `data-optics="baseline"`. After hydration（客户端接管）, both
-  optics modes filter a lens-sized local viewport and a translated navigation
-  replica supplies the refracted content. Baseline uses a complete, restrained
-  elliptical convex field; Edge keeps the same geometry and raises only rim
-  refraction by 14%.
-- The historical V3 decision record tracks the released follow-up revision.
-  The reference-calibration record captures the publicly deployed calibration
-  at [`/v3`](https://liquid.hkooii.com/v3).
+- SSR starts with `data-optics="baseline"`. `/v3` defaults to the reference
+  presentation（参考呈现） and, after hydration（客户端接管）, continuously samples one
+  complete navigation world in shared padding-box coordinates. The Baseline
+  field uses `coreZoom: 0.12`, a `24px` inward meniscus（弯月面）, and `11px`
+  contour refraction（折射）; Edge keeps the geometry and raises only meniscus
+  strength by 14%. `?chrome=demo` exposes review controls and `?optics=edge`
+  selects the comparison field.
+- The historical V3 and reference-calibration records retain their released
+  history. The continuous-world-sampling decision records current local
+  implementation verification（实现验证）, not a new deployment or release.
 
 ### Brand review
 
