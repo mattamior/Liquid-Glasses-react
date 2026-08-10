@@ -6,7 +6,7 @@ Date: 2026-08-07
 >
 > This record preserves the reference-calibration decision from that time and does not describe the current worktree. Its `1.45` content-copy scale（内容副本缩放）, double-mask meniscus（双重掩膜弯月面）, and related calibration values are historical values; the current implementation follows continuous world sampling（连续世界取样）.
 >
-> Deployment and public-verification statements（公开验证陈述） in this document are historical evidence and were not reverified in this batch. See the current [continuous world sampling decision（连续世界取样决策）](./v3-continuous-world-sampling.en.md).
+> Deployment and public-verification statements（公开验证陈述） in this document are historical evidence and were not reverified in this batch. See the later [intermediate meniscus calibration record（中间弯月面校准记录）](./v3-intermediate-meniscus-calibration.en.md) and the current [continuous world sampling decision（连续世界取样决策）](./v3-continuous-world-sampling.en.md).
 
 ## Scope and Decision
 
