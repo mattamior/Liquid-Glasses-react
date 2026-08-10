@@ -9,6 +9,7 @@ import {
   useId,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import {
   calculateRasterScale,
@@ -27,6 +28,8 @@ type OpticsMode = LensOpticsMode;
 type LensPhase = "idle" | "primed" | "expanding" | "travelling" | "dragging" | "drag-settling";
 type SliderPhase = "idle" | "dragging" | "settling";
 type VisualLayer = "base" | "selection" | "lens";
+type V3Theme = "dark" | "light";
+type ThemePreference = "system" | V3Theme;
 
 interface TabDefinition {
   id: TabId;
@@ -80,6 +83,67 @@ const DRAG_THRESHOLD = 5;
 const DRAG_SETTLE_DURATION = 260;
 const LENS_TRAVEL_DURATION = 680;
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+const LIGHT_COLOR_SCHEME_QUERY = "(prefers-color-scheme: light)";
+const FORCED_COLORS_QUERY = "(forced-colors: active)";
+const V3_THEME_STORAGE_KEY = "liquid-lab:v3-theme";
+
+function parseStoredTheme(value: string | null): V3Theme | null {
+  return value === "dark" || value === "light" ? value : null;
+}
+
+function readStoredTheme(): V3Theme | null {
+  try {
+    return parseStoredTheme(window.localStorage.getItem(V3_THEME_STORAGE_KEY));
+  } catch {
+    return null;
+  }
+}
+
+function persistTheme(theme: V3Theme) {
+  try {
+    window.localStorage.setItem(V3_THEME_STORAGE_KEY, theme);
+  } catch {
+    // The session state still applies when storage is unavailable.
+  }
+}
+
+function subscribeToMediaQuery(query: string, callback: () => void) {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return () => {};
+  const mediaQuery = window.matchMedia(query);
+  const handleChange = () => callback();
+  if (typeof mediaQuery.addEventListener === "function") {
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }
+  mediaQuery.addListener(handleChange);
+  return () => mediaQuery.removeListener(handleChange);
+}
+
+function subscribeToSystemTheme(callback: () => void) {
+  return subscribeToMediaQuery(LIGHT_COLOR_SCHEME_QUERY, callback);
+}
+
+function subscribeToForcedColors(callback: () => void) {
+  return subscribeToMediaQuery(FORCED_COLORS_QUERY, callback);
+}
+
+function getSystemTheme(): V3Theme {
+  return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(LIGHT_COLOR_SCHEME_QUERY).matches
+    ? "light"
+    : "dark";
+}
+
+function getForcedColors() {
+  return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(FORCED_COLORS_QUERY).matches;
+}
+
+function getServerTheme(): V3Theme {
+  return "dark";
+}
+
+function getServerForcedColors() {
+  return false;
+}
 
 function supportsLensFilter() {
   if (typeof window === "undefined" || typeof document === "undefined") return false;
@@ -133,7 +197,7 @@ function LensFilter({ id, field, width, height }: { id: string; field: string; w
   );
 }
 
-function Glyph({ name }: { name: TabDefinition["icon"] | "sparkle" }) {
+function Glyph({ name, className }: { name: TabDefinition["icon"] | "sparkle" | "sun" | "moon"; className?: string }) {
   const props = {
     viewBox: "0 0 24 24",
     fill: "none",
@@ -143,11 +207,13 @@ function Glyph({ name }: { name: TabDefinition["icon"] | "sparkle" }) {
     strokeLinejoin: "round" as const,
     "aria-hidden": true,
   };
-  if (name === "follow") return <svg {...props}><path d="M4 4h16v16H4z" /><path d="m8 15 3-5h5l-3 5H8Z" /></svg>;
-  if (name === "market") return <svg {...props}><circle cx="12" cy="12" r="8" /><path d="m8.4 8.5 7.2 3.1-3.1 4.2Z" /></svg>;
-  if (name === "activity") return <svg {...props}><path d="M4 4h16v16H4z" /><path d="M4 10h16M10 4v6" /></svg>;
-  if (name === "open") return <svg {...props}><path fill="currentColor" stroke="none" d="M12 2a10 10 0 1 0 10 10H12Z" /></svg>;
-  return <svg {...props}><path d="m12 2 1.8 7.1L21 12l-7.2 2.9L12 22l-2.8-7.1L2 12l7.2-2.9Z" /></svg>;
+  if (name === "follow") return <svg {...props} className={className}><path d="M4 4h16v16H4z" /><path d="m8 15 3-5h5l-3 5H8Z" /></svg>;
+  if (name === "market") return <svg {...props} className={className}><circle cx="12" cy="12" r="8" /><path d="m8.4 8.5 7.2 3.1-3.1 4.2Z" /></svg>;
+  if (name === "activity") return <svg {...props} className={className}><path d="M4 4h16v16H4z" /><path d="M4 10h16M10 4v6" /></svg>;
+  if (name === "open") return <svg {...props} className={className}><path fill="currentColor" stroke="none" d="M12 2a10 10 0 1 0 10 10H12Z" /></svg>;
+  if (name === "sun") return <svg {...props} className={className}><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" /></svg>;
+  if (name === "moon") return <svg {...props} className={className}><path d="M20 15.2A8.4 8.4 0 0 1 8.8 4 8.4 8.4 0 1 0 20 15.2Z" /></svg>;
+  return <svg {...props} className={className}><path d="m12 2 1.8 7.1L21 12l-7.2 2.9L12 22l-2.8-7.1L2 12l7.2-2.9Z" /></svg>;
 }
 
 function NavigationWorld({
@@ -228,6 +294,12 @@ export default function V3Page() {
   const [targetId, setTargetId] = useState<TabId | null>(null);
   const [optics, setOptics] = useState<OpticsMode>("baseline");
   const [demoChrome, setDemoChrome] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+  const [themeOverride, setThemeOverride] = useState<V3Theme | null>(null);
+  const systemTheme = useSyncExternalStore(subscribeToSystemTheme, getSystemTheme, getServerTheme);
+  const forcedColors = useSyncExternalStore(subscribeToForcedColors, getForcedColors, getServerForcedColors);
+  const resolvedTheme = themeOverride ?? systemTheme;
+  const themePreference: ThemePreference = themeOverride ?? "system";
   const [rasterScale, setRasterScale] = useState(1);
   const [isLensFilterSupported, setLensFilterSupported] = useState(false);
   const [field, setField] = useState("");
@@ -239,6 +311,38 @@ export default function V3Page() {
   const updateSliderPhase = useCallback((nextPhase: SliderPhase) => {
     sliderPhaseRef.current = nextPhase;
     setSliderPhase(nextPhase);
+  }, []);
+
+  useEffect(() => {
+    let hydratedFrame: number | null = null;
+    const storageFrame = window.requestAnimationFrame(() => {
+      setThemeOverride(readStoredTheme());
+      hydratedFrame = window.requestAnimationFrame(() => setHydrated(true));
+    });
+    return () => {
+      window.cancelAnimationFrame(storageFrame);
+      if (hydratedFrame !== null) window.cancelAnimationFrame(hydratedFrame);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    document.getElementById("v3-theme-bootstrap")?.removeAttribute("data-theme");
+  }, [hydrated]);
+
+  useEffect(() => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== V3_THEME_STORAGE_KEY && event.key !== null) return;
+      try {
+        if (event.storageArea !== window.localStorage) return;
+      } catch {
+        return;
+      }
+      const storedTheme = parseStoredTheme(event.newValue);
+      setThemeOverride(storedTheme);
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
   useEffect(() => {
@@ -776,9 +880,27 @@ export default function V3Page() {
     "--v3-lens-filter": field && isLensFilterSupported ? `url("#${filterId}")` : "none",
   } as CSSProperties;
   const selectionVisible = lensPhase === "idle";
+  const setPersistedTheme = useCallback((nextTheme: V3Theme) => {
+    setThemeOverride(nextTheme);
+    persistTheme(nextTheme);
+  }, []);
+  const nextTheme: V3Theme = resolvedTheme === "light" ? "dark" : "light";
+  const themeToggleLabel = !hydrated
+    ? "切换颜色主题"
+    : forcedColors
+      ? "系统颜色模式下不可切换主题"
+      : `切换到${nextTheme === "light" ? "亮色" : "深色"}主题`;
 
   return (
-    <main className="v3-demo" data-chrome={demoChrome ? "demo" : "reference"} data-optics={optics}>
+    <main
+      className="v3-demo"
+      data-chrome={demoChrome ? "demo" : "reference"}
+      data-optics={optics}
+      data-theme={themeOverride ?? undefined}
+      data-theme-preference={themePreference}
+      data-resolved-theme={hydrated ? resolvedTheme : undefined}
+      data-theme-hydrated={hydrated ? "true" : "false"}
+    >
       <div className="v3-stage-glow" aria-hidden="true" hidden={!demoChrome} />
       <section className="v3-copy" aria-label="V3 liquid glass study" hidden={!demoChrome}><p>LIQUID GLASS / V3</p><h1>横向导航透镜</h1><span>点击任意标签；经过的标签不会改变激活状态。</span></section>
       <div className="v3-optics" aria-label="Optics mode" hidden={!demoChrome}><button type="button" className={optics === "baseline" ? "is-active" : ""} onClick={() => selectOptics("baseline")}>Baseline</button><button type="button" className={optics === "edge" ? "is-active" : ""} onClick={() => selectOptics("edge")}>Edge optics</button></div>
@@ -829,7 +951,19 @@ export default function V3Page() {
             </div>
           </div>
         </nav>
-        <button className="v3-sparkle" type="button" aria-label="打开快捷功能"><Glyph name="sparkle" /><i /></button>
+        <button
+          className="v3-sparkle v3-theme-toggle"
+          type="button"
+          aria-label={themeToggleLabel}
+          aria-pressed={hydrated ? resolvedTheme === "light" : undefined}
+          title={themeToggleLabel}
+          disabled={forcedColors}
+          onClick={() => setPersistedTheme(nextTheme)}
+        >
+          <Glyph name="sun" className="v3-theme-toggle__icon--sun" />
+          <Glyph name="moon" className="v3-theme-toggle__icon--moon" />
+          <i className="v3-sparkle__badge" aria-hidden="true" />
+        </button>
       </div>
     </main>
   );

@@ -19,6 +19,8 @@ adaptive highlights, and navigation lenses.
 [V3 视觉差距分析](./docs/reports/v3-liquid-glass-visual-gap-analysis.zh.md) ·
 [V3 Continuous World Sampling](./docs/decisions/v3-continuous-world-sampling.en.md) ·
 [V3 连续世界取样](./docs/decisions/v3-continuous-world-sampling.zh.md) ·
+[V3 System Theme Toggle](./docs/decisions/v3-system-theme-toggle.en.md) ·
+[V3 系统主题切换](./docs/decisions/v3-system-theme-toggle.zh.md) ·
 [Lint Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Lint 决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
@@ -28,6 +30,7 @@ adaptive highlights, and navigation lenses.
 - `/` redirects to the default `/v2` vertical navigation study; frozen `/v1` remains available for archival comparison.
 - The source `/v3` route is reference-calibrated at `1264 × 948`: a `1124 × 210` dock, `872 × 210` rail, `296 × 242` temporary lens, and `210 × 182` static selection slider.
 - `/v3` now defaults to the reference presentation and samples one continuous navigation world in padding-box coordinates. Its Baseline field uses `coreZoom: 0.12`, a `24px` inward water-drop meniscus, and `11px` contour refraction; Edge preserves geometry and raises only that meniscus strength by 14%. `?chrome=demo` exposes review controls and `?optics=edge` selects the comparison field.
+- V3 follows the system color scheme when no preference is stored; its sparkle toggle persists（持久化） only valid `dark` / `light` values in `liquid-lab:v3-theme`, restores them on reload, and synchronizes（跨标签同步） changes across tabs. It does not change the route, existing query parameters, optical field, or the released production version. See the bilingual [system-theme decision](./docs/decisions/v3-system-theme-toggle.en.md) / [系统主题决策](./docs/decisions/v3-system-theme-toggle.zh.md). This theme batch is not deployed or released.
 - V3 continuous world sampling is now released as Cloudflare Worker version `3f2aff04-1693-4231-aee0-d7c757d7536d` at 100% traffic. Use the custom [`/v3`](https://liquid.hkooii.com/v3) or [workers.dev `/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3) URL; see the bilingual [continuous-world-sampling decision](./docs/decisions/v3-continuous-world-sampling.en.md) / [连续世界取样决策](./docs/decisions/v3-continuous-world-sampling.zh.md).
 - `/brand-preview` is the review surface for the current Liquid Lab logo on light and dark backgrounds.
 - V2 remains the default reference implementation; V3 is an independent experiment and does not replace it.

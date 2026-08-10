@@ -13,6 +13,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [V3 Reference Calibration](./docs/decisions/v3-reference-calibration.en.md) ·
 [V3 Visual Gap Analysis](./docs/reports/v3-liquid-glass-visual-gap-analysis.en.md) ·
 [V3 Continuous World Sampling](./docs/decisions/v3-continuous-world-sampling.en.md) ·
+[V3 System Theme Toggle](./docs/decisions/v3-system-theme-toggle.en.md) ·
 [Lint Scope Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
@@ -66,6 +67,12 @@ replace V2 or modify the frozen V1 Demo.
   contour refraction（折射）; Edge keeps the geometry and raises only meniscus
   strength by 14%. `?chrome=demo` exposes review controls and `?optics=edge`
   selects the comparison field.
+- V3 follows the system color scheme（系统颜色方案） when no preference is stored.
+  Its sparkle toggle persists（持久化） valid `dark` / `light` values in `liquid-lab:v3-theme`,
+  restores them on reload, and synchronizes them across tabs（跨标签页）. It does not
+  change the route, existing query parameters, optical field, or released production
+  version. See the [system-theme decision（系统主题决策）](./docs/decisions/v3-system-theme-toggle.en.md).
+  This theme batch is not deployed or released.
 - V3 continuous world sampling is released as Cloudflare Worker version
   `3f2aff04-1693-4231-aee0-d7c757d7536d` at 100% traffic. Use the custom
   [`/v3`](https://liquid.hkooii.com/v3) or workers.dev（Cloudflare 默认域名）
