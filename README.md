@@ -28,7 +28,7 @@ adaptive highlights, and navigation lenses.
 - `/` redirects to the default `/v2` vertical navigation study; frozen `/v1` remains available for archival comparison.
 - The source `/v3` route is reference-calibrated at `1264 × 948`: a `1124 × 210` dock, `872 × 210` rail, `296 × 242` temporary lens, and `210 × 182` static selection slider.
 - `/v3` now defaults to the reference presentation and samples one continuous navigation world in padding-box coordinates. Its Baseline field uses `coreZoom: 0.12`, a `24px` inward water-drop meniscus, and `11px` contour refraction; Edge preserves geometry and raises only that meniscus strength by 14%. `?chrome=demo` exposes review controls and `?optics=edge` selects the comparison field.
-- The historical V3 and reference-calibration records retain their released-history scope. The local continuous-world-sampling decision records the current implementation verification; it does not record a new deployment.
+- V3 continuous world sampling is now released as Cloudflare Worker version `3f2aff04-1693-4231-aee0-d7c757d7536d` at 100% traffic. Use the custom [`/v3`](https://liquid.hkooii.com/v3) or [workers.dev `/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3) URL; see the bilingual [continuous-world-sampling decision](./docs/decisions/v3-continuous-world-sampling.en.md) / [连续世界取样决策](./docs/decisions/v3-continuous-world-sampling.zh.md).
 - `/brand-preview` is the review surface for the current Liquid Lab logo on light and dark backgrounds.
 - V2 remains the default reference implementation; V3 is an independent experiment and does not replace it.
 - The reusable Agent Skill documents versioned assets, layered Web refraction, semantic motion, and accessible fallbacks.

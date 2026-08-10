@@ -2,7 +2,7 @@
 
 日期：2026-08-10
 
-状态：本地实现已验证；本批次未部署、未发布。
+状态：本地实现已验证并已发布生产；Cloudflare Worker 版本 `3f2aff04-1693-4231-aee0-d7c757d7536d` 承载 100% 流量。
 
 ## 1. 范围与决策
 
@@ -75,8 +75,19 @@
 
 ## 6. 部署与发布状态
 
-本批次没有部署、发布、推送或修改生产绑定、变量、密钥与配额。此前决策记录中描述的
-历史部署状态不因本地连续世界取样实现而改变。
+2026-08-10 已发布到 Cloudflare Worker `liquid-lab-optics-demo`。Wrangler `4.92.0` 下，
+构建、dry-run 和正式 deploy 均以 exit 0 完成；发布命令使用
+`--config dist/server/wrangler.json --name liquid-lab-optics-demo --keep-vars --message`。
+
+新版本 `3f2aff04-1693-4231-aee0-d7c757d7536d` 已承载 100% 流量。custom URL
+[`https://liquid.hkooii.com/v3`](https://liquid.hkooii.com/v3) 与 workers.dev URL
+[`https://liquid-lab-optics-demo.mattamior.workers.dev/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3)
+均已通过生产 smoke：返回 200 HTML；default、demo、Edge、拖拽、ARIA、SVG filter 与零 console
+错误均已检查。发布上传 6 个修改/新增资产并复用 25 个资产，总计 `1298.91 KiB`（gzip
+`285.54 KiB`），Worker startup 为 `16ms`。生产截图保存在已忽略的 `output/`，不进入版本控制。
+
+发布前 100% 流量版本为 `98d48f5b-85be-4a21-9bba-f7c756a7a304`，是本次回滚目标；如需回滚，
+使用 `npx wrangler rollback 98d48f5b-85be-4a21-9bba-f7c756a7a304 --name liquid-lab-optics-demo`。
 
 ## 7. 已知风险、限制与回滚
 

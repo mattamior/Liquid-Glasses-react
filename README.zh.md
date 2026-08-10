@@ -26,7 +26,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 | `/` | 重定向至当前默认导航实验 `/v2`。 |
 | `/v1` | 保留用于对照的冻结归档 Demo。 |
 | `/v2` | 默认的纵向导航透镜参考实现。 |
-| `/v3` | 独立的横向导航透镜实验；公开版本已使用参考校准实现。 |
+| `/v3` | 独立的横向导航透镜实验；连续世界取样版本已发布。 |
 | `/brand-preview` | 当前 Liquid Lab 标志的亮暗背景审阅页。 |
 
 V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修改冻结的 V1 Demo。
@@ -56,8 +56,9 @@ V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修�
   hydration 后以同一 padding-box 坐标连续取样完整导航世界。Baseline field 使用
   `coreZoom: 0.12`、轮廓处 `24px` 向内弯月面和 `11px` 折射；Edge 保持几何，只将
   弯月面强度提高 14%。`?chrome=demo` 显示审阅控件，`?optics=edge` 选择比较场。
-- 历史 V3 与参考校准记录保留已发布历史的范围；连续世界取样决策记录描述当前本地
-  实现验证，不代表新的部署或发布。
+- V3 连续世界取样已发布为 Cloudflare Worker 版本 `3f2aff04-1693-4231-aee0-d7c757d7536d`，
+  承载 100% 流量。可使用 custom [`/v3`](https://liquid.hkooii.com/v3) 或 workers.dev
+  [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3)；详见[连续世界取样决策](./docs/decisions/v3-continuous-world-sampling.zh.md)。
 
 ### 品牌审阅
 

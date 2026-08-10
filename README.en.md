@@ -27,7 +27,7 @@ The public version is hosted on Cloudflare Workers:
 | `/` | Redirects to `/v2`, the current default navigation study. |
 | `/v1` | Frozen archived Demo retained for comparison. |
 | `/v2` | Default vertical navigation-lens reference implementation. |
-| `/v3` | Independent horizontal navigation-lens experiment; this checkout has a local, reference-calibrated implementation. |
+| `/v3` | Independent horizontal navigation-lens experiment; the continuous-world-sampling version is released. |
 | `/brand-preview` | Light/dark review surface for the current Liquid Lab logo. |
 
 V2 remains the default reference. V3 is a separate experiment; it does not
@@ -66,9 +66,11 @@ replace V2 or modify the frozen V1 Demo.
   contour refraction（折射）; Edge keeps the geometry and raises only meniscus
   strength by 14%. `?chrome=demo` exposes review controls and `?optics=edge`
   selects the comparison field.
-- The historical V3 and reference-calibration records retain their released
-  history. The continuous-world-sampling decision records current local
-  implementation verification（实现验证）, not a new deployment or release.
+- V3 continuous world sampling is released as Cloudflare Worker version
+  `3f2aff04-1693-4231-aee0-d7c757d7536d` at 100% traffic. Use the custom
+  [`/v3`](https://liquid.hkooii.com/v3) or workers.dev（Cloudflare 默认域名）
+  [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3); see the
+  [continuous-world-sampling decision（连续世界取样决策）](./docs/decisions/v3-continuous-world-sampling.en.md).
 
 ### Brand review
 

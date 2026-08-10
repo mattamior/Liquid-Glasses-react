@@ -2,7 +2,7 @@
 
 Date: 2026-08-10
 
-Status: locally implemented and verified（本地实现已验证）; this batch is not deployed or released.
+Status: locally implemented, verified, and released to production（生产）; Cloudflare Worker version `3f2aff04-1693-4231-aee0-d7c757d7536d` serves 100% of traffic.
 
 ## 1. Scope and Decision（范围与决策）
 
@@ -92,9 +92,24 @@ reference set. It supplements, rather than rewrites,
 
 ## 6. Deployment and Release Status（部署与发布状态）
 
-This batch did not deploy, release, push, or change production bindings,
-variables, secrets, or quotas. Historical deployment status in earlier decision
-records is not changed by this local continuous-world-sampling implementation.
+Released on 2026-08-10 to Cloudflare Worker `liquid-lab-optics-demo`. With
+Wrangler `4.92.0`, build, dry-run（预演）, and the production deploy（生产发布） all completed with
+exit 0. The deploy command used
+`--config dist/server/wrangler.json --name liquid-lab-optics-demo --keep-vars --message`.
+
+New version `3f2aff04-1693-4231-aee0-d7c757d7536d` serves 100% of traffic. The
+custom URL（自定义 URL） [`https://liquid.hkooii.com/v3`](https://liquid.hkooii.com/v3) and
+workers.dev URL
+[`https://liquid-lab-optics-demo.mattamior.workers.dev/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3)
+both passed production smoke checks（生产冒烟检查）: 200 HTML, default, demo, Edge,
+drag, ARIA, SVG filter, and zero console errors. The release uploaded six
+modified/new assets and reused 25 assets, totaling `1298.91 KiB` (`285.54 KiB`
+gzip) with `16ms` Worker startup（Worker 启动）. Production screenshots remain in ignored
+`output/` and are not versioned.
+
+The prior 100%-traffic version `98d48f5b-85be-4a21-9bba-f7c756a7a304` is the
+rollback target（回滚目标）. If needed, run
+`npx wrangler rollback 98d48f5b-85be-4a21-9bba-f7c756a7a304 --name liquid-lab-optics-demo`.
 
 ## 7. Known Risks, Limits, and Rollback（已知风险、限制与回滚）
 
