@@ -11,6 +11,8 @@ adaptive highlights, and navigation lenses.
 [Liquid Glass Method](./docs/liquid-glass-interface.en.md) ·
 [Logo Decision Record](./docs/decisions/liquid-lab-logo.en.md) ·
 [标志决策记录](./docs/decisions/liquid-lab-logo.zh.md) ·
+[V2 Admin Template Enhancement](./docs/decisions/v2-admin-template-enhancement.en.md) ·
+[V2 后台模板增强](./docs/decisions/v2-admin-template-enhancement.zh.md) ·
 [V3 Decision Record](./docs/decisions/v3-horizontal-navigation-lens.en.md) ·
 [V3 决策记录](./docs/decisions/v3-horizontal-navigation-lens.zh.md) ·
 [V3 Reference Calibration](./docs/decisions/v3-reference-calibration.en.md) ·
@@ -38,7 +40,14 @@ adaptive highlights, and navigation lenses.
 - `/v3-05-failed` retains the full interactive M05 implementation from `88abeedca48b14a9aa96d980a4a956bb294461ee` as a direct-access archive. It is `noindex, nofollow`, absent from navigation, and physically isolated from `/v3` except for `liquid-lab:v3-theme`. The annotated `v3-milestone-05-failed` tag still marks failed acceptance, not a usable baseline.
 - This route migration is deployed as Worker `liquid-lab-optics-demo` version `71ca0a4d-6af1-4742-a97a-d9b83c61a820`; build, dry-run, and deploy passed with Wrangler `4.92.0`, and the workers.dev [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3) entry is available. Custom-domain and full visual production smoke remain pending independent verification. The rollback target is `d910d3b1-cdc6-472f-a504-4d5df526df95`. See the bilingual [M04 rollback / failed M05 route decision](./docs/decisions/v3-m04-rollback-failed-route.en.md) / [M04 回归 / 失败 M05 路由决策](./docs/decisions/v3-m04-rollback-failed-route.zh.md).
 - `/brand-preview` is the review surface for the current Liquid Lab logo on light and dark backgrounds.
-- V2 remains the default reference implementation; V3 is an independent experiment and does not replace it.
+- V2 remains the default admin-template reference implementation. Its current source
+  enhancement unifies primary mouse, touch, and pen interaction, adds adaptive 1×/2×
+  capsule optics and static capability fallback, and persists validated light/dark
+  themes across reloads and tabs. It is released as Worker `liquid-lab-optics-demo`
+  version `58a41f02-7a84-4499-9ce1-dd032b99c3b2`, serving 100% of traffic; see the
+  bilingual [V2 enhancement decision](./docs/decisions/v2-admin-template-enhancement.en.md) /
+  [V2 增强决策](./docs/decisions/v2-admin-template-enhancement.zh.md). V3 remains an
+  independent App-style experiment and does not replace V2.
 - The reusable Agent Skill documents versioned assets, layered Web refraction, semantic motion, and accessible fallbacks.
 
 ## Quick Start

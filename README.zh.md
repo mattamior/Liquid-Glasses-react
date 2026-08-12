@@ -8,6 +8,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 [项目入口](./README.md) ·
 [液态玻璃方法](./docs/liquid-glass-interface.zh.md) ·
 [标志决策记录](./docs/decisions/liquid-lab-logo.zh.md) ·
+[V2 后台模板增强](./docs/decisions/v2-admin-template-enhancement.zh.md) ·
 [V3 决策记录](./docs/decisions/v3-horizontal-navigation-lens.zh.md) ·
 [V3 参考校准](./docs/decisions/v3-reference-calibration.zh.md) ·
 [V3 视觉差距分析](./docs/reports/v3-liquid-glass-visual-gap-analysis.zh.md) ·
@@ -39,10 +40,18 @@ V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修�
 
 ### V2：默认纵向导航透镜
 
-- 使用单层连续 SVG 位移贴图采样移动透镜。
-- 已提交选中态保持扁平；点击或鼠标拖拽期间才出现临时透镜。
-- 亮暗主题独立调校，提供 Baseline/Enhanced 渲染层级。
-- 为窄屏、触摸/笔、减少动态和强制颜色环境提供降级路径。
+- 使用单层连续 capsule SVG 位移贴图采样移动透镜，以自适应 `1×` 或 `2×` DPR
+  生成并限制最高为 `2×`。
+- 已提交选中态保持扁平；点击或拖动期间只出现一个临时透镜。主鼠标、触控和触控笔
+  共用 `>5px` Pointer Events 阈值、逐帧合并、最终位置刷新与集中清理。
+- 亮暗主题独立调校，提供 Baseline/Enhanced 渲染层级。Enhanced 的 Canvas 2D 或
+  SVG filter 能力探测失败时执行静态提交；Baseline 保留轻量临时 plate。
+- 手动 `light` / `dark` 使用经过校验的 `liquid-lab:v2-theme` 偏好，刷新后保持并跨
+  标签页同步。
+- 紧凑布局、减少动态和强制颜色降级路径继续保证导航、可见焦点与唯一语义选中。
+- 当前 V2 增强已生产发布为 Worker `liquid-lab-optics-demo` 版本
+  `58a41f02-7a84-4499-9ce1-dd032b99c3b2`，承载 100% 流量；详见
+  [V2 增强决策](./docs/decisions/v2-admin-template-enhancement.zh.md)。
 
 ### V3：独立横向导航透镜
 
@@ -85,9 +94,9 @@ V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修�
 界面不使用静态玻璃图片，而是组合以下能力：
 
 - React 19 与 TypeScript
-- SVG `feDisplacementMap`：V2 使用 2× 圆角 SDF 位移场，V3 使用局部椭圆位移场
+- SVG `feDisplacementMap`：V2 使用自适应 1×/2× 圆角 SDF 位移场，V3 使用局部椭圆位移场
 - CSS `backdrop-filter`、渐变、内阴影与混合模式
-- V3 使用 Pointer Events、指针捕获、阈值拖拽处理和最近项吸附
+- V2 与 V3 使用 Pointer Events、指针捕获、阈值拖拽处理和最近项吸附
 - vinext 与 Vite 构建
 - Cloudflare Workers 托管
 

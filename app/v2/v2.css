@@ -59,6 +59,28 @@ body:has(.v2-demo) {
   --v2-card-shadow: 0 24px 66px rgb(0 4 20 / 25%);
 }
 
+html[data-v2-theme="dark"] .v2-demo[data-theme="light"] {
+  --v2-ink: #f5f7ff;
+  --v2-muted: rgb(216 225 255 / 62%);
+  --v2-base: #071127;
+  --v2-sidebar-fill: rgb(12 24 52 / 44%);
+  --v2-sidebar-border: rgb(179 201 255 / 13%);
+  --v2-sidebar-shadow: 0 30px 74px rgb(0 4 20 / 40%);
+  --v2-hover: rgb(157 189 255 / 7%);
+  --v2-control-fill: rgb(15 29 61 / 76%);
+  --v2-control-border: rgb(179 201 255 / 13%);
+  --v2-card-fill: rgb(15 29 61 / 56%);
+  --v2-card-border: rgb(168 192 255 / 12%);
+  --v2-card-shadow: 0 24px 66px rgb(0 4 20 / 25%);
+}
+
+html[data-v2-theme="dark"] .v2-demo[data-theme="light"] .v2-ambient-scene {
+  background:
+    radial-gradient(circle at 76% 5%, rgb(26 113 255 / 55%), transparent 38%),
+    radial-gradient(circle at 12% 78%, rgb(95 48 218 / 42%), transparent 40%),
+    linear-gradient(145deg, #061127 0%, #081634 48%, #11103a 100%);
+}
+
 .v2-ambient-scene {
   position: absolute;
   inset: 0;
@@ -382,6 +404,7 @@ body:has(.v2-demo) {
   gap: 8px;
   padding-top: 10px;
   transition: --v2-selection-y 680ms cubic-bezier(0.22, 0.82, 0.28, 1);
+  touch-action: none;
 }
 
 .v2-menu[data-glass-phase="dragging"] {
@@ -802,7 +825,8 @@ body:has(.v2-demo) {
 
 .v2-theme-toggle:focus-visible,
 .v2-collapse-button:focus-visible,
-.v2-menu-item:focus-visible {
+.v2-menu-item:focus-visible,
+.v2-optics-toggle__button:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--v2-ink) 62%, white);
   outline-offset: 2px;
 }
@@ -985,6 +1009,8 @@ body:has(.v2-demo) {
   .v2-sidebar,
   .v2-theme-toggle,
   .v2-collapse-button,
+  .v2-optics-toggle,
+  .v2-optics-toggle__button,
   .v2-card {
     border: 1px solid CanvasText;
     background: Canvas;

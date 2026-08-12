@@ -9,6 +9,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [Project Home](./README.md) ·
 [Liquid Glass Method](./docs/liquid-glass-interface.en.md) ·
 [Logo Decision Record](./docs/decisions/liquid-lab-logo.en.md) ·
+[V2 Admin Template Enhancement](./docs/decisions/v2-admin-template-enhancement.en.md) ·
 [V3 Decision Record](./docs/decisions/v3-horizontal-navigation-lens.en.md) ·
 [V3 Reference Calibration](./docs/decisions/v3-reference-calibration.en.md) ·
 [V3 Visual Gap Analysis](./docs/reports/v3-liquid-glass-visual-gap-analysis.en.md) ·
@@ -41,10 +42,21 @@ replace V2 or modify the frozen V1 Demo.
 
 ### V2: default vertical navigation lens
 
-- One continuous SVG displacement map（位移贴图） sample for the moving lens.
-- Flat committed selection with a temporary lens during click or mouse drag.
-- Separately tuned light/dark optics and baseline/enhanced rendering tiers.
-- Compact, touch/pen, reduced-motion, and forced-color fallback paths.
+- One continuous capsule SVG displacement map（位移贴图） sample for the moving
+  lens, generated at adaptive `1×` or `2×` DPR and capped at `2×`.
+- Flat committed selection with one temporary lens during click or drag. Primary
+  mouse, touch, and pen share a `>5px` Pointer Events threshold, animation-frame
+  batching（逐帧合并）, final-position flushing（最终位置刷新）, and centralized cleanup（集中清理）.
+- Separately tuned light/dark optics and Baseline/Enhanced rendering tiers.
+  Enhanced mode statically commits when Canvas 2D or SVG filter capability
+  detection（能力检测） fails; Baseline keeps its lightweight temporary plate.
+- Manual `light` / `dark` selection uses the validated `liquid-lab:v2-theme`
+  preference, persists（持久化） across reloads, and synchronizes across tabs（跨标签页同步）.
+- Compact, reduced-motion, and forced-color fallback paths preserve navigation,
+  focus visibility, and a single semantic selection（语义选中）.
+- The current V2 enhancement is released to production（已生产发布） as Worker
+  `liquid-lab-optics-demo` version `58a41f02-7a84-4499-9ce1-dd032b99c3b2`, serving
+  100% of traffic. See the [V2 enhancement decision（V2 增强决策）](./docs/decisions/v2-admin-template-enhancement.en.md).
 
 ### V3: independent horizontal navigation lens
 
@@ -100,11 +112,11 @@ replace V2 or modify the frozen V1 Demo.
 The interface does not use a static glass image. It combines:
 
 - React 19 and TypeScript
-- SVG `feDisplacementMap`, with a 2× rounded-SDF field in V2 and a local
+- SVG `feDisplacementMap`, with an adaptive 1×/2× rounded-SDF field in V2 and a local
   elliptical field in V3
 - CSS `backdrop-filter`, gradients, inset shadows, and blend modes（混合模式）
 - Pointer Events, pointer capture（指针捕获）, thresholded drag handling, and
-  nearest-item snapping in V3
+  nearest-item snapping in V2 and V3
 - vinext and Vite for building
 - Cloudflare Workers for hosting
 

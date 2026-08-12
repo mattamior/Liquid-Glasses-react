@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./v2.css";
 
+const V2_THEME_BOOTSTRAP = `try{var theme=localStorage.getItem("liquid-lab:v2-theme");if(theme==="light"||theme==="dark"){document.documentElement.dataset.v2Theme=theme}}catch(_){}`;
+
 export const metadata: Metadata = {
   title: "Liquid Lab V2 — Navigation lens",
   description:
@@ -12,5 +14,12 @@ export default function V2Layout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return <>
+    <script
+      id="v2-theme-bootstrap"
+      suppressHydrationWarning
+      dangerouslySetInnerHTML={{ __html: V2_THEME_BOOTSTRAP }}
+    />
+    {children}
+  </>;
 }

@@ -60,6 +60,9 @@ test("renders the Liquid Lab V2 navigation demo", async () => {
   assert.match(html, /关于/);
   assert.match(html, /data-optics-tier="baseline"/);
   assert.match(html, /data-glass-active="false"/);
+  assert.match(html, /id="v2-theme-bootstrap"/);
+  assert.match(html, /<nav\b[^>]*aria-label="页面导航"/);
+  assert.equal((html.match(/aria-current="page"/g) ?? []).length, 1);
   assert.match(html, /aria-label="液态玻璃渲染方式"/);
   assert.match(html, /v2-menu-visual-item" data-selected="true"/);
   assert.doesNotMatch(html, /data-refraction="baseline"/);
