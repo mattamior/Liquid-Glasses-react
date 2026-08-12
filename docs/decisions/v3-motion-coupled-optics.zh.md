@@ -2,11 +2,11 @@
 
 日期：2026-08-12
 
-状态：仅本地验证、尚未发布；本批次未暂存、未提交、未部署，也未创建 tag。生产环境仍为 `v3-milestone-04`。
+状态：已生产发布；实现提交 `d702d2b` 对应 Cloudflare Worker `liquid-lab-optics-demo` 版本 `d910d3b1-cdc6-472f-a504-4d5df526df95`，承载 100% 流量。尚未创建新的 milestone tag。
 
 ## 1. 范围与决策
 
-本记录覆盖 `/v3` 在既有连续世界取样和持久主题基础上的本地光学与导航图标增强。图表背景不在本批次范围内。
+本记录覆盖 `/v3` 在既有连续世界取样和持久主题基础上的生产光学与导航图标增强。图表背景不在本批次范围内。
 
 - 四个导航项使用一套原创、共享的 `NavigationGlyph` 资产：Open 为 `70px`，Activity 为 `79px`，Market 为 `88px`，Follow 为 `70px`。base、静态 slider 与 transient lens 继续复用同一个 `NavigationWorld`；sun、moon 与 teal badge 保持不变。
 - 折射场保留 `1×` world transform，并采用连续的径向与切向位移。动态状态由 `LensFieldState` 表示，方向为 `none` / `left` / `right`，速度层级为 `0`–`3`；tier 0 规范化为无方向静态场。
@@ -49,16 +49,18 @@
 - 原生 Safari Retina 人工检查为 **Go**，`backingScaleFactor = 2`。主题、SVG filter、mask、CSS `:has()` 与真实 drag 均通过，console 无错误；本轮没有进行触摸交互验收。
 - 系统录屏请求为 `r60`，实际文件为 `2446 × 1370`、`404` frames、`8.026667s`，平均 `50.290fps`，记录的 SHA-256 前缀为 `e1f…`。因此“逐帧 `>= 60fps`”门槛没有通过，slider 在 `<= 2` frames 内恢复也尚未签署。
 - `fieldScaleCssPx: 64` 将每轴编码范围扩为 `±32px`；当前审阅确认 RGBA 无饱和，`36px` padding 仍覆盖场的轴向位移与抗锯齿余量。
+- custom domain 生产 smoke 为 **Go**：system dark/light 分别解析为 `rgb(5, 15, 19)` / `rgb(244, 247, 248)`；主题写入与 reload 恢复、默认 chrome hidden、`?chrome=demo` 控件可见均通过。Edge 的 Activity→Market `16ms` 中段为 `phase=dragging`、`data-preview-id=market`、`aria-current=动态`，slider hidden 且 `296 × 242` lens/filter visible；scale 为 `64`，padding 为 `-36 / -36 / 368 × 314`，world scale 为 `1×`，field 为 `R 4–179 / G 52–201` 且 0/255 endpoints 为 `0`。release 后提交 Market 并恢复 slider、隐藏 lens；forced-colors 禁用主题按钮、无 storage 写入并直接静态提交。全过程 console errors 与 page errors 均为 `0`。
+- workers.dev 生产 smoke 为简短 Edge load+click：成功点击至 Activity，最终 `phase=idle`、field 存在、DPR 为 `1`，console errors 与 page errors 均为 `0`。它没有重复 custom domain 的完整主题/拖拽矩阵。两个生产 `/v3` URL 均返回 `200 / text/html; charset=utf-8`。
 
 ## 6. 发布状态与回退
 
-- 本批次仅存在于本地工作树：尚未暂存、提交、push、部署或创建 tag。生产环境仍是 `v3-milestone-04`，本记录不改变现有 Cloudflare 流量或生产回滚目标。
-- 若本地结果需要撤回，应以本批次的 app、tests、snapshots、README 和本决策记录为一个边界回退。该操作是源代码工作树 / 后续提交的回退，不是生产环境 rollback；不得触碰当前生产版本。
-- 在逐帧 `>= 60fps` 与 slider `<= 2` frames 门槛签署前，不应把本记录改写为已发布状态。
+- 实现提交 `d702d2b` 已 push 到 `main`，并发布为 Cloudflare Worker `liquid-lab-optics-demo` 版本 `d910d3b1-cdc6-472f-a504-4d5df526df95`，承载 100% 流量。custom URL [`https://liquid.hkooii.com/v3`](https://liquid.hkooii.com/v3) 与 workers.dev URL [`https://liquid-lab-optics-demo.mattamior.workers.dev/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3) 均通过生产 smoke。
+- Wrangler `4.92.0` 下，`npm run build`、dry-run 和生产 deploy 均为 exit `0`。dry-run 为 `8` 个 modules、`40` 个 assets、`1313.60 KiB`（gzip `289.65 KiB`）；正式部署上传 `5` 个新增/修改 assets、复用 `26` 个，Worker startup 为 `19ms`。
+- 前一 100% 流量版本为 `590a19bb-8b64-4053-af13-a1b0f54fb387`。准确生产回退命令为 `npx wrangler rollback 590a19bb-8b64-4053-af13-a1b0f54fb387 --name liquid-lab-optics-demo --message "rollback v3 motion-coupled optics" --yes`。代码回退应以实现提交、测试、21 张快照、README 与本决策记录为同一批次边界；不要把生产 rollback 与源码回退混为一谈。
 
 ## 7. 已知风险、限制与后续工作
 
 - 录屏平均值 `50.290fps` 不能证明逐帧 `>= 60fps`；下一步需要可重复的逐帧时间序列和 slider 恢复帧计数，并单独签署两项性能门槛。
-- Safari Retina 已覆盖主题、滤镜、mask、`:has()` 与 drag，但未覆盖真实触摸手势；发布前仍需完成触摸设备或等效硬件检查。
+- Safari Retina 已覆盖主题、滤镜、mask、`:has()` 与 drag，但未覆盖真实触摸手势；本次发布后该检查仍未完成，必须在下一里程碑验收前完成触摸设备或等效硬件检查。
 - 当前视觉 Gate 证明指定构图与 landmark 达标，不代表图表背景或其它未纳入场景已完成；图表仍是明确的后续批次。
-- 只有在未通过门槛关闭、快照与 manifest 重新核对后，才能决定 commit、部署与新 milestone tag；本批次不预先声明这些发布动作。
+- 本批次已部署，但逐帧 `>= 60fps` 和 slider `<= 2` frames 仍是明确的未关闭限制，不得因生产发布而标记为通过。新 milestone tag 应作为独立发布决策，不在本记录中预先声明。

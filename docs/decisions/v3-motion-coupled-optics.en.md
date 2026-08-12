@@ -2,11 +2,11 @@
 
 Date: 2026-08-12
 
-Status: verified locally and unreleased（已本地验证、尚未发布）; this batch is not staged, committed, deployed, or tagged. Production remains `v3-milestone-04`.
+Status: released to production（已生产发布）; implementation commit `d702d2b` maps to Cloudflare Worker `liquid-lab-optics-demo` version `d910d3b1-cdc6-472f-a504-4d5df526df95`, serving 100% of traffic. No new milestone tag has been created.
 
 ## 1. Scope and Decision（范围与决策）
 
-This record covers the local optical and navigation-glyph（导航图标字形） enhancement for `/v3` on top of continuous-world sampling（连续世界取样） and the persisted theme. The chart background is out of scope（超出范围） for this batch.
+This record covers the production optical and navigation-glyph（导航图标字形） enhancement for `/v3` on top of continuous-world sampling（连续世界取样） and the persisted theme. The chart background is out of scope（超出范围） for this batch.
 
 - All four navigation items use one original, shared `NavigationGlyph` asset set: Open is `70px`, Activity is `79px`, Market is `88px`, and Follow is `70px`. The base, static slider, and transient lens continue to reuse one `NavigationWorld`; sun, moon, and the teal badge stay unchanged.
 - The refraction field（折射场） keeps the `1×` world transform and uses continuous radial（径向） and tangential（切向） displacement. `LensFieldState` represents dynamic state with `none` / `left` / `right` direction and velocity tiers（速度层级） `0`–`3`; tier 0 is canonicalized（规范化） to a direction-free static field.
@@ -49,16 +49,18 @@ This record covers the local optical and navigation-glyph（导航图标字形�
 - A manual native Safari Retina review is **Go** with `backingScaleFactor = 2`. Theme, SVG filter, mask, CSS `:has()`, and real drag passed with no console errors; touch interaction was not reviewed in this pass.
 - The system recording requested `r60`, but the actual file is `2446 × 1370`, `404` frames, `8.026667s`, and an average `50.290fps`; its recorded SHA-256 prefix is `e1f…`. Therefore, the frame-by-frame（逐帧） `>= 60fps` gate did not pass, and slider recovery within `<= 2` frames is not signed off（尚未签署）.
 - `fieldScaleCssPx: 64` expands the per-axis encoding range to `±32px`. The current review confirms no RGBA saturation, and `36px` padding still covers field-axis displacement plus anti-aliasing（抗锯齿） margin.
+- The custom-domain production smoke is **Go**: system dark/light resolved to `rgb(5, 15, 19)` / `rgb(244, 247, 248)`; theme write plus reload restore, default chrome hidden, and visible `?chrome=demo` controls passed. At the Edge Activity→Market `16ms` midpoint, the state was `phase=dragging`, `data-preview-id=market`, and `aria-current=动态`, with the slider hidden and the `296 × 242` lens/filter visible. Scale was `64`, padding was `-36 / -36 / 368 × 314`, world scale was `1×`, and the field was `R 4–179 / G 52–201` with `0` endpoints at 0/255. Release committed Market, restored the slider, and hid the lens; forced-colors disabled the theme button, wrote no storage, and used direct static commit. Console errors and page errors were both `0` throughout.
+- The workers.dev production smoke was a brief Edge load+click: it reached Activity with final `phase=idle`, a present field, DPR `1`, and `0` console or page errors. It did not repeat the custom domain's full theme/drag matrix（完整主题/拖拽矩阵）. Both production `/v3` URLs returned `200 / text/html; charset=utf-8`.
 
 ## 6. Release Status and Rollback（发布状态与回退）
 
-- This batch exists only in the local worktree: it is not staged, committed, pushed, deployed, or tagged. Production remains `v3-milestone-04`; this record changes neither current Cloudflare traffic nor the production rollback target.
-- If the local result must be withdrawn, revert this batch's app, tests, snapshots, README entries, and this decision record as one boundary. That is a source-worktree / future-commit rollback, not a production rollback; the current production version must remain untouched.
-- This record must not be changed to released status until the frame-by-frame `>= 60fps` and slider `<= 2` frames gates are signed off.
+- Implementation commit `d702d2b` was pushed to `main` and released as Cloudflare Worker `liquid-lab-optics-demo` version `d910d3b1-cdc6-472f-a504-4d5df526df95`, serving 100% of traffic. The custom URL（自定义 URL） [`https://liquid.hkooii.com/v3`](https://liquid.hkooii.com/v3) and workers.dev URL [`https://liquid-lab-optics-demo.mattamior.workers.dev/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3) both passed production smoke（生产冒烟检查）.
+- With Wrangler `4.92.0`, `npm run build`, dry-run（预演）, and production deploy（生产发布） all completed with exit `0`. The dry run contained `8` modules, `40` assets, and `1313.60 KiB` total upload (`289.65 KiB` gzip). Production uploaded `5` new/modified assets, reused `26`, and reported `19ms` Worker startup（Worker 启动）.
+- The prior 100%-traffic version is `590a19bb-8b64-4053-af13-a1b0f54fb387`. The exact production rollback command（生产回退命令） is `npx wrangler rollback 590a19bb-8b64-4053-af13-a1b0f54fb387 --name liquid-lab-optics-demo --message "rollback v3 motion-coupled optics" --yes`. Code rollback should treat the implementation commit, tests, 21 snapshots, README entries, and this decision record as one batch boundary; do not confuse production rollback with source rollback.
 
 ## 7. Known Risks, Limits, and Follow-Up（已知风险、限制与后续工作）
 
 - A `50.290fps` recording average does not prove frame-by-frame `>= 60fps`. The next step needs a repeatable per-frame time series（逐帧时间序列） and a slider-recovery frame count, followed by separate sign-off for both performance gates.
-- Safari Retina covers theme, filter, mask, `:has()`, and drag, but not a real touch gesture. A touch device or equivalent hardware check remains required before release.
+- Safari Retina covers theme, filter, mask, `:has()`, and drag, but not a real touch gesture. This release has not completed that check; a touch device or equivalent hardware check must be completed before the next milestone acceptance（下一里程碑验收）.
 - The current visual gate proves the specified composition and landmark, not the chart background or another excluded scene. The chart remains an explicit later batch.
-- Commit, deployment, and a new milestone tag can be decided only after the open gates close and snapshots plus the manifest are checked again. This batch does not predeclare those release actions.
+- This batch is deployed, but frame-by-frame `>= 60fps` and slider `<= 2` frames remain explicit open limits and must not be marked passed because of production release. A new milestone tag remains a separate release decision（独立发布决策） and is not predeclared here.

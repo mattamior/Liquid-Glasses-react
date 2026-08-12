@@ -14,7 +14,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [V3 Visual Gap Analysis](./docs/reports/v3-liquid-glass-visual-gap-analysis.en.md) ·
 [V3 Continuous World Sampling](./docs/decisions/v3-continuous-world-sampling.en.md) ·
 [V3 System Theme Toggle](./docs/decisions/v3-system-theme-toggle.en.md) ·
-[V3 Motion-Coupled Optics (Local, Unreleased)](./docs/decisions/v3-motion-coupled-optics.en.md) ·
+[V3 Motion-Coupled Optics Release](./docs/decisions/v3-motion-coupled-optics.en.md) ·
 [Lint Scope Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
@@ -73,18 +73,19 @@ replace V2 or modify the frozen V1 Demo.
   Its sparkle toggle persists（持久化） valid `dark` / `light` values in `liquid-lab:v3-theme`,
   restores them on reload, and synchronizes them across tabs（跨标签页）. It does not
   change the route, existing query parameters, or optical field. Theme implementation
-  commit `6fc3897` is released as Cloudflare Worker version `590a19bb-8b64-4053-af13-a1b0f54fb387`
-  at 100% traffic. Use the custom [`/v3`](https://liquid.hkooii.com/v3) or workers.dev
-  （Cloudflare 默认域名） [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3); see the
+  commit `6fc3897` was first released as Cloudflare Worker version
+  `590a19bb-8b64-4053-af13-a1b0f54fb387`; see the
   [system-theme decision（系统主题决策）](./docs/decisions/v3-system-theme-toggle.en.md).
-- A locally verified, unreleased V3 batch adds original shared navigation glyphs（导航图标字形）
-  and cached motion-coupled（运动耦合） radial/tangential optics（径向/切向光学）. Full E2E
-  `35/35` and a Go visual gate passed, but the requested frame-by-frame（逐帧） `>= 60fps`
-  gate remains open; production stays at `v3-milestone-04`. See the
+- Implementation commit `d702d2b` adds original shared navigation glyphs（导航图标字形） and
+  cached motion-coupled（运动耦合） radial/tangential optics（径向/切向光学）. Cloudflare
+  Worker `liquid-lab-optics-demo` version `d910d3b1-cdc6-472f-a504-4d5df526df95` now serves
+  100% of traffic at the custom [`/v3`](https://liquid.hkooii.com/v3) and workers.dev
+  （Cloudflare 默认域名） [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3).
+  Full E2E `35/35`, the visual gate, and production smoke（生产冒烟检查） passed, but the
+  frame-by-frame（逐帧） `>= 60fps` gate remains open. See the
   [motion-coupled-optics decision（运动耦合光学决策）](./docs/decisions/v3-motion-coupled-optics.en.md).
-- The preceding continuous-world-sampling release
-  `3f2aff04-1693-4231-aee0-d7c757d7536d` is the current production rollback target（生产回滚目标）;
-  see the [continuous-world-sampling decision（连续世界取样决策）](./docs/decisions/v3-continuous-world-sampling.en.md).
+- The preceding persistent-theme version `590a19bb-8b64-4053-af13-a1b0f54fb387` is the
+  current production rollback target（生产回滚目标）.
 
 ### Brand review
 
