@@ -39,11 +39,17 @@ async function beginTabDrag(page: Page, source: DraggableTab, target: DraggableT
   const targetX = targetBox.x + targetBox.width / 2;
   const targetY = targetBox.y + targetBox.height / 2;
   await page.mouse.move(sourceX, sourceY);
+  await page.evaluate(() => {
+    (window as Window & { __setV3TestTime?: (time: number) => void }).__setV3TestTime?.(1_000);
+  });
   await page.mouse.down();
   return { sourceX, sourceY, targetX, targetY };
 }
 
 async function moveDragToFraction(page: Page, coordinates: DragCoordinates, fraction: number) {
+  await page.evaluate(() => {
+    (window as Window & { __advanceV3TestTime?: (milliseconds: number) => void }).__advanceV3TestTime?.(16);
+  });
   await page.mouse.move(
     coordinates.sourceX + (coordinates.targetX - coordinates.sourceX) * fraction,
     coordinates.sourceY + (coordinates.targetY - coordinates.sourceY) * fraction,
@@ -54,6 +60,15 @@ async function moveDragToFraction(page: Page, coordinates: DragCoordinates, frac
 }
 
 async function openV3(page: Page, path = "/v3") {
+  await page.addInitScript(() => {
+    if ("__setV3TestTime" in window) return;
+    let now = 1_000;
+    Object.defineProperty(performance, "now", { configurable: true, value: () => now });
+    Object.assign(window, {
+      __setV3TestTime: (nextTime: number) => { now = nextTime; },
+      __advanceV3TestTime: (milliseconds: number) => { now += milliseconds; },
+    });
+  });
   await page.goto(path);
   const slider = page.getByRole("navigation", { name: navigationName }).locator(".v3-selection-slider");
   await expect(slider).toHaveAttribute("data-ready", "true");
@@ -312,7 +327,7 @@ test("captures Baseline meniscus positions across both reference travel directio
   await expect(navigation).toHaveAttribute("data-preview-id", "activity");
   await expect(page.getByRole("button", { name: labels.activity })).not.toHaveAttribute("aria-current", "page");
   await expect(lens.locator('[data-highlighted="true"]')).toHaveCount(1);
-  await expect(lens.locator('[data-highlighted="true"]')).toHaveCSS("color", "rgb(255, 255, 255)");
+  await expect(lens.locator('[data-highlighted="true"] .v3-tab-icon')).toHaveCSS("color", "rgb(255, 255, 255)");
   await expect(page).toHaveScreenshot("v3-open-to-activity-target-drag-full.png", { animations: "disabled" });
   await expect(lens).toHaveScreenshot("v3-open-to-activity-target-drag.png", { animations: "disabled" });
   await page.mouse.up();
@@ -429,6 +444,129 @@ test("uses a distinct edge field with the same active-lens geometry", async ({ p
   await expect(page).toHaveScreenshot("v3-edge-activity-to-market-mid-drag-full.png", { animations: "disabled" });
   await expect(lens).toHaveScreenshot("v3-edge-activity-to-market-mid-drag.png", { animations: "disabled" });
   await page.mouse.up();
+});
+
+test("keeps navigation glyph assets, geometry, and colors shared across the base, selection, and lens worlds", async ({ page }) => {
+  await openV3(page);
+
+  const navigation = page.getByRole("navigation", { name: navigationName });
+  const baseGlyphs = navigation.locator('.v3-navigation-world--base .v3-nav-glyph');
+  const selectionGlyphs = navigation.locator('.v3-navigation-world--selection .v3-nav-glyph');
+  const lensGlyphs = navigation.locator('.v3-navigation-world--lens .v3-nav-glyph');
+  const baseIcons = navigation.locator('.v3-navigation-world--base .v3-tab-icon');
+  const baseLabels = navigation.locator('.v3-navigation-world--base .v3-tab-label');
+  const selectionIcons = navigation.locator('.v3-navigation-world--selection .v3-tab-icon');
+
+  await expect(baseGlyphs).toHaveCount(4);
+  await expect(selectionGlyphs).toHaveCount(4);
+  await expect(lensGlyphs).toHaveCount(4);
+  const glyphContract = await navigation.evaluate((element) => (
+    ["base", "selection", "lens"].map((layer) => Array.from(
+      element.querySelectorAll(`.v3-navigation-world--${layer} .v3-nav-glyph`),
+      (glyph) => ({
+        className: glyph.getAttribute("class"),
+        path: glyph.innerHTML,
+        viewBox: glyph.getAttribute("viewBox"),
+      }),
+    ))
+  ));
+
+  expect(glyphContract[1]).toEqual(glyphContract[0]);
+  expect(glyphContract[2]).toEqual(glyphContract[0]);
+  for (const glyph of glyphContract[0]) {
+    expect(glyph.className).toMatch(/^v3-nav-glyph v3-nav-glyph--(follow|market|activity|open)$/);
+    expect(glyph.viewBox).toBe("0 0 100 100");
+  }
+
+  const targetGlyphSizes = [70, 88, 79, 70];
+  for (let index = 0; index < 4; index += 1) {
+    const [baseBox, selectionBox] = await Promise.all([
+      readBox(baseGlyphs.nth(index)),
+      readBox(selectionGlyphs.nth(index)),
+    ]);
+    expect(baseBox.width).toBe(targetGlyphSizes[index]);
+    expect(baseBox.height).toBe(targetGlyphSizes[index]);
+    expect(selectionBox.width).toBe(baseBox.width);
+    expect(selectionBox.height).toBe(baseBox.height);
+  }
+  await expect(baseIcons.nth(0)).toHaveCSS("color", "rgb(245, 245, 246)");
+  await expect(baseLabels.nth(0)).toHaveCSS("color", "rgba(245, 245, 246, 0.58)");
+  await expect(selectionIcons.nth(3)).toHaveCSS("color", "rgb(255, 255, 255)");
+
+  const activity = page.getByRole("button", { name: labels.activity });
+  const activityBox = await activity.boundingBox();
+  if (!activityBox) throw new Error("The activity tab must have a measurable box.");
+  const drag = await beginTabDrag(page, "open", "activity");
+  await moveDragToFraction(page, drag, 1);
+  const activityIndex = 2;
+  const [baseActivityBox, lensActivityBox] = await Promise.all([
+    readBox(baseGlyphs.nth(activityIndex)),
+    readBox(lensGlyphs.nth(activityIndex)),
+  ]);
+  expect(Math.abs(lensActivityBox.width - baseActivityBox.width)).toBeLessThanOrEqual(0.75);
+  expect(Math.abs(lensActivityBox.height - baseActivityBox.height)).toBeLessThanOrEqual(0.75);
+  await expect(lensGlyphs.nth(activityIndex).locator("xpath=.."))
+    .toHaveCSS("color", "rgb(255, 255, 255)");
+  await page.mouse.up();
+});
+
+test("coalesces field updates to the latest velocity bucket while retaining same-bucket fields", async ({ page }) => {
+  await page.addInitScript(() => {
+    let now = 1_000;
+    Object.defineProperty(performance, "now", { configurable: true, value: () => now });
+    Object.assign(window, { __setV3TestTime: (nextTime: number) => { now = nextTime; } });
+  });
+  await openV3(page);
+
+  const navigation = page.getByRole("navigation", { name: navigationName });
+  const field = navigation.locator("feImage");
+  const open = page.getByRole("button", { name: labels.open });
+  const openBox = await open.boundingBox();
+  if (!openBox) throw new Error("The active V3 tab must have a measurable box.");
+  const sourceX = openBox.x + openBox.width / 2;
+  const sourceY = openBox.y + openBox.height / 2;
+  const staticField = await field.getAttribute("href");
+  const setTime = (value: number) => page.evaluate((nextTime) => {
+    (window as Window & { __setV3TestTime: (time: number) => void }).__setV3TestTime(nextTime);
+  }, value);
+
+  await dispatchSyntheticPrimaryPointer(open, "pointerdown", "pen", 91, sourceX, sourceY);
+  await setTime(1_001);
+  await dispatchSyntheticPrimaryPointer(open, "pointermove", "pen", 91, sourceX + 10, sourceY);
+  await expect(navigation).toHaveAttribute("data-lens-phase", "dragging");
+  await expect.poll(() => field.getAttribute("href")).not.toBe(staticField);
+  const rightTierThreeField = await field.getAttribute("href");
+
+  await page.evaluate(() => {
+    const image = document.querySelector(".v3-nav feImage");
+    const state = window as Window & { __v3FieldHrefMutations?: string[]; __v3FieldHrefObserver?: MutationObserver };
+    state.__v3FieldHrefMutations = [];
+    state.__v3FieldHrefObserver = new MutationObserver(() => {
+      state.__v3FieldHrefMutations?.push(image?.getAttribute("href") ?? "");
+    });
+    state.__v3FieldHrefObserver.observe(image!, { attributeFilter: ["href"], attributes: true });
+  });
+  await setTime(1_020);
+  await dispatchSyntheticPrimaryPointer(open, "pointermove", "pen", 91, sourceX + 20, sourceY);
+  await setTime(1_021);
+  await dispatchSyntheticPrimaryPointer(open, "pointermove", "pen", 91, sourceX + 10, sourceY);
+  await setTime(1_022);
+  await dispatchSyntheticPrimaryPointer(open, "pointermove", "pen", 91, sourceX + 11, sourceY);
+  await page.waitForTimeout(180);
+
+  const finalField = await field.getAttribute("href");
+  const mutations = await page.evaluate(() => {
+    const state = window as Window & { __v3FieldHrefMutations?: string[]; __v3FieldHrefObserver?: MutationObserver };
+    state.__v3FieldHrefObserver?.disconnect();
+    return state.__v3FieldHrefMutations ?? [];
+  });
+  expect(finalField).not.toBe(rightTierThreeField);
+  expect(mutations).toHaveLength(1);
+  await setTime(1_147);
+  await dispatchSyntheticPrimaryPointer(open, "pointermove", "pen", 91, sourceX + 111, sourceY);
+  await page.waitForTimeout(30);
+  await expect(field).toHaveAttribute("href", finalField ?? "");
+  await dispatchSyntheticPrimaryPointer(open, "pointerup", "pen", 91, sourceX + 11, sourceY);
 });
 
 test("commits reduced-motion selection without exposing a temporary lens", async ({ page }) => {
@@ -692,7 +830,8 @@ test.describe("light theme", () => {
         "--v3-page-solid",
         "--v3-rail-surface",
         "--v3-selection-surface",
-        "--v3-tab-muted",
+        "--v3-tab-icon-muted",
+        "--v3-tab-label-muted",
         "--v3-tab-active",
         "--v3-accent",
         "--v3-badge",
@@ -703,7 +842,8 @@ test.describe("light theme", () => {
       "--v3-page-solid": "#f4f7f8",
       "--v3-rail-surface": "rgb(244 247 250 / 88%)",
       "--v3-selection-surface": "rgb(255 255 255 / 78%)",
-      "--v3-tab-muted": "rgb(38 48 58 / 74%)",
+      "--v3-tab-icon-muted": "rgb(38 48 58)",
+      "--v3-tab-label-muted": "rgb(38 48 58 / 74%)",
       "--v3-tab-active": "#101820",
       "--v3-accent": "#008d7c",
       "--v3-badge": "#008d7c",
@@ -780,7 +920,6 @@ test.describe("light theme", () => {
     const baselineCoordinates = await beginTabDrag(page, "open", "activity");
     await moveDragToFraction(page, baselineCoordinates, 0.5);
     const baselineTravel = {
-      field: await field.getAttribute("href"),
       lens: await readBox(lens),
       rail: await readBox(rail),
       slider: await readBox(slider),
@@ -817,7 +956,7 @@ test.describe("light theme", () => {
     expectBoxesWithinTolerance(await readBox(lens), baselineTravel.lens);
     expectBoxesWithinTolerance(await readBox(rail), baselineTravel.rail);
     expectBoxesWithinTolerance(await readBox(slider), baselineTravel.slider);
-    expect(await field.getAttribute("href")).toBe(baselineTravel.field);
+    await expect(field).toHaveAttribute("href", /data:image\/png;base64,/);
     await expect(lens.locator(".v3-navigation-world--lens")).toHaveCSS("transform", baselineTravel.world);
     await page.mouse.up();
   });
@@ -835,7 +974,7 @@ test.describe("light theme", () => {
     await expect(lens).toHaveScreenshot("v3-light-open-to-activity-mid-drag.png", { animations: "disabled" });
     await moveDragToFraction(page, openToActivity, 1);
     await expect(navigation).toHaveAttribute("data-preview-id", "activity");
-    await expect(lens.locator('[data-highlighted="true"]')).toHaveCSS("color", "rgb(16, 24, 32)");
+    await expect(lens.locator('[data-highlighted="true"] .v3-tab-icon')).toHaveCSS("color", "rgb(16, 24, 32)");
     await expect(page).toHaveScreenshot("v3-light-open-to-activity-target-drag-full.png", { animations: "disabled" });
     await expect(lens).toHaveScreenshot("v3-light-open-to-activity-target-drag.png", { animations: "disabled" });
     await page.mouse.up();

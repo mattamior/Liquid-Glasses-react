@@ -14,6 +14,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [V3 Visual Gap Analysis](./docs/reports/v3-liquid-glass-visual-gap-analysis.en.md) ·
 [V3 Continuous World Sampling](./docs/decisions/v3-continuous-world-sampling.en.md) ·
 [V3 System Theme Toggle](./docs/decisions/v3-system-theme-toggle.en.md) ·
+[V3 Motion-Coupled Optics (Local, Unreleased)](./docs/decisions/v3-motion-coupled-optics.en.md) ·
 [Lint Scope Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
@@ -63,9 +64,10 @@ replace V2 or modify the frozen V1 Demo.
 - SSR starts with `data-optics="baseline"`. `/v3` defaults to the reference
   presentation（参考呈现） and, after hydration（客户端接管）, continuously samples one
   complete navigation world in shared padding-box coordinates. The Baseline
-  field uses `coreZoom: 0.12`, a `24px` inward meniscus（弯月面）, and `11px`
-  contour refraction（折射）; Edge keeps the geometry and raises only meniscus
-  strength by 14%. `?chrome=demo` exposes review controls and `?optics=edge`
+  field uses `coreZoom: 0.12`, a continuous `36px` meniscus band（弯月面带）, and
+  `10.05px` baseline refraction（基础折射）. Edge keeps geometry and material,
+  applies the `1.14×` static strength, and adds its motion-coupled profile（运动耦合场）
+  only while moving. `?chrome=demo` exposes review controls and `?optics=edge`
   selects the comparison field.
 - V3 follows the system color scheme（系统颜色方案） when no preference is stored.
   Its sparkle toggle persists（持久化） valid `dark` / `light` values in `liquid-lab:v3-theme`,
@@ -75,6 +77,11 @@ replace V2 or modify the frozen V1 Demo.
   at 100% traffic. Use the custom [`/v3`](https://liquid.hkooii.com/v3) or workers.dev
   （Cloudflare 默认域名） [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3); see the
   [system-theme decision（系统主题决策）](./docs/decisions/v3-system-theme-toggle.en.md).
+- A locally verified, unreleased V3 batch adds original shared navigation glyphs（导航图标字形）
+  and cached motion-coupled（运动耦合） radial/tangential optics（径向/切向光学）. Full E2E
+  `35/35` and a Go visual gate passed, but the requested frame-by-frame（逐帧） `>= 60fps`
+  gate remains open; production stays at `v3-milestone-04`. See the
+  [motion-coupled-optics decision（运动耦合光学决策）](./docs/decisions/v3-motion-coupled-optics.en.md).
 - The preceding continuous-world-sampling release
   `3f2aff04-1693-4231-aee0-d7c757d7536d` is the current production rollback target（生产回滚目标）;
   see the [continuous-world-sampling decision（连续世界取样决策）](./docs/decisions/v3-continuous-world-sampling.en.md).

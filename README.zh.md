@@ -13,6 +13,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 [V3 视觉差距分析](./docs/reports/v3-liquid-glass-visual-gap-analysis.zh.md) ·
 [V3 连续世界取样](./docs/decisions/v3-continuous-world-sampling.zh.md) ·
 [V3 系统主题切换](./docs/decisions/v3-system-theme-toggle.zh.md) ·
+[V3 运动耦合光学（本地未发布）](./docs/decisions/v3-motion-coupled-optics.zh.md) ·
 [Lint 范围决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
@@ -55,12 +56,16 @@ V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修�
   明显更小。窄屏尺寸从实时轨道比例派生，不使用固定缩放。
 - SSR 仍从 `data-optics="baseline"` 开始。`/v3` 默认是 reference presentation，并在
   hydration 后以同一 padding-box 坐标连续取样完整导航世界。Baseline field 使用
-  `coreZoom: 0.12`、轮廓处 `24px` 向内弯月面和 `11px` 折射；Edge 保持几何，只将
-  弯月面强度提高 14%。`?chrome=demo` 显示审阅控件，`?optics=edge` 选择比较场。
+  `coreZoom: 0.12`、连续 `36px` 弯月面带和 `10.05px` 基础折射；Edge 保持几何与材质，
+  静态强度为 `1.14×`，并只在运动时叠加运动耦合 profile。`?chrome=demo` 显示审阅控件，
+  `?optics=edge` 选择比较场。
 - V3 在无存储偏好时跟随系统颜色方案；右侧 sparkle 将合法 `dark` / `light` 写入
   `liquid-lab:v3-theme`，刷新后恢复并跨标签页同步。主题实现提交 `6fc3897` 已发布为 Cloudflare
   Worker 版本 `590a19bb-8b64-4053-af13-a1b0f54fb387`，承载 100% 流量；可使用 custom
   [`/v3`](https://liquid.hkooii.com/v3) 或 workers.dev [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3)。详见[系统主题决策](./docs/decisions/v3-system-theme-toggle.zh.md)。
+- 一个仅本地验证、尚未发布的 V3 批次新增原创共享导航图标，以及带缓存的运动耦合径向/
+  切向折射。完整 E2E `35/35` 与视觉 Gate Go 已通过，但请求的逐帧 `>= 60fps` 门槛仍未
+  通过；生产环境保持 `v3-milestone-04`。详见[运动耦合光学决策](./docs/decisions/v3-motion-coupled-optics.zh.md)。
 - 前一连续世界取样版本 `3f2aff04-1693-4231-aee0-d7c757d7536d` 是当前生产回滚目标；详见
   [连续世界取样决策](./docs/decisions/v3-continuous-world-sampling.zh.md)。
 
