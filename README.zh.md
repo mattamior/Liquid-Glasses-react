@@ -56,7 +56,7 @@ V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修�
 - 参考校准在 `1264 × 948` 锁定 `1124 × 210` 的 dock 与 `872 × 210` 的轨道；
   暂态透镜为 `296 × 242`，会在上下略微越过轨道，`210 × 182` 的静态滑块则保持
   明显更小。窄屏尺寸从实时轨道比例派生，不使用固定缩放。
-- SSR 仍从 `data-optics="baseline"` 开始。本地 `/v3` 已精确恢复为 M04 候选基线
+- SSR 仍从 `data-optics="baseline"` 开始。`/v3` 已精确恢复为 M04 候选基线
   `d353abed0e5b379989bbcb7d13bb830702eece3f`：默认 reference presentation，并在 hydration 后
   以同一 padding-box 坐标连续取样完整导航世界；Baseline 使用 `coreZoom: 0.12`、`24px` 向内
   弯月面和 `11px` 基础折射，Edge 静态强度为 `1.14×`。`?chrome=demo` 显示审阅控件，
@@ -64,14 +64,14 @@ V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修�
 - V3 在无存储偏好时跟随系统颜色方案；右侧 sparkle 将合法 `dark` / `light` 写入
   `liquid-lab:v3-theme`，刷新后恢复并跨标签页同步。主题实现提交 `6fc3897` 最初发布为
   Cloudflare Worker 版本 `590a19bb-8b64-4053-af13-a1b0f54fb387`；详见[系统主题决策](./docs/decisions/v3-system-theme-toggle.zh.md)。
-- 本地 `/v3-05-failed` 保留提交 `88abeedca48b14a9aa96d980a4a956bb294461ee` 的完整可交互 M05，
+- `/v3-05-failed` 保留提交 `88abeedca48b14a9aa96d980a4a956bb294461ee` 的完整可交互 M05，
   作为公开直达归档；它设置 `noindex, nofollow`、不进入站内导航，并且除共享
   `liquid-lab:v3-theme` 外与 `/v3` 物理隔离。annotated tag `v3-milestone-05-failed` 仍仅表示
   发布验收失败，不是可用基线。
-- 此路由迁移已在本地验证，但尚未提交或部署。生产当前仍为历史 M05 的 Cloudflare Worker
-  `liquid-lab-optics-demo` 版本 `d910d3b1-cdc6-472f-a504-4d5df526df95`；需要部署新的 Worker，
-  而不是回滚至 `590a19bb-8b64-4053-af13-a1b0f54fb387`，恢复的 M04 才会上线。新版本上线后，
-  `d910d3b1-cdc6-472f-a504-4d5df526df95` 才是回滚目标。详见
+- 此路由迁移已发布为 Worker `liquid-lab-optics-demo` 版本
+  `71ca0a4d-6af1-4742-a97a-d9b83c61a820`；Wrangler `4.92.0` 下 build、dry-run 与 deploy 均通过，
+  workers.dev [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3) 入口已可用。custom 域名与完整
+  生产视觉 smoke 仍待独立核验；回滚目标为 `d910d3b1-cdc6-472f-a504-4d5df526df95`。详见
   [M04 回归 / 失败 M05 路由决策](./docs/decisions/v3-m04-rollback-failed-route.zh.md)。
 
 ### 品牌审阅

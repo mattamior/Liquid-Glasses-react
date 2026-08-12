@@ -1,7 +1,7 @@
 # V3 M04 回归与失败 M05 路由决策记录
 
 **日期：** 2026-08-12
-**状态：** 本地验证通过；尚未提交或部署
+**状态：** 已部署生产；完整视觉 smoke 仍待独立核验
 
 ## 1. 范围与决策
 
@@ -59,15 +59,19 @@ M04 的现有浏览器降级、强制颜色、减少动态和 SVG/Canvas fallbac
 
 归档路由的公开直达性不等于推荐使用：M05 的失败 tag 语义始终优先于其可访问性。导航不应新增指向该路由的入口，也不应把它用于新的视觉批准。
 
-## 6. 部署与回滚计划
+## 6. 部署与回滚
 
-本决策只描述本地已验证的路由迁移：它尚未提交、尚未部署。当前生产仍为历史 M05 Worker
-`liquid-lab-optics-demo` 版本 `d910d3b1-cdc6-472f-a504-4d5df526df95`，在实际发布前，线上
-`/v3` 仍不是此处恢复的 M04。
+路由迁移已发布到 Cloudflare Worker `liquid-lab-optics-demo`，新版本为
+`71ca0a4d-6af1-4742-a97a-d9b83c61a820`。Wrangler `4.92.0` 下，`npm run build`、dry-run
+和正式 deploy 均以 exit `0` 完成；dry-run 包含 `9` 个 modules 和 `42` 个 assets，总计
+`1358.09 KiB`（gzip `297.92 KiB`）。正式发布上传 `5` 个新增/修改 assets、复用 `28` 个，
+Worker startup 为 `15ms`。workers.dev URL
+[`https://liquid-lab-optics-demo.mattamior.workers.dev/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3)
+是本次发布的 Worker 入口。
 
-下一次发布必须部署包含两个路由的新 Worker 版本，**不能**把生产回滚到旧的
-`590a19bb-8b64-4053-af13-a1b0f54fb387`。新版本成功发布后，当前的 `d910d3b1-cdc6-472f-a504-4d5df526df95`
-才是该路由迁移的回滚目标，命令为：
+custom URL `https://liquid.hkooii.com` 与两个路由的完整生产视觉 smoke 仍待视觉代理单独核验；
+在该核验完成前，不得把它们记录为已通过。前一生产版本
+`d910d3b1-cdc6-472f-a504-4d5df526df95` 是本次路由迁移的回滚目标，命令为：
 
 ```bash
 npx wrangler rollback d910d3b1-cdc6-472f-a504-4d5df526df95 --name liquid-lab-optics-demo --message "rollback M04 route migration" --yes
@@ -75,4 +79,4 @@ npx wrangler rollback d910d3b1-cdc6-472f-a504-4d5df526df95 --name liquid-lab-opt
 
 ## 7. 后续工作
 
-在提交和部署前，应再次审阅 M04/M05 路由边界、独立快照清单和公开 noindex 行为；部署后再运行生产 smoke 检查并记录新 Worker version。下一里程碑还应完成 Safari 触摸、逐帧性能与字形 bounding-box 的重复测量。V2 仍是默认参考实现，本决策不会替换 V1/V2。
+视觉代理完成 custom/Worker URL 的生产 smoke 后，应补记结果；下一里程碑还应完成 Safari 触摸、逐帧性能与字形 bounding-box 的重复测量。V2 仍是默认参考实现，本决策不会替换 V1/V2。

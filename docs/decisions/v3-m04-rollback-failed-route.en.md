@@ -1,7 +1,7 @@
 # V3 M04 Rollback and Failed M05 Route Decision Record
 
 **Date:** 2026-08-12
-**Status:** Verified locally; not committed or deployed
+**Status:** Deployed to production; full visual smoke remains pending independent verification
 
 ## 1. Scope and Decision
 
@@ -59,15 +59,19 @@ M04 keeps its existing browser fallbacks（浏览器降级）, forced-colors, re
 
 Public direct access to the archive does not recommend it for use: the failed-tag meaning always takes priority over accessibility. Navigation must not add an entry to that route, and it must not be used for new visual approval.
 
-## 6. Deployment and Rollback Plan
+## 6. Deployment and Rollback
 
-This decision describes a locally verified route migration only: it is not committed or deployed. Production is still the historical M05 Worker
-`liquid-lab-optics-demo` version `d910d3b1-cdc6-472f-a504-4d5df526df95`; until an actual rollout, production
-`/v3` is not the restored M04 described here.
+The route migration is deployed to Cloudflare Worker `liquid-lab-optics-demo` as new version
+`71ca0a4d-6af1-4742-a97a-d9b83c61a820`. With Wrangler `4.92.0`, `npm run build`, dry-run（预演）, and
+production deploy（生产发布） all completed with exit `0`; dry-run contained `9` modules and `42` assets,
+totaling `1358.09 KiB` (`297.92 KiB` gzip). Production uploaded `5` new/modified assets, reused `28`, and
+reported `15ms` Worker startup（Worker 启动）. The workers.dev URL
+[`https://liquid-lab-optics-demo.mattamior.workers.dev/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3)
+is this release's Worker entry.
 
-The next release must deploy a new Worker version containing both routes. It must **not** roll production back to the old
-`590a19bb-8b64-4053-af13-a1b0f54fb387`. Once the new version is successfully deployed, the current
-`d910d3b1-cdc6-472f-a504-4d5df526df95` becomes the rollback target（回滚目标） for this route migration:
+The custom URL `https://liquid.hkooii.com` and the complete production visual smoke for both routes remain
+pending independent verification by the visual agent（视觉代理）; they must not be recorded as passed before
+that check. The prior production version `d910d3b1-cdc6-472f-a504-4d5df526df95` is the rollback target（回滚目标） for this route migration:
 
 ```bash
 npx wrangler rollback d910d3b1-cdc6-472f-a504-4d5df526df95 --name liquid-lab-optics-demo --message "rollback M04 route migration" --yes
@@ -75,4 +79,4 @@ npx wrangler rollback d910d3b1-cdc6-472f-a504-4d5df526df95 --name liquid-lab-opt
 
 ## 7. Follow-up Work
 
-Before commit and deployment, review the M04/M05 route boundary, independent snapshot manifests, and public noindex behavior again. After deployment, run production smoke checks and record the new Worker version. The next milestone must also repeat Safari touch, frame-by-frame performance, and glyph bounding-box measurements. V2 remains the default reference implementation; this decision does not replace V1 or V2.
+After the visual agent completes custom/Worker URL production smoke, record its result. The next milestone must also repeat Safari touch, frame-by-frame performance, and glyph bounding-box measurements. V2 remains the default reference implementation; this decision does not replace V1 or V2.
