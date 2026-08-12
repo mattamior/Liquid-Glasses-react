@@ -112,3 +112,18 @@ test("renders the independent Liquid Lab V3 navigation lens demo", async () => {
   assert.doesNotMatch(html, /data-lens="moving"/);
   assert.doesNotMatch(html, /data-moving="true"/);
 });
+
+test("renders the isolated V3 M05 failed-release archive without indexing it", async () => {
+  const response = await render("/v3-05-failed");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /<title>Liquid Lab V3 — M05 Failed Release Archive/);
+  assert.match(html, /<meta[^>]+name="robots"[^>]+content="noindex,\s*nofollow"/);
+  assert.match(html, /id="v3-05-failed-theme-bootstrap"/);
+  assert.match(html, /class="v3-05-failed-demo"/);
+  assert.match(html, /class="v3-05-failed-selection-slider"[^>]*data-active-id="open"[^>]*data-phase="idle"/);
+  assert.match(html, /<nav\b[^>]*aria-label="主导航"/);
+  assert.doesNotMatch(html, /class="v3-demo"/);
+});

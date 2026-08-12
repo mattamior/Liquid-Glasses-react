@@ -15,6 +15,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [V3 Continuous World Sampling](./docs/decisions/v3-continuous-world-sampling.en.md) ·
 [V3 System Theme Toggle](./docs/decisions/v3-system-theme-toggle.en.md) ·
 [V3 Motion-Coupled Optics Release](./docs/decisions/v3-motion-coupled-optics.en.md) ·
+[V3 M04 Rollback / Failed M05 Route](./docs/decisions/v3-m04-rollback-failed-route.en.md) ·
 [Lint Scope Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
@@ -29,7 +30,8 @@ The public version is hosted on Cloudflare Workers:
 | `/` | Redirects to `/v2`, the current default navigation study. |
 | `/v1` | Frozen archived Demo retained for comparison. |
 | `/v2` | Default vertical navigation-lens reference implementation. |
-| `/v3` | Independent horizontal navigation-lens experiment; the continuous-world-sampling version is released. |
+| `/v3` | Independent horizontal navigation-lens experiment; the M04 candidate baseline is restored locally and not yet deployed. |
+| `/v3-05-failed` | Public direct-access archive for the failed M05 candidate; `noindex, nofollow` and absent from site navigation. |
 | `/brand-preview` | Light/dark review surface for the current Liquid Lab logo. |
 
 V2 remains the default reference. V3 is a separate experiment; it does not
@@ -61,14 +63,12 @@ replace V2 or modify the frozen V1 Demo.
   rail while the `210 × 182` static slider remains visibly smaller. Narrow
   layouts derive these dimensions from the live rail ratio rather than a fixed
   transform scale.
-- SSR starts with `data-optics="baseline"`. `/v3` defaults to the reference
-  presentation（参考呈现） and, after hydration（客户端接管）, continuously samples one
-  complete navigation world in shared padding-box coordinates. The Baseline
-  field uses `coreZoom: 0.12`, a continuous `36px` meniscus band（弯月面带）, and
-  `10.05px` baseline refraction（基础折射）. Edge keeps geometry and material,
-  applies the `1.14×` static strength, and adds its motion-coupled profile（运动耦合场）
-  only while moving. `?chrome=demo` exposes review controls and `?optics=edge`
-  selects the comparison field.
+- SSR starts with `data-optics="baseline"`. Local `/v3` is restored exactly to the M04
+  candidate baseline（候选基线） `d353abed0e5b379989bbcb7d13bb830702eece3f`: it keeps the reference
+  presentation（参考呈现） and, after hydration（客户端接管）, continuously samples one complete navigation
+  world in shared padding-box coordinates. Baseline uses `coreZoom: 0.12`, a `24px` inward
+  meniscus, `11px` baseline refraction（基础折射）, and `1.14×` static Edge strength. `?chrome=demo`
+  exposes review controls and `?optics=edge` selects the comparison field.
 - V3 follows the system color scheme（系统颜色方案） when no preference is stored.
   Its sparkle toggle persists（持久化） valid `dark` / `light` values in `liquid-lab:v3-theme`,
   restores them on reload, and synchronizes them across tabs（跨标签页）. It does not
@@ -76,16 +76,17 @@ replace V2 or modify the frozen V1 Demo.
   commit `6fc3897` was first released as Cloudflare Worker version
   `590a19bb-8b64-4053-af13-a1b0f54fb387`; see the
   [system-theme decision（系统主题决策）](./docs/decisions/v3-system-theme-toggle.en.md).
-- Implementation commit `d702d2b` adds original shared navigation glyphs（导航图标字形） and
-  cached motion-coupled（运动耦合） radial/tangential optics（径向/切向光学）. Cloudflare
-  Worker `liquid-lab-optics-demo` version `d910d3b1-cdc6-472f-a504-4d5df526df95` now serves
-  100% of traffic at the custom [`/v3`](https://liquid.hkooii.com/v3) and workers.dev
-  （Cloudflare 默认域名） [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3).
-  Full E2E `35/35`, the visual gate, and production smoke（生产冒烟检查） passed, but the
-  frame-by-frame（逐帧） `>= 60fps` gate remains open. See the
-  [motion-coupled-optics decision（运动耦合光学决策）](./docs/decisions/v3-motion-coupled-optics.en.md).
-- The preceding persistent-theme version `590a19bb-8b64-4053-af13-a1b0f54fb387` is the
-  current production rollback target（生产回滚目标）.
+- Local `/v3-05-failed` retains the complete interactive M05 implementation from
+  `88abeedca48b14a9aa96d980a4a956bb294461ee` as a public direct-access archive. It is
+  `noindex, nofollow`, absent from site navigation, and physically isolated（物理隔离） from `/v3`
+  except for the shared `liquid-lab:v3-theme`. The annotated tag（注释标签） `v3-milestone-05-failed`
+  still marks failed acceptance, not a usable baseline.
+- This route migration is verified locally but not committed or deployed. Production remains the
+  historical M05 Cloudflare Worker `liquid-lab-optics-demo` version
+  `d910d3b1-cdc6-472f-a504-4d5df526df95`; a new Worker deployment, rather than a rollback to
+  `590a19bb-8b64-4053-af13-a1b0f54fb387`, is required before the restored M04 is live. After
+  deployment, `d910d3b1-cdc6-472f-a504-4d5df526df95` becomes the rollback target（回滚目标）. See the
+  [M04 rollback / failed M05 route decision（M04 回归 / 失败 M05 路由决策）](./docs/decisions/v3-m04-rollback-failed-route.en.md).
 
 ### Brand review
 

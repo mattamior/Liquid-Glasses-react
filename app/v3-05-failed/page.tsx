@@ -15,13 +15,20 @@ import {
   calculateRasterScale,
   calculateWorldSampleTransform,
   clamp,
-  createEllipticalField,
+  createCoalescedLensFieldStateScheduler,
   createLensCoordinateSpace,
+  getCachedEllipticalField,
+  quantizeHorizontalDirection,
+  quantizeVelocityTier,
   type LensCoordinateSpace,
+  type LensFieldState,
+  type LensHorizontalDirection,
   type LensOpticsMode,
+  type LensVelocityTier,
+  STATIC_LENS_FIELD_STATE,
   V3_LENS_OPTICS,
 } from "./lens-optics";
-import "./v3.css";
+import "./v3-05-failed.css";
 
 type TabId = "follow" | "market" | "activity" | "open";
 type OpticsMode = LensOpticsMode;
@@ -64,6 +71,10 @@ interface DragSession {
   pointerId: number;
   pointerTarget: HTMLButtonElement;
   startClientX: number;
+  lastClientX: number;
+  lastTimestamp: number;
+  horizontalDirection: LensHorizontalDirection;
+  velocityTier: LensVelocityTier;
   x: number;
   hasMoved: boolean;
 }
@@ -197,7 +208,7 @@ function LensFilter({ id, field, width, height }: { id: string; field: string; w
   );
 }
 
-function Glyph({ name, className }: { name: TabDefinition["icon"] | "sparkle" | "sun" | "moon"; className?: string }) {
+function Glyph({ name, className }: { name: "sparkle" | "sun" | "moon"; className?: string }) {
   const props = {
     viewBox: "0 0 24 24",
     fill: "none",
@@ -207,13 +218,27 @@ function Glyph({ name, className }: { name: TabDefinition["icon"] | "sparkle" | 
     strokeLinejoin: "round" as const,
     "aria-hidden": true,
   };
-  if (name === "follow") return <svg {...props} className={className}><path d="M4 4h16v16H4z" /><path d="m8 15 3-5h5l-3 5H8Z" /></svg>;
-  if (name === "market") return <svg {...props} className={className}><circle cx="12" cy="12" r="8" /><path d="m8.4 8.5 7.2 3.1-3.1 4.2Z" /></svg>;
-  if (name === "activity") return <svg {...props} className={className}><path d="M4 4h16v16H4z" /><path d="M4 10h16M10 4v6" /></svg>;
-  if (name === "open") return <svg {...props} className={className}><path fill="currentColor" stroke="none" d="M12 2a10 10 0 1 0 10 10H12Z" /></svg>;
   if (name === "sun") return <svg {...props} className={className}><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" /></svg>;
   if (name === "moon") return <svg {...props} className={className}><path d="M20 15.2A8.4 8.4 0 0 1 8.8 4 8.4 8.4 0 1 0 20 15.2Z" /></svg>;
   return <svg {...props} className={className}><path d="m12 2 1.8 7.1L21 12l-7.2 2.9L12 22l-2.8-7.1L2 12l7.2-2.9Z" /></svg>;
+}
+
+function NavigationGlyph({ name }: { name: TabDefinition["icon"] }) {
+  const props = {
+    className: `v3-05-failed-nav-glyph v3-05-failed-nav-glyph--${name}`,
+    viewBox: "0 0 100 100",
+    "aria-hidden": true,
+  };
+  if (name === "follow") {
+    return <svg {...props} fill="none" stroke="currentColor" strokeLinejoin="miter"><rect x="4" y="4" width="92" height="92" strokeWidth="12" /><path fill="currentColor" stroke="none" d="M25 76 47 28h31L62 45H48L39 61h24L55 76Z" /></svg>;
+  }
+  if (name === "market") {
+    return <svg {...props} fill="none" stroke="currentColor"><circle cx="50" cy="50" r="42" strokeWidth="11" /><path fill="currentColor" stroke="none" fillRule="evenodd" d="M33 30c18 1 32 13 37 30-7 11-19 17-31 14-11-3-17-13-14-25 2-8 4-15 8-19Zm18 14c8 4 12 10 10 17-2 6-8 9-14 7-3-1-5-4-5-7 0-5 3-11 9-17Z" /></svg>;
+  }
+  if (name === "activity") {
+    return <svg {...props} fill="currentColor" fillRule="evenodd"><path d="M0 0h100v100H0ZM12 12v28h30V12Zm46 0v28h30V12ZM12 58v30h76V58Z" /></svg>;
+  }
+  return <svg {...props} fill="currentColor"><path d="M50 0a50 50 0 1 0 50 50H50Z" /></svg>;
 }
 
 function NavigationWorld({
@@ -228,18 +253,18 @@ function NavigationWorld({
   highlightedId?: TabId;
 }) {
   return (
-    <div className={`v3-navigation-world v3-navigation-world--${layer}`} aria-hidden="true">
-      {includeRail ? <span className="v3-navigation-world__rail" /> : null}
-      <div className="v3-nav-visual" data-visual-layer={layer}>
+    <div className={`v3-05-failed-navigation-world v3-05-failed-navigation-world--${layer}`} aria-hidden="true">
+      {includeRail ? <span className="v3-05-failed-navigation-world__rail" /> : null}
+      <div className="v3-05-failed-nav-visual" data-visual-layer={layer}>
         {TABS.map((tab) => (
           <div
-            className="v3-tab-visual"
+            className="v3-05-failed-tab-visual"
             data-highlighted={tab.id === highlightedId ? "true" : undefined}
             data-suppressed={tab.id === suppressedId ? "true" : undefined}
             key={tab.id}
           >
-            <Glyph name={tab.icon} />
-            <span>{tab.label}</span>
+            <span className="v3-05-failed-tab-icon"><NavigationGlyph name={tab.icon} /></span>
+            <span className="v3-05-failed-tab-label">{tab.label}</span>
           </div>
         ))}
       </div>
@@ -273,6 +298,7 @@ export default function V3Page() {
   const animationFramesRef = useRef<number[]>([]);
   const dragAnimationFrameRef = useRef<number | null>(null);
   const pendingDragLensPositionRef = useRef<LensPosition | null>(null);
+  const lensFieldSchedulerRef = useRef<ReturnType<typeof createCoalescedLensFieldStateScheduler> | null>(null);
   const sessionRef = useRef(0);
   const dragSessionRef = useRef<DragSession | null>(null);
   const activeIdRef = useRef<TabId>("open");
@@ -281,7 +307,7 @@ export default function V3Page() {
   const targetIdRef = useRef<TabId | null>(null);
   const geometryRef = useRef<NavigationGeometry | null>(null);
   const suppressNextClickRef = useRef(false);
-  const filterId = `v3-lens-${useId().replace(/[^A-Za-z0-9_-]/g, "")}`;
+  const filterId = `v3-05-failed-lens-${useId().replace(/[^A-Za-z0-9_-]/g, "")}`;
   const [activeId, setActiveId] = useState<TabId>("open");
   const [previewId, setPreviewId] = useState<TabId>("open");
   const [geometry, setGeometry] = useState<NavigationGeometry | null>(null);
@@ -303,6 +329,7 @@ export default function V3Page() {
   const [rasterScale, setRasterScale] = useState(1);
   const [isLensFilterSupported, setLensFilterSupported] = useState(false);
   const [field, setField] = useState("");
+  const [lensFieldState, setLensFieldState] = useState<LensFieldState>(STATIC_LENS_FIELD_STATE);
   const [lensDimensions, setLensDimensions] = useState({
     width: REFERENCE_LENS_WIDTH,
     height: REFERENCE_LENS_HEIGHT,
@@ -311,6 +338,24 @@ export default function V3Page() {
   const updateSliderPhase = useCallback((nextPhase: SliderPhase) => {
     sliderPhaseRef.current = nextPhase;
     setSliderPhase(nextPhase);
+  }, []);
+
+  const clearPendingLensFieldState = useCallback(() => {
+    lensFieldSchedulerRef.current?.clear();
+  }, []);
+
+  const queueLensFieldState = useCallback((nextState: LensFieldState, immediate = false) => {
+    if (!lensFieldSchedulerRef.current) {
+      lensFieldSchedulerRef.current = createCoalescedLensFieldStateScheduler(
+        setLensFieldState,
+        {
+          now: () => performance.now(),
+          setTimer: (callback, delayMs) => window.setTimeout(callback, delayMs),
+          clearTimer: (timer) => window.clearTimeout(timer),
+        },
+      );
+    }
+    lensFieldSchedulerRef.current.schedule(nextState, immediate);
   }, []);
 
   useEffect(() => {
@@ -327,7 +372,7 @@ export default function V3Page() {
 
   useEffect(() => {
     if (!hydrated) return;
-    document.getElementById("v3-theme-bootstrap")?.removeAttribute("data-theme");
+    document.getElementById("v3-05-failed-theme-bootstrap")?.removeAttribute("data-theme");
   }, [hydrated]);
 
   useEffect(() => {
@@ -372,10 +417,16 @@ export default function V3Page() {
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      setField(createEllipticalField(lensDimensions.width, lensDimensions.height, optics, rasterScale));
+      setField(getCachedEllipticalField(
+        lensDimensions.width,
+        lensDimensions.height,
+        optics,
+        rasterScale,
+        lensFieldState,
+      ));
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [lensDimensions, optics, rasterScale]);
+  }, [lensDimensions, lensFieldState, optics, rasterScale]);
 
   const clearPendingTravel = useCallback(() => {
     if (travelTimeoutRef.current !== null) {
@@ -439,9 +490,10 @@ export default function V3Page() {
     targetIdRef.current = null;
     setTargetId(null);
     updateSliderPhase("idle");
+    queueLensFieldState(STATIC_LENS_FIELD_STATE, true);
     lensPhaseRef.current = "idle";
     setLensPhase("idle");
-  }, [clearPendingTravel, setCommittedTab, updateSliderPhase]);
+  }, [clearPendingTravel, queueLensFieldState, setCommittedTab, updateSliderPhase]);
 
   const readNavigationGeometry = useCallback((): NavigationGeometry | null => {
     const nav = navRef.current;
@@ -486,10 +538,11 @@ export default function V3Page() {
     setPreviewId(activeIdRef.current);
     if (geometryRef.current) setSliderPosition(positionForTab(activeIdRef.current, geometryRef.current));
     updateSliderPhase("idle");
+    queueLensFieldState(STATIC_LENS_FIELD_STATE, true);
     lensPhaseRef.current = "idle";
     setLensPhase("idle");
     suppressNextClickRef.current = false;
-  }, [clearPendingDragLensPosition, clearPendingSliderSettle, releaseDragPointer, updateSliderPhase]);
+  }, [clearPendingDragLensPosition, clearPendingSliderSettle, queueLensFieldState, releaseDragPointer, updateSliderPhase]);
 
   const completeDragSettle = useCallback((nextId: TabId) => {
     clearPendingSliderSettle();
@@ -497,10 +550,11 @@ export default function V3Page() {
     targetIdRef.current = null;
     setTargetId(null);
     updateSliderPhase("idle");
+    queueLensFieldState(STATIC_LENS_FIELD_STATE, true);
     lensPhaseRef.current = "idle";
     setLensPhase("idle");
     suppressNextClickRef.current = false;
-  }, [clearPendingSliderSettle, setCommittedTab, updateSliderPhase]);
+  }, [clearPendingSliderSettle, queueLensFieldState, setCommittedTab, updateSliderPhase]);
 
   useEffect(() => {
     const nav = navRef.current;
@@ -638,10 +692,11 @@ export default function V3Page() {
     clearPendingTravel();
     clearPendingSliderSettle();
     clearPendingDragLensPosition();
+    clearPendingLensFieldState();
     const dragSession = dragSessionRef.current;
     if (dragSession) releaseDragPointer(dragSession);
     dragSessionRef.current = null;
-  }, [clearPendingDragLensPosition, clearPendingSliderSettle, clearPendingTravel, releaseDragPointer]);
+  }, [clearPendingDragLensPosition, clearPendingLensFieldState, clearPendingSliderSettle, clearPendingTravel, releaseDragPointer]);
 
   const canUseLens = useCallback(() => (
     Boolean(field)
@@ -661,6 +716,7 @@ export default function V3Page() {
     const origin = nextGeometry?.tabs[activeIdRef.current];
     const destination = nextGeometry?.tabs[nextId];
     if (!origin || !destination || !canUseLens()) {
+      queueLensFieldState(STATIC_LENS_FIELD_STATE, true);
       setCommittedTab(nextId, nextGeometry);
       return;
     }
@@ -671,6 +727,10 @@ export default function V3Page() {
     setPreviewId(nextId);
     setSliderPosition(positionForTab(nextId, nextGeometry));
     updateSliderPhase("settling");
+    queueLensFieldState({
+      horizontalDirection: quantizeHorizontalDirection(destination.x - origin.x),
+      velocityTier: 2,
+    }, true);
     targetIdRef.current = nextId;
     setTargetId(nextId);
     setTravelSession(nextSession);
@@ -685,7 +745,7 @@ export default function V3Page() {
     });
     animationFramesRef.current.push(firstFrame);
     travelTimeoutRef.current = window.setTimeout(() => finishTravel(nextId, nextSession), 1160);
-  }, [canUseLens, finishTravel, setCommittedTab, updateSliderPhase]);
+  }, [canUseLens, finishTravel, queueLensFieldState, setCommittedTab, updateSliderPhase]);
 
   const selectOptics = useCallback((nextMode: OpticsMode) => {
     setOptics(nextMode);
@@ -716,27 +776,40 @@ export default function V3Page() {
     }, TABS[0].id);
   }, []);
 
-  const updateDrag = useCallback((dragSession: DragSession, clientX: number) => {
+  const updateDrag = useCallback((dragSession: DragSession, clientX: number, timestamp = performance.now()) => {
     const nextGeometry = geometryRef.current;
     if (!nextGeometry) return false;
     const minimumLensX = lensDimensions.width / 2;
     const maximumLensX = Math.max(minimumLensX, nextGeometry.width - lensDimensions.width / 2);
     const nextX = clamp(clientX - nextGeometry.worldOrigin.x, minimumLensX, maximumLensX);
+    const deltaX = clientX - dragSession.lastClientX;
+    const elapsed = Math.max(1, timestamp - dragSession.lastTimestamp);
+    dragSession.lastClientX = clientX;
+    dragSession.lastTimestamp = timestamp;
     dragSession.hasMoved = dragSession.hasMoved || Math.abs(clientX - dragSession.startClientX) > DRAG_THRESHOLD;
     if (!dragSession.hasMoved) return true;
+    const direction = quantizeHorizontalDirection(deltaX);
+    if (direction !== "none") {
+      dragSession.horizontalDirection = direction;
+      dragSession.velocityTier = quantizeVelocityTier(Math.abs(deltaX) / elapsed);
+    }
     dragSession.x = nextX;
     const nextPreviewId = nearestTabForLensX(nextX);
     setPreviewId(nextPreviewId);
     targetIdRef.current = nextPreviewId;
     setTargetId(nextPreviewId);
     queueDragLensPosition({ x: nextX, y: nextGeometry.height / 2 });
+    queueLensFieldState({
+      horizontalDirection: dragSession.horizontalDirection,
+      velocityTier: dragSession.velocityTier,
+    });
     if (lensPhaseRef.current !== "dragging") {
       lensPhaseRef.current = "dragging";
       setLensPhase("dragging");
       updateSliderPhase("dragging");
     }
     return true;
-  }, [lensDimensions.width, nearestTabForLensX, queueDragLensPosition, updateSliderPhase]);
+  }, [lensDimensions.width, nearestTabForLensX, queueDragLensPosition, queueLensFieldState, updateSliderPhase]);
 
   const finishDrag = useCallback((pointerId: number, wasCancelled: boolean, clientX?: number) => {
     const dragSession = dragSessionRef.current;
@@ -767,6 +840,11 @@ export default function V3Page() {
     setTargetPosition(target);
     setSliderPosition(positionForTab(nextId, nextGeometry));
     updateSliderPhase("settling");
+    const settleDirection = quantizeHorizontalDirection(target.x - dragSession.x);
+    queueLensFieldState({
+      horizontalDirection: settleDirection === "none" ? dragSession.horizontalDirection : settleDirection,
+      velocityTier: Math.max(1, dragSession.velocityTier) as LensVelocityTier,
+    }, true);
     lensPhaseRef.current = "drag-settling";
     setLensPhase("drag-settling");
     dragAnimationFrameRef.current = window.requestAnimationFrame(() => {
@@ -778,7 +856,7 @@ export default function V3Page() {
       sliderTimeoutRef.current = null;
       completeDragSettle(nextId);
     }, DRAG_SETTLE_DURATION);
-  }, [cancelActiveDrag, clearPendingSliderSettle, completeDragSettle, flushQueuedDragLensPosition, nearestTabForLensX, releaseDragPointer, updateDrag, updateSliderPhase]);
+  }, [cancelActiveDrag, clearPendingSliderSettle, completeDragSettle, flushQueuedDragLensPosition, nearestTabForLensX, queueLensFieldState, releaseDragPointer, updateDrag, updateSliderPhase]);
 
   const handlePointerDown = useCallback((event: ReactPointerEvent<HTMLButtonElement>, tabId: TabId) => {
     if (
@@ -796,6 +874,10 @@ export default function V3Page() {
       pointerId: event.pointerId,
       pointerTarget: event.currentTarget,
       startClientX: event.clientX,
+      lastClientX: event.clientX,
+      lastTimestamp: performance.now(),
+      horizontalDirection: "none",
+      velocityTier: 0,
       x: nextGeometry.tabs[tabId].x,
       hasMoved: false,
     };
@@ -842,9 +924,9 @@ export default function V3Page() {
 
   const sliderStyle = sliderPosition
     ? {
-        "--v3-slider-x": `${sliderPosition.x}px`,
-        "--v3-slider-width": `${sliderPosition.width}px`,
-        "--v3-slider-height": `${sliderPosition.height}px`,
+        "--v3-05-failed-slider-x": `${sliderPosition.x}px`,
+        "--v3-05-failed-slider-width": `${sliderPosition.width}px`,
+        "--v3-05-failed-slider-height": `${sliderPosition.height}px`,
       } as CSSProperties
     : undefined;
   const lensCoordinateSpace: LensCoordinateSpace | null = geometry
@@ -862,22 +944,22 @@ export default function V3Page() {
     ? getSliderInsets(geometry)
     : { horizontal: 4, vertical: 13 };
   const navStyle = {
-    "--v3-lens-x": `${lensPosition.x}px`,
-    "--v3-lens-y": `${lensPosition.y}px`,
-    "--v3-world-width": `${geometry?.width ?? 0}px`,
-    "--v3-world-height": `${geometry?.height ?? 0}px`,
-    "--v3-lens-width": `${lensDimensions.width}px`,
-    "--v3-lens-height": `${lensDimensions.height}px`,
-    "--v3-lens-half-width": `${lensDimensions.width / 2}px`,
-    "--v3-lens-half-height": `${lensDimensions.height / 2}px`,
-    "--v3-selection-inset-x": `${selectionInsets.horizontal}px`,
-    "--v3-selection-inset-y": `${selectionInsets.vertical}px`,
-    "--v3-world-sample-x": `${worldSampleTransform.x}px`,
-    "--v3-world-sample-y": `${worldSampleTransform.y}px`,
-    "--v3-optic-scale": `${lensCoordinateSpace?.opticScale ?? 1}`,
+    "--v3-05-failed-lens-x": `${lensPosition.x}px`,
+    "--v3-05-failed-lens-y": `${lensPosition.y}px`,
+    "--v3-05-failed-world-width": `${geometry?.width ?? 0}px`,
+    "--v3-05-failed-world-height": `${geometry?.height ?? 0}px`,
+    "--v3-05-failed-lens-width": `${lensDimensions.width}px`,
+    "--v3-05-failed-lens-height": `${lensDimensions.height}px`,
+    "--v3-05-failed-lens-half-width": `${lensDimensions.width / 2}px`,
+    "--v3-05-failed-lens-half-height": `${lensDimensions.height / 2}px`,
+    "--v3-05-failed-selection-inset-x": `${selectionInsets.horizontal}px`,
+    "--v3-05-failed-selection-inset-y": `${selectionInsets.vertical}px`,
+    "--v3-05-failed-world-sample-x": `${worldSampleTransform.x}px`,
+    "--v3-05-failed-world-sample-y": `${worldSampleTransform.y}px`,
+    "--v3-05-failed-optic-scale": `${lensCoordinateSpace?.opticScale ?? 1}`,
   } as CSSProperties;
   const lensOpticsStyle = {
-    "--v3-lens-filter": field && isLensFilterSupported ? `url("#${filterId}")` : "none",
+    "--v3-05-failed-lens-filter": field && isLensFilterSupported ? `url("#${filterId}")` : "none",
   } as CSSProperties;
   const selectionVisible = lensPhase === "idle";
   const setPersistedTheme = useCallback((nextTheme: V3Theme) => {
@@ -893,7 +975,7 @@ export default function V3Page() {
 
   return (
     <main
-      className="v3-demo"
+      className="v3-05-failed-demo"
       data-chrome={demoChrome ? "demo" : "reference"}
       data-optics={optics}
       data-theme={themeOverride ?? undefined}
@@ -901,14 +983,14 @@ export default function V3Page() {
       data-resolved-theme={hydrated ? resolvedTheme : undefined}
       data-theme-hydrated={hydrated ? "true" : "false"}
     >
-      <div className="v3-stage-glow" aria-hidden="true" hidden={!demoChrome} />
-      <section className="v3-copy" aria-label="V3 liquid glass study" hidden={!demoChrome}><p>LIQUID GLASS / V3</p><h1>横向导航透镜</h1><span>点击任意标签；经过的标签不会改变激活状态。</span></section>
-      <div className="v3-optics" aria-label="Optics mode" hidden={!demoChrome}><button type="button" className={optics === "baseline" ? "is-active" : ""} onClick={() => selectOptics("baseline")}>Baseline</button><button type="button" className={optics === "edge" ? "is-active" : ""} onClick={() => selectOptics("edge")}>Edge optics</button></div>
-      <div className="v3-dock">
-        <nav ref={navRef} className="v3-nav" aria-label="主导航" data-lens-phase={lensPhase} data-slider-phase={sliderPhase} data-preview-id={previewId} style={navStyle}>
+      <div className="v3-05-failed-stage-glow" aria-hidden="true" hidden={!demoChrome} />
+      <section className="v3-05-failed-copy" aria-label="V3 liquid glass study" hidden={!demoChrome}><p>LIQUID GLASS / V3</p><h1>横向导航透镜</h1><span>点击任意标签；经过的标签不会改变激活状态。</span></section>
+      <div className="v3-05-failed-optics" aria-label="Optics mode" hidden={!demoChrome}><button type="button" className={optics === "baseline" ? "is-active" : ""} onClick={() => selectOptics("baseline")}>Baseline</button><button type="button" className={optics === "edge" ? "is-active" : ""} onClick={() => selectOptics("edge")}>Edge optics</button></div>
+      <div className="v3-05-failed-dock">
+        <nav ref={navRef} className="v3-05-failed-nav" aria-label="主导航" data-lens-phase={lensPhase} data-slider-phase={sliderPhase} data-preview-id={previewId} style={navStyle}>
           <NavigationWorld layer="base" suppressedId={selectionVisible ? activeId : undefined} />
           <div
-            className="v3-selection-slider"
+            className="v3-05-failed-selection-slider"
             data-active-id={activeId}
             data-phase={sliderPhase}
             data-ready={sliderPosition ? "true" : "false"}
@@ -916,11 +998,11 @@ export default function V3Page() {
             style={sliderStyle}
             aria-hidden="true"
           >
-            <div className="v3-selection-optical-clip">
-              <div className="v3-selection-world"><NavigationWorld layer="selection" /></div>
+            <div className="v3-05-failed-selection-optical-clip">
+              <div className="v3-05-failed-selection-world"><NavigationWorld layer="selection" /></div>
             </div>
           </div>
-          <div className="v3-tab-actions">
+          <div className="v3-05-failed-tab-actions">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
@@ -939,20 +1021,20 @@ export default function V3Page() {
               </button>
             ))}
           </div>
-          {field && isLensFilterSupported ? <svg className="v3-filter-definitions" aria-hidden="true"><defs><LensFilter id={filterId} field={field} width={lensDimensions.width} height={lensDimensions.height} /></defs></svg> : null}
-          <div className="v3-lens-position" aria-hidden="true" data-phase={lensPhase} onTransitionEnd={handleLensTravelEnd}>
-            <div className="v3-lens-shell" onTransitionEnd={handleLensExpansionEnd}>
-              <div className="v3-lens-optics-viewport" style={lensOpticsStyle}>
-                <div className="v3-lens-world-sample">
+          {field && isLensFilterSupported ? <svg className="v3-05-failed-filter-definitions" aria-hidden="true"><defs><LensFilter id={filterId} field={field} width={lensDimensions.width} height={lensDimensions.height} /></defs></svg> : null}
+          <div className="v3-05-failed-lens-position" aria-hidden="true" data-phase={lensPhase} onTransitionEnd={handleLensTravelEnd}>
+            <div className="v3-05-failed-lens-shell" onTransitionEnd={handleLensExpansionEnd}>
+              <div className="v3-05-failed-lens-optics-viewport" style={lensOpticsStyle}>
+                <div className="v3-05-failed-lens-world-sample">
                   <NavigationWorld layer="lens" includeRail highlightedId={previewId} />
                 </div>
               </div>
-              <span className="v3-lens-inner" /><span className="v3-lens-pole v3-lens-pole--top" /><span className="v3-lens-pole v3-lens-pole--bottom" /><span className="v3-lens-sheen" />
+              <span className="v3-05-failed-lens-inner" /><span className="v3-05-failed-lens-pole v3-05-failed-lens-pole--top" /><span className="v3-05-failed-lens-pole v3-05-failed-lens-pole--bottom" /><span className="v3-05-failed-lens-sheen" />
             </div>
           </div>
         </nav>
         <button
-          className="v3-sparkle v3-theme-toggle"
+          className="v3-05-failed-sparkle v3-05-failed-theme-toggle"
           type="button"
           aria-label={themeToggleLabel}
           aria-pressed={hydrated ? resolvedTheme === "light" : undefined}
@@ -960,9 +1042,9 @@ export default function V3Page() {
           disabled={forcedColors}
           onClick={() => setPersistedTheme(nextTheme)}
         >
-          <Glyph name="sun" className="v3-theme-toggle__icon--sun" />
-          <Glyph name="moon" className="v3-theme-toggle__icon--moon" />
-          <i className="v3-sparkle__badge" aria-hidden="true" />
+          <Glyph name="sun" className="v3-05-failed-theme-toggle__icon--sun" />
+          <Glyph name="moon" className="v3-05-failed-theme-toggle__icon--moon" />
+          <i className="v3-05-failed-sparkle__badge" aria-hidden="true" />
         </button>
       </div>
     </main>

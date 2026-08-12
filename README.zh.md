@@ -14,6 +14,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 [V3 连续世界取样](./docs/decisions/v3-continuous-world-sampling.zh.md) ·
 [V3 系统主题切换](./docs/decisions/v3-system-theme-toggle.zh.md) ·
 [V3 运动耦合光学发布](./docs/decisions/v3-motion-coupled-optics.zh.md) ·
+[V3 M04 回归 / 失败 M05 路由](./docs/decisions/v3-m04-rollback-failed-route.zh.md) ·
 [Lint 范围决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
@@ -28,7 +29,8 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 | `/` | 重定向至当前默认导航实验 `/v2`。 |
 | `/v1` | 保留用于对照的冻结归档 Demo。 |
 | `/v2` | 默认的纵向导航透镜参考实现。 |
-| `/v3` | 独立的横向导航透镜实验；连续世界取样版本已发布。 |
+| `/v3` | 独立横向导航透镜实验；本地已恢复 M04 候选基线，尚未部署。 |
+| `/v3-05-failed` | M05 失败候选的公开直达归档；`noindex, nofollow`，不进入站内导航。 |
 | `/brand-preview` | 当前 Liquid Lab 标志的亮暗背景审阅页。 |
 
 V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修改冻结的 V1 Demo。
@@ -54,20 +56,23 @@ V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修�
 - 参考校准在 `1264 × 948` 锁定 `1124 × 210` 的 dock 与 `872 × 210` 的轨道；
   暂态透镜为 `296 × 242`，会在上下略微越过轨道，`210 × 182` 的静态滑块则保持
   明显更小。窄屏尺寸从实时轨道比例派生，不使用固定缩放。
-- SSR 仍从 `data-optics="baseline"` 开始。`/v3` 默认是 reference presentation，并在
-  hydration 后以同一 padding-box 坐标连续取样完整导航世界。Baseline field 使用
-  `coreZoom: 0.12`、连续 `36px` 弯月面带和 `10.05px` 基础折射；Edge 保持几何与材质，
-  静态强度为 `1.14×`，并只在运动时叠加运动耦合 profile。`?chrome=demo` 显示审阅控件，
+- SSR 仍从 `data-optics="baseline"` 开始。本地 `/v3` 已精确恢复为 M04 候选基线
+  `d353abed0e5b379989bbcb7d13bb830702eece3f`：默认 reference presentation，并在 hydration 后
+  以同一 padding-box 坐标连续取样完整导航世界；Baseline 使用 `coreZoom: 0.12`、`24px` 向内
+  弯月面和 `11px` 基础折射，Edge 静态强度为 `1.14×`。`?chrome=demo` 显示审阅控件，
   `?optics=edge` 选择比较场。
 - V3 在无存储偏好时跟随系统颜色方案；右侧 sparkle 将合法 `dark` / `light` 写入
   `liquid-lab:v3-theme`，刷新后恢复并跨标签页同步。主题实现提交 `6fc3897` 最初发布为
   Cloudflare Worker 版本 `590a19bb-8b64-4053-af13-a1b0f54fb387`；详见[系统主题决策](./docs/decisions/v3-system-theme-toggle.zh.md)。
-- 实现提交 `d702d2b` 新增原创共享导航图标，以及带缓存的运动耦合径向/切向折射。Cloudflare
-  Worker `liquid-lab-optics-demo` 版本 `d910d3b1-cdc6-472f-a504-4d5df526df95` 现承载 100%
-  流量；可使用 custom [`/v3`](https://liquid.hkooii.com/v3) 或 workers.dev
-  [`/v3`](https://liquid-lab-optics-demo.mattamior.workers.dev/v3)。完整 E2E `35/35`、视觉 Gate
-  和生产 smoke 已通过，但逐帧 `>= 60fps` 门槛仍未通过。详见[运动耦合光学决策](./docs/decisions/v3-motion-coupled-optics.zh.md)。
-- 前一持久主题版本 `590a19bb-8b64-4053-af13-a1b0f54fb387` 是当前生产回滚目标。
+- 本地 `/v3-05-failed` 保留提交 `88abeedca48b14a9aa96d980a4a956bb294461ee` 的完整可交互 M05，
+  作为公开直达归档；它设置 `noindex, nofollow`、不进入站内导航，并且除共享
+  `liquid-lab:v3-theme` 外与 `/v3` 物理隔离。annotated tag `v3-milestone-05-failed` 仍仅表示
+  发布验收失败，不是可用基线。
+- 此路由迁移已在本地验证，但尚未提交或部署。生产当前仍为历史 M05 的 Cloudflare Worker
+  `liquid-lab-optics-demo` 版本 `d910d3b1-cdc6-472f-a504-4d5df526df95`；需要部署新的 Worker，
+  而不是回滚至 `590a19bb-8b64-4053-af13-a1b0f54fb387`，恢复的 M04 才会上线。新版本上线后，
+  `d910d3b1-cdc6-472f-a504-4d5df526df95` 才是回滚目标。详见
+  [M04 回归 / 失败 M05 路由决策](./docs/decisions/v3-m04-rollback-failed-route.zh.md)。
 
 ### 品牌审阅
 

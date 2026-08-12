@@ -39,11 +39,17 @@ async function beginTabDrag(page: Page, source: DraggableTab, target: DraggableT
   const targetX = targetBox.x + targetBox.width / 2;
   const targetY = targetBox.y + targetBox.height / 2;
   await page.mouse.move(sourceX, sourceY);
+  await page.evaluate(() => {
+    (window as Window & { __setV3TestTime?: (time: number) => void }).__setV3TestTime?.(1_000);
+  });
   await page.mouse.down();
   return { sourceX, sourceY, targetX, targetY };
 }
 
 async function moveDragToFraction(page: Page, coordinates: DragCoordinates, fraction: number) {
+  await page.evaluate(() => {
+    (window as Window & { __advanceV3TestTime?: (milliseconds: number) => void }).__advanceV3TestTime?.(16);
+  });
   await page.mouse.move(
     coordinates.sourceX + (coordinates.targetX - coordinates.sourceX) * fraction,
     coordinates.sourceY + (coordinates.targetY - coordinates.sourceY) * fraction,
@@ -53,11 +59,20 @@ async function moveDragToFraction(page: Page, coordinates: DragCoordinates, frac
   await expect(navigation).toHaveAttribute("data-lens-phase", "dragging");
 }
 
-async function openV3(page: Page, path = "/v3") {
+async function openV3(page: Page, path = "/v3-05-failed") {
+  await page.addInitScript(() => {
+    if ("__setV3TestTime" in window) return;
+    let now = 1_000;
+    Object.defineProperty(performance, "now", { configurable: true, value: () => now });
+    Object.assign(window, {
+      __setV3TestTime: (nextTime: number) => { now = nextTime; },
+      __advanceV3TestTime: (milliseconds: number) => { now += milliseconds; },
+    });
+  });
   await page.goto(path);
-  const slider = page.getByRole("navigation", { name: navigationName }).locator(".v3-selection-slider");
+  const slider = page.getByRole("navigation", { name: navigationName }).locator(".v3-05-failed-selection-slider");
   await expect(slider).toHaveAttribute("data-ready", "true");
-  await expect(page.locator(".v3-demo")).toHaveAttribute("data-theme-hydrated", "true");
+  await expect(page.locator(".v3-05-failed-demo")).toHaveAttribute("data-theme-hydrated", "true");
   await page.waitForTimeout(300);
 }
 
@@ -66,7 +81,7 @@ function themeToggleName(theme: ThemeName) {
 }
 
 async function expectThemePresentation(page: Page, preference: ThemePreference, resolvedTheme: ThemeName) {
-  const root = page.locator(".v3-demo");
+  const root = page.locator(".v3-05-failed-demo");
   const toggle = page.getByRole("button", { name: themeToggleName(resolvedTheme) });
   const isLight = resolvedTheme === "light";
 
@@ -80,8 +95,8 @@ async function expectThemePresentation(page: Page, preference: ThemePreference, 
   await expect(toggle).toHaveAttribute("aria-pressed", String(isLight));
   await expect(toggle).toHaveAttribute("aria-label", themeToggleName(resolvedTheme));
   await expect(toggle).toHaveAttribute("title", themeToggleName(resolvedTheme));
-  await expect(toggle.locator(".v3-theme-toggle__icon--sun")).toHaveCSS("display", isLight ? "none" : "block");
-  await expect(toggle.locator(".v3-theme-toggle__icon--moon")).toHaveCSS("display", isLight ? "block" : "none");
+  await expect(toggle.locator(".v3-05-failed-theme-toggle__icon--sun")).toHaveCSS("display", isLight ? "none" : "block");
+  await expect(toggle.locator(".v3-05-failed-theme-toggle__icon--moon")).toHaveCSS("display", isLight ? "block" : "none");
   await expect(page.locator("body")).toHaveCSS("background-color", isLight ? "rgb(244, 247, 248)" : "rgb(5, 15, 19)");
 }
 
@@ -179,8 +194,8 @@ test("keeps the initial selection in one visual layer", async ({ page }) => {
   await openV3(page);
 
   const navigation = page.getByRole("navigation", { name: navigationName });
-  const slider = navigation.locator(".v3-selection-slider");
-  const lens = navigation.locator(".v3-lens-position");
+  const slider = navigation.locator(".v3-05-failed-selection-slider");
+  const lens = navigation.locator(".v3-05-failed-lens-position");
   const baseVisual = navigation.locator('[data-visual-layer="base"]');
   const dock = navigation.locator("xpath=..");
   const initialTab = page.getByRole("button", { name: labels.open });
@@ -215,14 +230,14 @@ test("keeps the initial selection in one visual layer", async ({ page }) => {
   await expect(lens).toHaveCSS("visibility", "hidden");
   await expect(baseVisual.locator('[data-suppressed="true"]')).toHaveCount(1);
   await expect(page.getByRole("button", { name: labels.open })).toHaveAttribute("aria-current", "page");
-  await expect(page).toHaveScreenshot("v3-open-idle.png", { animations: "disabled" });
+  await expect(page).toHaveScreenshot("v3-05-failed-open-idle.png", { animations: "disabled" });
 });
 
 test("keeps reference chrome out of the visual, accessibility, and tab order", async ({ page }) => {
   await openV3(page);
 
-  const copy = page.locator(".v3-copy");
-  const optics = page.locator(".v3-optics");
+  const copy = page.locator(".v3-05-failed-copy");
+  const optics = page.locator(".v3-05-failed-optics");
   await expect(copy).toBeHidden();
   await expect(optics).toBeHidden();
   await expect(page.getByRole("region", { name: "V3 liquid glass study" })).toHaveCount(0);
@@ -234,7 +249,7 @@ test("keeps reference chrome out of the visual, accessibility, and tab order", a
 });
 
 test("shows the explanatory chrome only when explicitly requested", async ({ page }) => {
-  await openV3(page, "/v3?chrome=demo");
+  await openV3(page, "/v3-05-failed?chrome=demo");
 
   await expect(page.getByRole("region", { name: "V3 liquid glass study" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Baseline" })).toBeVisible();
@@ -245,8 +260,8 @@ test("hides the static slider while a click lens owns the transition", async ({ 
   await openV3(page);
 
   const navigation = page.getByRole("navigation", { name: navigationName });
-  const slider = navigation.locator(".v3-selection-slider");
-  const lens = navigation.locator(".v3-lens-position");
+  const slider = navigation.locator(".v3-05-failed-selection-slider");
+  const lens = navigation.locator(".v3-05-failed-lens-position");
   const market = page.getByRole("button", { name: labels.market });
 
   await market.click();
@@ -263,9 +278,9 @@ test("shows a pointer-following lens during drag and commits only after it settl
   await openV3(page);
 
   const navigation = page.getByRole("navigation", { name: navigationName });
-  const slider = navigation.locator(".v3-selection-slider");
-  const lens = navigation.locator(".v3-lens-position");
-  const opticsViewport = lens.locator(".v3-lens-optics-viewport");
+  const slider = navigation.locator(".v3-05-failed-selection-slider");
+  const lens = navigation.locator(".v3-05-failed-lens-position");
+  const opticsViewport = lens.locator(".v3-05-failed-lens-optics-viewport");
   const activity = page.getByRole("button", { name: labels.activity });
   const targetBox = await activity.boundingBox();
 
@@ -294,7 +309,7 @@ test("captures Baseline meniscus positions across both reference travel directio
   await openV3(page);
 
   const navigation = page.getByRole("navigation", { name: navigationName });
-  const lens = navigation.locator(".v3-lens-position");
+  const lens = navigation.locator(".v3-05-failed-lens-position");
   const activity = page.getByRole("button", { name: labels.activity });
 
   const openToActivity = await beginTabDrag(page, "open", "activity");
@@ -304,36 +319,36 @@ test("captures Baseline meniscus positions across both reference travel directio
     openToActivity.sourceX + (openToActivity.targetX - openToActivity.sourceX) * 0.5,
     openToActivity.sourceY + (openToActivity.targetY - openToActivity.sourceY) * 0.5,
   );
-  await expect(page).toHaveScreenshot("v3-open-to-activity-mid-drag-full.png", { animations: "disabled" });
-  await expect(lens).toHaveScreenshot("v3-open-to-activity-mid-drag.png", { animations: "disabled" });
+  await expect(page).toHaveScreenshot("v3-05-failed-open-to-activity-mid-drag-full.png", { animations: "disabled" });
+  await expect(lens).toHaveScreenshot("v3-05-failed-open-to-activity-mid-drag.png", { animations: "disabled" });
   await moveDragToFraction(page, openToActivity, 1);
   const openToActivityTargetError = await lensCenterError(lens, openToActivity.targetX, openToActivity.targetY);
   expectCenterErrorsWithinTolerance([openToActivityMidError, openToActivityTargetError]);
   await expect(navigation).toHaveAttribute("data-preview-id", "activity");
   await expect(page.getByRole("button", { name: labels.activity })).not.toHaveAttribute("aria-current", "page");
   await expect(lens.locator('[data-highlighted="true"]')).toHaveCount(1);
-  await expect(lens.locator('[data-highlighted="true"]')).toHaveCSS("color", "rgb(255, 255, 255)");
-  await expect(page).toHaveScreenshot("v3-open-to-activity-target-drag-full.png", { animations: "disabled" });
-  await expect(lens).toHaveScreenshot("v3-open-to-activity-target-drag.png", { animations: "disabled" });
+  await expect(lens.locator('[data-highlighted="true"] .v3-05-failed-tab-icon')).toHaveCSS("color", "rgb(255, 255, 255)");
+  await expect(page).toHaveScreenshot("v3-05-failed-open-to-activity-target-drag-full.png", { animations: "disabled" });
+  await expect(lens).toHaveScreenshot("v3-05-failed-open-to-activity-target-drag.png", { animations: "disabled" });
   await page.mouse.up();
   await expect(activity).toHaveAttribute("aria-current", "page", { timeout: 2_000 });
   await expect(navigation).toHaveAttribute("data-lens-phase", "idle");
 
   const activityToMarket = await beginTabDrag(page, "activity", "market");
   await moveDragToFraction(page, activityToMarket, 0.04);
-  await expect(lens).toHaveScreenshot("v3-activity-to-market-start-drag.png", { animations: "disabled" });
+  await expect(lens).toHaveScreenshot("v3-05-failed-activity-to-market-start-drag.png", { animations: "disabled" });
   await moveDragToFraction(page, activityToMarket, 0.5);
   const activityToMarketMidError = await lensCenterError(
     lens,
     activityToMarket.sourceX + (activityToMarket.targetX - activityToMarket.sourceX) * 0.5,
     activityToMarket.sourceY + (activityToMarket.targetY - activityToMarket.sourceY) * 0.5,
   );
-  await expect(page).toHaveScreenshot("v3-activity-to-market-mid-drag-full.png", { animations: "disabled" });
-  await expect(lens).toHaveScreenshot("v3-activity-to-market-mid-drag.png", { animations: "disabled" });
+  await expect(page).toHaveScreenshot("v3-05-failed-activity-to-market-mid-drag-full.png", { animations: "disabled" });
+  await expect(lens).toHaveScreenshot("v3-05-failed-activity-to-market-mid-drag.png", { animations: "disabled" });
   await moveDragToFraction(page, activityToMarket, 1);
   const activityToMarketTargetError = await lensCenterError(lens, activityToMarket.targetX, activityToMarket.targetY);
   expectCenterErrorsWithinTolerance([activityToMarketMidError, activityToMarketTargetError]);
-  await expect(page).toHaveScreenshot("v3-activity-to-market-target-drag-full.png", { animations: "disabled" });
+  await expect(page).toHaveScreenshot("v3-05-failed-activity-to-market-target-drag-full.png", { animations: "disabled" });
   await page.mouse.up();
 });
 
@@ -396,9 +411,9 @@ test("uses a distinct edge field with the same active-lens geometry", async ({ p
   await openV3(page);
 
   const navigation = page.getByRole("navigation", { name: navigationName });
-  const lens = navigation.locator(".v3-lens-position");
-  const opticsViewport = lens.locator(".v3-lens-optics-viewport");
-  const slider = navigation.locator(".v3-selection-slider");
+  const lens = navigation.locator(".v3-05-failed-lens-position");
+  const opticsViewport = lens.locator(".v3-05-failed-lens-optics-viewport");
+  const slider = navigation.locator(".v3-05-failed-selection-slider");
   const activity = page.getByRole("button", { name: labels.activity });
 
   await activity.click();
@@ -406,11 +421,11 @@ test("uses a distinct edge field with the same active-lens geometry", async ({ p
   const baselineCoordinates = await beginTabDrag(page, "activity", "market");
   await moveDragToFraction(page, baselineCoordinates, 0.5);
   const baselineLensBox = await lens.boundingBox();
-  const baselineWorldTransform = await lens.locator(".v3-navigation-world--lens").evaluate((element) => getComputedStyle(element).transform);
+  const baselineWorldTransform = await lens.locator(".v3-05-failed-navigation-world--lens").evaluate((element) => getComputedStyle(element).transform);
   const baselineField = await navigation.locator("feImage").getAttribute("href");
   await page.mouse.up();
 
-  await openV3(page, "/v3?optics=edge");
+  await openV3(page, "/v3-05-failed?optics=edge");
   await expect(navigation).toHaveAttribute("data-lens-phase", "idle");
   const edgeActivity = page.getByRole("button", { name: labels.activity });
   await edgeActivity.click();
@@ -422,13 +437,136 @@ test("uses a distinct edge field with the same active-lens geometry", async ({ p
   const lensBox = await lens.boundingBox();
   if (!lensBox || !baselineLensBox) throw new Error("The edge and baseline lenses must be visible during drag.");
   expect(lensBox).toEqual(baselineLensBox);
-  const edgeWorldTransform = await lens.locator(".v3-navigation-world--lens").evaluate((element) => getComputedStyle(element).transform);
+  const edgeWorldTransform = await lens.locator(".v3-05-failed-navigation-world--lens").evaluate((element) => getComputedStyle(element).transform);
   expect(edgeWorldTransform).toBe(baselineWorldTransform);
   const edgeField = await navigation.locator("feImage").getAttribute("href");
   expect(edgeField).not.toBe(baselineField);
-  await expect(page).toHaveScreenshot("v3-edge-activity-to-market-mid-drag-full.png", { animations: "disabled" });
-  await expect(lens).toHaveScreenshot("v3-edge-activity-to-market-mid-drag.png", { animations: "disabled" });
+  await expect(page).toHaveScreenshot("v3-05-failed-edge-activity-to-market-mid-drag-full.png", { animations: "disabled" });
+  await expect(lens).toHaveScreenshot("v3-05-failed-edge-activity-to-market-mid-drag.png", { animations: "disabled" });
   await page.mouse.up();
+});
+
+test("keeps navigation glyph assets, geometry, and colors shared across the base, selection, and lens worlds", async ({ page }) => {
+  await openV3(page);
+
+  const navigation = page.getByRole("navigation", { name: navigationName });
+  const baseGlyphs = navigation.locator('.v3-05-failed-navigation-world--base .v3-05-failed-nav-glyph');
+  const selectionGlyphs = navigation.locator('.v3-05-failed-navigation-world--selection .v3-05-failed-nav-glyph');
+  const lensGlyphs = navigation.locator('.v3-05-failed-navigation-world--lens .v3-05-failed-nav-glyph');
+  const baseIcons = navigation.locator('.v3-05-failed-navigation-world--base .v3-05-failed-tab-icon');
+  const baseLabels = navigation.locator('.v3-05-failed-navigation-world--base .v3-05-failed-tab-label');
+  const selectionIcons = navigation.locator('.v3-05-failed-navigation-world--selection .v3-05-failed-tab-icon');
+
+  await expect(baseGlyphs).toHaveCount(4);
+  await expect(selectionGlyphs).toHaveCount(4);
+  await expect(lensGlyphs).toHaveCount(4);
+  const glyphContract = await navigation.evaluate((element) => (
+    ["base", "selection", "lens"].map((layer) => Array.from(
+      element.querySelectorAll(`.v3-05-failed-navigation-world--${layer} .v3-05-failed-nav-glyph`),
+      (glyph) => ({
+        className: glyph.getAttribute("class"),
+        path: glyph.innerHTML,
+        viewBox: glyph.getAttribute("viewBox"),
+      }),
+    ))
+  ));
+
+  expect(glyphContract[1]).toEqual(glyphContract[0]);
+  expect(glyphContract[2]).toEqual(glyphContract[0]);
+  for (const glyph of glyphContract[0]) {
+    expect(glyph.className).toMatch(/^v3-05-failed-nav-glyph v3-05-failed-nav-glyph--(follow|market|activity|open)$/);
+    expect(glyph.viewBox).toBe("0 0 100 100");
+  }
+
+  const targetGlyphSizes = [70, 88, 79, 70];
+  for (let index = 0; index < 4; index += 1) {
+    const [baseBox, selectionBox] = await Promise.all([
+      readBox(baseGlyphs.nth(index)),
+      readBox(selectionGlyphs.nth(index)),
+    ]);
+    expect(baseBox.width).toBe(targetGlyphSizes[index]);
+    expect(baseBox.height).toBe(targetGlyphSizes[index]);
+    expect(selectionBox.width).toBe(baseBox.width);
+    expect(selectionBox.height).toBe(baseBox.height);
+  }
+  await expect(baseIcons.nth(0)).toHaveCSS("color", "rgb(245, 245, 246)");
+  await expect(baseLabels.nth(0)).toHaveCSS("color", "rgba(245, 245, 246, 0.58)");
+  await expect(selectionIcons.nth(3)).toHaveCSS("color", "rgb(255, 255, 255)");
+
+  const activity = page.getByRole("button", { name: labels.activity });
+  const activityBox = await activity.boundingBox();
+  if (!activityBox) throw new Error("The activity tab must have a measurable box.");
+  const drag = await beginTabDrag(page, "open", "activity");
+  await moveDragToFraction(page, drag, 1);
+  const activityIndex = 2;
+  const [baseActivityBox, lensActivityBox] = await Promise.all([
+    readBox(baseGlyphs.nth(activityIndex)),
+    readBox(lensGlyphs.nth(activityIndex)),
+  ]);
+  expect(Math.abs(lensActivityBox.width - baseActivityBox.width)).toBeLessThanOrEqual(0.75);
+  expect(Math.abs(lensActivityBox.height - baseActivityBox.height)).toBeLessThanOrEqual(0.75);
+  await expect(lensGlyphs.nth(activityIndex).locator("xpath=.."))
+    .toHaveCSS("color", "rgb(255, 255, 255)");
+  await page.mouse.up();
+});
+
+test("coalesces field updates to the latest velocity bucket while retaining same-bucket fields", async ({ page }) => {
+  await page.addInitScript(() => {
+    let now = 1_000;
+    Object.defineProperty(performance, "now", { configurable: true, value: () => now });
+    Object.assign(window, { __setV3TestTime: (nextTime: number) => { now = nextTime; } });
+  });
+  await openV3(page);
+
+  const navigation = page.getByRole("navigation", { name: navigationName });
+  const field = navigation.locator("feImage");
+  const open = page.getByRole("button", { name: labels.open });
+  const openBox = await open.boundingBox();
+  if (!openBox) throw new Error("The active V3 tab must have a measurable box.");
+  const sourceX = openBox.x + openBox.width / 2;
+  const sourceY = openBox.y + openBox.height / 2;
+  const staticField = await field.getAttribute("href");
+  const setTime = (value: number) => page.evaluate((nextTime) => {
+    (window as Window & { __setV3TestTime: (time: number) => void }).__setV3TestTime(nextTime);
+  }, value);
+
+  await dispatchSyntheticPrimaryPointer(open, "pointerdown", "pen", 91, sourceX, sourceY);
+  await setTime(1_001);
+  await dispatchSyntheticPrimaryPointer(open, "pointermove", "pen", 91, sourceX + 10, sourceY);
+  await expect(navigation).toHaveAttribute("data-lens-phase", "dragging");
+  await expect.poll(() => field.getAttribute("href")).not.toBe(staticField);
+  const rightTierThreeField = await field.getAttribute("href");
+
+  await page.evaluate(() => {
+    const image = document.querySelector(".v3-05-failed-nav feImage");
+    const state = window as Window & { __v3FieldHrefMutations?: string[]; __v3FieldHrefObserver?: MutationObserver };
+    state.__v3FieldHrefMutations = [];
+    state.__v3FieldHrefObserver = new MutationObserver(() => {
+      state.__v3FieldHrefMutations?.push(image?.getAttribute("href") ?? "");
+    });
+    state.__v3FieldHrefObserver.observe(image!, { attributeFilter: ["href"], attributes: true });
+  });
+  await setTime(1_020);
+  await dispatchSyntheticPrimaryPointer(open, "pointermove", "pen", 91, sourceX + 20, sourceY);
+  await setTime(1_021);
+  await dispatchSyntheticPrimaryPointer(open, "pointermove", "pen", 91, sourceX + 10, sourceY);
+  await setTime(1_022);
+  await dispatchSyntheticPrimaryPointer(open, "pointermove", "pen", 91, sourceX + 11, sourceY);
+  await page.waitForTimeout(180);
+
+  const finalField = await field.getAttribute("href");
+  const mutations = await page.evaluate(() => {
+    const state = window as Window & { __v3FieldHrefMutations?: string[]; __v3FieldHrefObserver?: MutationObserver };
+    state.__v3FieldHrefObserver?.disconnect();
+    return state.__v3FieldHrefMutations ?? [];
+  });
+  expect(finalField).not.toBe(rightTierThreeField);
+  expect(mutations).toHaveLength(1);
+  await setTime(1_147);
+  await dispatchSyntheticPrimaryPointer(open, "pointermove", "pen", 91, sourceX + 111, sourceY);
+  await page.waitForTimeout(30);
+  await expect(field).toHaveAttribute("href", finalField ?? "");
+  await dispatchSyntheticPrimaryPointer(open, "pointerup", "pen", 91, sourceX + 11, sourceY);
 });
 
 test("commits reduced-motion selection without exposing a temporary lens", async ({ page }) => {
@@ -436,8 +574,8 @@ test("commits reduced-motion selection without exposing a temporary lens", async
   await openV3(page);
 
   const navigation = page.getByRole("navigation", { name: navigationName });
-  const slider = navigation.locator(".v3-selection-slider");
-  const lens = navigation.locator(".v3-lens-position");
+  const slider = navigation.locator(".v3-05-failed-selection-slider");
+  const lens = navigation.locator(".v3-05-failed-lens-position");
 
   await page.getByRole("button", { name: labels.market }).click();
   await expect(page.getByRole("button", { name: labels.market })).toHaveAttribute("aria-current", "page");
@@ -451,8 +589,8 @@ test("commits forced-colors selection without exposing a transient lens", async 
   await openV3(page);
 
   const navigation = page.getByRole("navigation", { name: navigationName });
-  const slider = navigation.locator(".v3-selection-slider");
-  const lens = navigation.locator(".v3-lens-position");
+  const slider = navigation.locator(".v3-05-failed-selection-slider");
+  const lens = navigation.locator(".v3-05-failed-lens-position");
   const market = page.getByRole("button", { name: labels.market });
   const themeToggle = page.getByRole("button", { name: "系统颜色模式下不可切换主题" });
 
@@ -485,12 +623,12 @@ test("falls back to static selection when the Canvas 2D field is unavailable", a
   await openV3(page);
 
   const navigation = page.getByRole("navigation", { name: navigationName });
-  const slider = navigation.locator(".v3-selection-slider");
-  const lens = navigation.locator(".v3-lens-position");
+  const slider = navigation.locator(".v3-05-failed-selection-slider");
+  const lens = navigation.locator(".v3-05-failed-lens-position");
   const market = page.getByRole("button", { name: labels.market });
 
   await expect(navigation.locator("feImage")).toHaveCount(0);
-  await expect(lens.locator(".v3-lens-optics-viewport")).toHaveCSS("filter", "none");
+  await expect(lens.locator(".v3-05-failed-lens-optics-viewport")).toHaveCSS("filter", "none");
   await market.click();
   await expect(market).toHaveAttribute("aria-current", "page");
   await expect(navigation).toHaveAttribute("data-lens-phase", "idle");
@@ -517,12 +655,12 @@ test("falls back to static selection when SVG filter constructors are unavailabl
   await openV3(page);
 
   const navigation = page.getByRole("navigation", { name: navigationName });
-  const slider = navigation.locator(".v3-selection-slider");
-  const lens = navigation.locator(".v3-lens-position");
+  const slider = navigation.locator(".v3-05-failed-selection-slider");
+  const lens = navigation.locator(".v3-05-failed-lens-position");
   const market = page.getByRole("button", { name: labels.market });
 
   await expect(navigation.locator("feImage")).toHaveCount(0);
-  await expect(lens.locator(".v3-lens-optics-viewport")).toHaveCSS("filter", "none");
+  await expect(lens.locator(".v3-05-failed-lens-optics-viewport")).toHaveCSS("filter", "none");
   await market.click();
   await expect(market).toHaveAttribute("aria-current", "page");
   await expect(navigation).toHaveAttribute("data-lens-phase", "idle");
@@ -538,7 +676,7 @@ test("keeps storage-free pages synchronized with system dark and light", async (
   await openV3(page);
 
   await expectThemePresentation(page, "system", "dark");
-  await expect(page.locator("#v3-theme-bootstrap")).not.toHaveAttribute("data-theme");
+  await expect(page.locator("#v3-05-failed-theme-bootstrap")).not.toHaveAttribute("data-theme");
   await page.emulateMedia({ colorScheme: "light" });
   await expectThemePresentation(page, "system", "light");
   await page.emulateMedia({ colorScheme: "dark" });
@@ -558,12 +696,12 @@ test("applies stored themes before hydration and removes the bootstrap marker af
       const state = window as Window & { __v3PersistedThemeFirstFrame?: string };
       window.localStorage.setItem(key, storedTheme);
       const captureFirstFrame = () => {
-        const root = document.querySelector<HTMLElement>(".v3-demo");
-        const marker = document.querySelector<HTMLScriptElement>("#v3-theme-bootstrap");
+        const root = document.querySelector<HTMLElement>(".v3-05-failed-demo");
+        const marker = document.querySelector<HTMLScriptElement>("#v3-05-failed-theme-bootstrap");
         if (!root || root.dataset.themeHydrated !== "false" || state.__v3PersistedThemeFirstFrame) return;
         state.__v3PersistedThemeFirstFrame = JSON.stringify({
           markerTheme: marker?.dataset.theme ?? null,
-          pageSolid: getComputedStyle(root).getPropertyValue("--v3-page-solid").trim(),
+          pageSolid: getComputedStyle(root).getPropertyValue("--v3-05-failed-page-solid").trim(),
           preference: root.dataset.themePreference,
           resolved: root.dataset.resolvedTheme ?? null,
         });
@@ -585,7 +723,7 @@ test("applies stored themes before hydration and removes the bootstrap marker af
       resolved: null,
     });
     await expectThemePresentation(page, theme, theme);
-    await expect(page.locator("#v3-theme-bootstrap")).not.toHaveAttribute("data-theme");
+    await expect(page.locator("#v3-05-failed-theme-bootstrap")).not.toHaveAttribute("data-theme");
     await expectStoredTheme(page, theme);
     expect(hydrationMessages).toEqual([]);
     await page.close();
@@ -635,7 +773,7 @@ test("keeps an in-session theme when storage writes fail and returns to system o
   await expectThemePresentation(page, "light", "light");
   await expectStoredTheme(page, null);
   await page.reload();
-  await expect(page.locator(".v3-demo")).toHaveAttribute("data-theme-hydrated", "true");
+  await expect(page.locator(".v3-05-failed-demo")).toHaveAttribute("data-theme-hydrated", "true");
   await expectThemePresentation(page, "system", "dark");
   await expectStoredTheme(page, null);
 });
@@ -646,7 +784,7 @@ test.describe("light theme", () => {
   test("keeps the measurable system-light first frame neutral until hydration", async ({ page }) => {
     await page.addInitScript(() => {
       const captureFirstThemeFrame = () => {
-        const root = document.querySelector<HTMLElement>(".v3-demo");
+        const root = document.querySelector<HTMLElement>(".v3-05-failed-demo");
         const state = window as Window & { __v3ThemeFirstFrame?: string };
         if (!root || root.dataset.themeHydrated !== "false" || state.__v3ThemeFirstFrame) return;
         state.__v3ThemeFirstFrame = JSON.stringify({
@@ -671,42 +809,44 @@ test.describe("light theme", () => {
       theme: string | null;
       preference: string;
     } | null;
-    const root = page.locator(".v3-demo");
+    const root = page.locator(".v3-05-failed-demo");
     const toggle = page.getByRole("button", { name: "切换到深色主题" });
 
     expect(firstFrame).toEqual({ hydrated: "false", resolved: null, theme: null, preference: "system" });
     await expect(root).toHaveAttribute("data-resolved-theme", "light");
     await expect(toggle).toHaveAttribute("aria-pressed", "true");
     await expect(toggle).toHaveAttribute("title", "切换到深色主题");
-    await expect(toggle.locator(".v3-theme-toggle__icon--sun")).toHaveCSS("display", "none");
-    await expect(toggle.locator(".v3-theme-toggle__icon--moon")).toHaveCSS("display", "block");
-    await expect(page).toHaveScreenshot("v3-light-system-idle-full.png", { animations: "disabled" });
+    await expect(toggle.locator(".v3-05-failed-theme-toggle__icon--sun")).toHaveCSS("display", "none");
+    await expect(toggle.locator(".v3-05-failed-theme-toggle__icon--moon")).toHaveCSS("display", "block");
+    await expect(page).toHaveScreenshot("v3-05-failed-light-system-idle-full.png", { animations: "disabled" });
   });
 
   test("keeps light tokens and contrast above the visual accessibility floor", async ({ page }) => {
     await openV3(page);
 
-    const tokens = await page.locator(".v3-demo").evaluate((element) => {
+    const tokens = await page.locator(".v3-05-failed-demo").evaluate((element) => {
       const style = getComputedStyle(element);
       return Object.fromEntries([
-        "--v3-page-solid",
-        "--v3-rail-surface",
-        "--v3-selection-surface",
-        "--v3-tab-muted",
-        "--v3-tab-active",
-        "--v3-accent",
-        "--v3-badge",
+        "--v3-05-failed-page-solid",
+        "--v3-05-failed-rail-surface",
+        "--v3-05-failed-selection-surface",
+        "--v3-05-failed-tab-icon-muted",
+        "--v3-05-failed-tab-label-muted",
+        "--v3-05-failed-tab-active",
+        "--v3-05-failed-accent",
+        "--v3-05-failed-badge",
       ].map((name) => [name, style.getPropertyValue(name).trim()]));
     });
 
     expect(tokens).toEqual({
-      "--v3-page-solid": "#f4f7f8",
-      "--v3-rail-surface": "rgb(244 247 250 / 88%)",
-      "--v3-selection-surface": "rgb(255 255 255 / 78%)",
-      "--v3-tab-muted": "rgb(38 48 58 / 74%)",
-      "--v3-tab-active": "#101820",
-      "--v3-accent": "#008d7c",
-      "--v3-badge": "#008d7c",
+      "--v3-05-failed-page-solid": "#f4f7f8",
+      "--v3-05-failed-rail-surface": "rgb(244 247 250 / 88%)",
+      "--v3-05-failed-selection-surface": "rgb(255 255 255 / 78%)",
+      "--v3-05-failed-tab-icon-muted": "rgb(38 48 58)",
+      "--v3-05-failed-tab-label-muted": "rgb(38 48 58 / 74%)",
+      "--v3-05-failed-tab-active": "#101820",
+      "--v3-05-failed-accent": "#008d7c",
+      "--v3-05-failed-badge": "#008d7c",
     });
 
     const rail = [244, 247, 250] as const;
@@ -722,14 +862,14 @@ test.describe("light theme", () => {
     await page.emulateMedia({ colorScheme: "dark" });
     await openV3(page);
 
-    const root = page.locator(".v3-demo");
+    const root = page.locator(".v3-05-failed-demo");
     const toggle = page.getByRole("button", { name: "切换到亮色主题" });
     await expect(root).toHaveAttribute("data-theme-preference", "system");
     await expect(root).not.toHaveAttribute("data-theme");
     await expect(root).toHaveAttribute("data-resolved-theme", "dark");
     await expect(toggle).toHaveAttribute("aria-pressed", "false");
-    await expect(toggle.locator(".v3-theme-toggle__icon--sun")).toHaveCSS("display", "block");
-    await expect(toggle.locator(".v3-theme-toggle__icon--moon")).toHaveCSS("display", "none");
+    await expect(toggle.locator(".v3-05-failed-theme-toggle__icon--sun")).toHaveCSS("display", "block");
+    await expect(toggle.locator(".v3-05-failed-theme-toggle__icon--moon")).toHaveCSS("display", "none");
 
     await page.emulateMedia({ colorScheme: "light" });
     await expect(root).toHaveAttribute("data-resolved-theme", "light");
@@ -741,8 +881,8 @@ test.describe("light theme", () => {
     await expect(keyboardToggle).toHaveAttribute("aria-label", "切换到亮色主题");
     await expect(keyboardToggle).toHaveAttribute("title", "切换到亮色主题");
     await expect(keyboardToggle).toHaveAttribute("aria-pressed", "false");
-    await expect(keyboardToggle.locator(".v3-theme-toggle__icon--sun")).toHaveCSS("display", "block");
-    await expect(keyboardToggle.locator(".v3-theme-toggle__icon--moon")).toHaveCSS("display", "none");
+    await expect(keyboardToggle.locator(".v3-05-failed-theme-toggle__icon--sun")).toHaveCSS("display", "block");
+    await expect(keyboardToggle.locator(".v3-05-failed-theme-toggle__icon--moon")).toHaveCSS("display", "none");
     await expectStoredTheme(page, "dark");
 
     await page.emulateMedia({ colorScheme: "dark" });
@@ -754,8 +894,8 @@ test.describe("light theme", () => {
     await expect(keyboardToggle).toHaveAttribute("aria-label", "切换到深色主题");
     await expect(keyboardToggle).toHaveAttribute("title", "切换到深色主题");
     await expect(keyboardToggle).toHaveAttribute("aria-pressed", "true");
-    await expect(keyboardToggle.locator(".v3-theme-toggle__icon--sun")).toHaveCSS("display", "none");
-    await expect(keyboardToggle.locator(".v3-theme-toggle__icon--moon")).toHaveCSS("display", "block");
+    await expect(keyboardToggle.locator(".v3-05-failed-theme-toggle__icon--sun")).toHaveCSS("display", "none");
+    await expect(keyboardToggle.locator(".v3-05-failed-theme-toggle__icon--moon")).toHaveCSS("display", "block");
     await expectStoredTheme(page, "light");
 
     await keyboardToggle.click();
@@ -772,19 +912,18 @@ test.describe("light theme", () => {
     await openV3(page);
 
     const navigation = page.getByRole("navigation", { name: navigationName });
-    const lens = navigation.locator(".v3-lens-position");
-    const slider = navigation.locator(".v3-selection-slider");
+    const lens = navigation.locator(".v3-05-failed-lens-position");
+    const slider = navigation.locator(".v3-05-failed-selection-slider");
     const rail = navigation;
     const field = navigation.locator("feImage");
     const activity = page.getByRole("button", { name: labels.activity });
     const baselineCoordinates = await beginTabDrag(page, "open", "activity");
     await moveDragToFraction(page, baselineCoordinates, 0.5);
     const baselineTravel = {
-      field: await field.getAttribute("href"),
       lens: await readBox(lens),
       rail: await readBox(rail),
       slider: await readBox(slider),
-      world: await lens.locator(".v3-navigation-world--lens").evaluate((element) => getComputedStyle(element).transform),
+      world: await lens.locator(".v3-05-failed-navigation-world--lens").evaluate((element) => getComputedStyle(element).transform),
     };
     await page.mouse.up();
     await expect(activity).toHaveAttribute("aria-current", "page", { timeout: 2_000 });
@@ -796,7 +935,7 @@ test.describe("light theme", () => {
     };
 
     await page.getByRole("button", { name: "切换到亮色主题" }).click();
-    await expect(page.locator(".v3-demo")).toHaveAttribute("data-theme", "light");
+    await expect(page.locator(".v3-05-failed-demo")).toHaveAttribute("data-theme", "light");
     expectBoxesWithinTolerance(await readBox(lens), staticBeforeTheme.lens);
     expectBoxesWithinTolerance(await readBox(rail), staticBeforeTheme.rail);
     expectBoxesWithinTolerance(await readBox(slider), staticBeforeTheme.slider);
@@ -817,8 +956,8 @@ test.describe("light theme", () => {
     expectBoxesWithinTolerance(await readBox(lens), baselineTravel.lens);
     expectBoxesWithinTolerance(await readBox(rail), baselineTravel.rail);
     expectBoxesWithinTolerance(await readBox(slider), baselineTravel.slider);
-    expect(await field.getAttribute("href")).toBe(baselineTravel.field);
-    await expect(lens.locator(".v3-navigation-world--lens")).toHaveCSS("transform", baselineTravel.world);
+    await expect(field).toHaveAttribute("href", /data:image\/png;base64,/);
+    await expect(lens.locator(".v3-05-failed-navigation-world--lens")).toHaveCSS("transform", baselineTravel.world);
     await page.mouse.up();
   });
 
@@ -826,44 +965,44 @@ test.describe("light theme", () => {
     await openV3(page);
 
     const navigation = page.getByRole("navigation", { name: navigationName });
-    const lens = navigation.locator(".v3-lens-position");
+    const lens = navigation.locator(".v3-05-failed-lens-position");
     const activity = page.getByRole("button", { name: labels.activity });
     const market = page.getByRole("button", { name: labels.market });
     const openToActivity = await beginTabDrag(page, "open", "activity");
     await moveDragToFraction(page, openToActivity, 0.5);
-    await expect(page).toHaveScreenshot("v3-light-open-to-activity-mid-drag-full.png", { animations: "disabled" });
-    await expect(lens).toHaveScreenshot("v3-light-open-to-activity-mid-drag.png", { animations: "disabled" });
+    await expect(page).toHaveScreenshot("v3-05-failed-light-open-to-activity-mid-drag-full.png", { animations: "disabled" });
+    await expect(lens).toHaveScreenshot("v3-05-failed-light-open-to-activity-mid-drag.png", { animations: "disabled" });
     await moveDragToFraction(page, openToActivity, 1);
     await expect(navigation).toHaveAttribute("data-preview-id", "activity");
-    await expect(lens.locator('[data-highlighted="true"]')).toHaveCSS("color", "rgb(16, 24, 32)");
-    await expect(page).toHaveScreenshot("v3-light-open-to-activity-target-drag-full.png", { animations: "disabled" });
-    await expect(lens).toHaveScreenshot("v3-light-open-to-activity-target-drag.png", { animations: "disabled" });
+    await expect(lens.locator('[data-highlighted="true"] .v3-05-failed-tab-icon')).toHaveCSS("color", "rgb(16, 24, 32)");
+    await expect(page).toHaveScreenshot("v3-05-failed-light-open-to-activity-target-drag-full.png", { animations: "disabled" });
+    await expect(lens).toHaveScreenshot("v3-05-failed-light-open-to-activity-target-drag.png", { animations: "disabled" });
     await page.mouse.up();
     await expect(activity).toHaveAttribute("aria-current", "page", { timeout: 2_000 });
 
     const activityToMarket = await beginTabDrag(page, "activity", "market");
     await moveDragToFraction(page, activityToMarket, 0.5);
-    await expect(page).toHaveScreenshot("v3-light-activity-to-market-mid-drag-full.png", { animations: "disabled" });
-    await expect(lens).toHaveScreenshot("v3-light-activity-to-market-mid-drag.png", { animations: "disabled" });
+    await expect(page).toHaveScreenshot("v3-05-failed-light-activity-to-market-mid-drag-full.png", { animations: "disabled" });
+    await expect(lens).toHaveScreenshot("v3-05-failed-light-activity-to-market-mid-drag.png", { animations: "disabled" });
     await page.mouse.up();
     await expect(market).toHaveAttribute("aria-current", "page", { timeout: 2_000 });
-    await expect(page).toHaveScreenshot("v3-light-market-static-full.png", { animations: "disabled" });
+    await expect(page).toHaveScreenshot("v3-05-failed-light-market-static-full.png", { animations: "disabled" });
   });
 
   test("captures the light Edge field with Baseline geometry", async ({ page }) => {
-    await openV3(page, "/v3?optics=edge");
+    await openV3(page, "/v3-05-failed?optics=edge");
 
     const navigation = page.getByRole("navigation", { name: navigationName });
-    const lens = navigation.locator(".v3-lens-position");
-    const opticsViewport = lens.locator(".v3-lens-optics-viewport");
+    const lens = navigation.locator(".v3-05-failed-lens-position");
+    const opticsViewport = lens.locator(".v3-05-failed-lens-optics-viewport");
     const activity = page.getByRole("button", { name: labels.activity });
     await activity.click();
     await expect(activity).toHaveAttribute("aria-current", "page", { timeout: 2_000 });
     const activityToMarket = await beginTabDrag(page, "activity", "market");
     await moveDragToFraction(page, activityToMarket, 0.5);
     await expect(opticsViewport).toHaveCSS("filter", /url\(/);
-    await expect(page).toHaveScreenshot("v3-light-edge-activity-to-market-mid-drag-full.png", { animations: "disabled" });
-    await expect(lens).toHaveScreenshot("v3-light-edge-activity-to-market-mid-drag.png", { animations: "disabled" });
+    await expect(page).toHaveScreenshot("v3-05-failed-light-edge-activity-to-market-mid-drag-full.png", { animations: "disabled" });
+    await expect(lens).toHaveScreenshot("v3-05-failed-light-edge-activity-to-market-mid-drag.png", { animations: "disabled" });
     await page.mouse.up();
   });
 });
