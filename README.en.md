@@ -19,6 +19,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [V3 Motion-Coupled Optics Release](./docs/decisions/v3-motion-coupled-optics.en.md) ·
 [V3 M04 Rollback / Failed M05 Route](./docs/decisions/v3-m04-rollback-failed-route.en.md) ·
 [Lint Scope Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
+[Liquid Glass Skill Three Modes（Liquid Glass Skill 三模式）](./docs/decisions/liquid-glass-interface-three-modes.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Live Demo
@@ -190,10 +191,11 @@ skills/
 
 The reusable `liquid-glass-interface` Skill lives in
 [`skills/liquid-glass-interface`](./skills/liquid-glass-interface/). Its
-`v2-reference-implementation` remains the current default reference;
-`v1-fidelity-kit` is an archived asset for explicit V1 reproduction. V3 is an
-independent `v3-*` study that can be selected deliberately rather than
-overwriting either baseline.
+fixed portable React asset modes are `v1-fidelity`, default `v2-default`, and
+explicit `v3-horizontal`. `v1-fidelity` is for an explicit V1 reproduction;
+`v3-horizontal` is an independent（独立） horizontal-lens request and never
+overwrites V2. Failed M05 remains archive-only, not a Skill mode, asset, or
+acceptance baseline（验收基线）.
 
 The Skill contains implementation guidance only. It does not access
 credentials, personal data, remote assets, telemetry（遥测）, or hidden network

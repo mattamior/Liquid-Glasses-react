@@ -1,0 +1,4 @@
+interface:
+  display_name: "Liquid Glass Interface"
+  short_description: "Build Apple-inspired Liquid Glass interfaces"
+  default_prompt: "Use $liquid-glass-interface to build an accessible V2 Liquid Glass navigation."

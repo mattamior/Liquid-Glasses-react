@@ -18,6 +18,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 [V3 运动耦合光学发布](./docs/decisions/v3-motion-coupled-optics.zh.md) ·
 [V3 M04 回归 / 失败 M05 路由](./docs/decisions/v3-m04-rollback-failed-route.zh.md) ·
 [Lint 范围决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
+[Liquid Glass Skill 三模式](./docs/decisions/liquid-glass-interface-three-modes.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## 在线体验
@@ -31,7 +32,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 | `/` | 重定向至当前默认导航实验 `/v2`。 |
 | `/v1` | 保留用于对照的冻结归档 Demo。 |
 | `/v2` | 默认的纵向导航透镜参考实现。 |
-| `/v3` | 独立横向导航透镜实验；本地已恢复 M04 候选基线，尚未部署。 |
+| `/v3` | 独立横向导航透镜实验；M04 候选基线已恢复并部署。 |
 | `/v3-05-failed` | M05 失败候选的公开直达归档；`noindex, nofollow`，不进入站内导航。 |
 | `/brand-preview` | 当前 Liquid Lab 标志的亮暗背景审阅页。 |
 
@@ -166,8 +167,9 @@ skills/
 
 可复用的 `liquid-glass-interface` Skill 位于
 [`skills/liquid-glass-interface`](./skills/liquid-glass-interface/)。其中
-`v2-reference-implementation` 仍是当前默认参考；`v1-fidelity-kit` 仅用于明确
-的 V1 原 Demo 复刻。V3 作为独立 `v3-*` 实验被显式选择，不覆盖任一既有基线。
+固定的可移植 React 资产模式为 `v1-fidelity`、默认 `v2-default` 和显式
+`v3-horizontal`。`v1-fidelity` 仅用于明确的 V1 原 Demo 复刻；`v3-horizontal`
+仅用于独立横向透镜需求，不覆盖 V2。失败 M05 只保留为归档，不是 Skill 模式、资产或验收基线。
 
 Skill 只包含实现指导，不访问凭证、个人数据、远程资源、遥测或隐藏网络服务。
 

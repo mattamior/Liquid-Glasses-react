@@ -4,7 +4,7 @@
 
 ## 版本路由与资产
 
-`/` 会进入当前的 V2 导航实验。`/v1` 仍可直接访问，但作为冻结的归档 Demo；它的视觉与交互不再是当前默认。`/v3` 是独立的横向导航透镜实验，而非 V2 的替代品。普通导航从 [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/) 开始；只有明确要求复刻 V1 原始 Demo 时才使用 [`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/)。未来版本以并列的 `vN-*` 资产加入，不覆盖已归档的基线。
+`/` 会进入当前的 V2 导航实验。`/v1` 仍可直接访问，但作为冻结的归档 Demo；它的视觉与交互不再是当前默认。`/v3` 是独立的横向导航透镜实验，而非 V2 的替代品。单一 Skill 有三个固定资产模式：普通导航默认使用 [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/)，只有明确要求复刻 V1 原始 Demo 时才使用 [`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/)，只有明确要求 V3 或四列横向透镜时才使用 [`assets/v3-horizontal-navigation`](../skills/liquid-glass-interface/assets/v3-horizontal-navigation/)。未知 `vN` 必须请求选择受支持模式；`/v3-05-failed` 仍只是归档，绝不能作为 Skill 资产或基线。
 
 `/brand-preview` 是项目标志审阅页。权威公开品牌资产位于 `public/brand/`；它们是项目资产，不是可复用 Liquid Glass 色彩方案的规定。
 
@@ -150,9 +150,9 @@ V3 是独立的按需启用导航模式。除非需求明确选择 V3，否则�
 
 每个 tab 仍是实际按钮。只有一个已提交 tab 暴露 `aria-current="page"`；滑块下的预览不会改变该语义状态。对未选中 tab 的普通点击启动大号横向透镜转场。透镜会横向经过中间 tab 而不激活它们，随后滑块在转场后落到目标项。转场、吸附动画、降级路径或卸载清理期间，拒绝点击和新的拖拽。
 
-只有已提交 tab 可以开始 V3 拖拽。通过 Pointer Events 支持主鼠标、触摸和触控笔，并使用 `touch-action: none`、`setPointerCapture`、`5px` 移动阈值和轨道边界钳制。越过阈值前保留普通按钮行为；越过后连续移动滑块，并将最近 tab 显示为视觉预览，同时保留原有 `aria-current`。正常释放后，在 `260ms` 内吸附至最近的已测量 tab，并直接提交，不重放大透镜。`pointercancel`、失去捕获或拖拽中的尺寸变化时，回到已提交 tab。每条终止路径都必须释放捕获并清理定时器和动画帧。
+只有已提交 tab 可以开始 V3 拖拽。通过 Pointer Events 支持主鼠标、触摸和触控笔，并使用 `touch-action: pan-y`、`setPointerCapture`、`5px` 移动阈值和轨道边界钳制。越过阈值前保留普通按钮行为；越过后连续移动滑块，并将最近 tab 显示为视觉预览，同时保留原有 `aria-current`。正常释放后，在 `260ms` 内吸附至最近的已测量 tab，并直接提交，不重放大透镜。`pointercancel`、失去捕获或拖拽中的尺寸变化时，回到已提交 tab。每条终止路径都必须释放捕获并清理定时器和动画帧。
 
-V3 增强 Edge optics 需要两个坐标空间。完整导航世界副本负责世界坐标平移和缩放。将 SVG `feDisplacementMap` 放在固定的、与透镜同尺寸的 optics viewport 上，而不是放在已平移的整条副本上。viewport 使用精确的透镜宽高，世界副本则在其中偏移；这可避免透明裁切，并使图标和文字持续显示在被折射的透镜内。当前 V3 Baseline 路径保留内嵌滑块、语义控件和大透镜转场，只省略 Edge 位移。`prefers-reduced-motion` 和缺少已测量几何时直接选中。强制颜色与显式滤镜支持检测不是当前 V3 gate；必须先实现并验证，才能宣称具有该行为。
+V3 增强 Edge optics 需要两个坐标空间。完整导航世界副本负责世界坐标平移和缩放。将 SVG `feDisplacementMap` 放在固定的、与透镜同尺寸的 optics viewport 上，而不是放在已平移的整条副本上。viewport 使用精确的透镜宽高，世界副本则在其中偏移；这可避免透明裁切，并使图标和文字持续显示在被折射的透镜内。当前 V3 Baseline 路径保留内嵌滑块、语义控件和大透镜转场，只省略 Edge 位移。减少动态、强制颜色、SVG 滤镜构造器不可用和 Canvas 2D 不可用时，直接提交静态语义选中。
 
 进行 V3 视觉保真改动时，必须审阅完整的用户提供
 [Longbridge 截图参考集](./references/v3-longbridge/reference-index.zh.md)。其 9 张图涵盖

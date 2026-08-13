@@ -31,6 +31,8 @@ adaptive highlights, and navigation lenses.
 [V3 M04 回归 / 失败 M05 路由](./docs/decisions/v3-m04-rollback-failed-route.zh.md) ·
 [Lint Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Lint 决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
+[Liquid Glass Skill Three Modes](./docs/decisions/liquid-glass-interface-three-modes.en.md) ·
+[Liquid Glass Skill 三模式](./docs/decisions/liquid-glass-interface-three-modes.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Highlights
@@ -50,7 +52,7 @@ adaptive highlights, and navigation lenses.
   [V2 card-container decision](./docs/decisions/v2-liquid-glass-card-container.en.md) /
   [V2 卡片容器决策](./docs/decisions/v2-liquid-glass-card-container.zh.md). V3 remains
   an independent App-style experiment and does not replace V2.
-- The reusable Agent Skill documents versioned assets, layered Web refraction, semantic motion, and accessible fallbacks.
+- The reusable Agent Skill has three fixed, portable React asset modes: `v1-fidelity`, default `v2-default`, and explicit `v3-horizontal`. Failed M05 remains an archive and is not a Skill mode or asset.
 
 ## Quick Start
 
@@ -69,9 +71,11 @@ npm test
 ## Agent Skill
 
 The versioned [`liquid-glass-interface` Skill](./skills/liquid-glass-interface/)
-helps agents select an explicit V1/V2/V3 reference, build layered Web
-refraction, and preserve semantic interaction and accessible fallbacks. It is
-guidance only: it does not access credentials, personal data, remote assets,
+has fixed `v1-fidelity`, default `v2-default`, and explicit `v3-horizontal`
+portable React assets. It helps agents select the correct reference, build
+layered Web refraction, and preserve semantic interaction and accessible
+fallbacks. Failed M05 is archive-only, never a Skill mode or baseline. The Skill
+is guidance only: it does not access credentials, personal data, remote assets,
 telemetry, or hidden network services.
 
 ## License

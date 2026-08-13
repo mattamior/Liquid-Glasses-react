@@ -1,98 +1,62 @@
 ---
 name: liquid-glass-interface
-description: Build or refine Apple-inspired Web Liquid Glass interfaces using current official Apple design guidance as the primary authority, with layered refraction, Regular/Clear semantics, adaptive edge optics, semantic motion, independent light and dark tuning, accessibility, and graceful fallbacks. Use for translucent navigation, menus, toolbars, floating panels, selection lenses, or controls in React, CSS, SVG, or comparable Web stacks; also use when a request says match/reproduce the archived V1 Demo, visual fidelity, 9/10, or do not redesign; and when diagnosing flat glassmorphism, fixed color rings, duplicated refraction, discontinuous lens edges, disconnected menu motion, excessive hover emphasis, or unsafe draggable controls.
+description: Build or refine Apple-inspired Web Liquid Glass interfaces using official Apple design guidance, layered controlled-scene refraction, accessible fallbacks, and semantic motion. Use for translucent navigation, menus, toolbars, floating panels, selection lenses, or Liquid Glass cards in React, CSS, SVG, or comparable Web stacks; also use when a request says reproduce the V1 Demo, visual fidelity, 9/10, do not redesign, V2 vertical navigation, or V3 horizontal navigation.
 ---
 
 # Liquid Glass Interface
 
-Build Liquid Glass as an interface material that communicates hierarchy and state. Do not treat a low-opacity white rectangle or blur alone as the effect.
+Build Liquid Glass as a functional interface material, not a low-opacity white rectangle or blur.
 
-## Apple Design Authority
+## Read First
 
-Before evaluating or implementing an Apple-inspired result, read [apple-design-logic.en.md](references/apple-design-logic.en.md). An equivalent Chinese edition is available at [apple-design-logic.zh.md](references/apple-design-logic.zh.md).
+Read [apple-design-logic.en.md](references/apple-design-logic.en.md) before evaluating or implementing Apple-inspired work. Use its source priority: current Apple Human Interface Guidelines, current Apple Developer Documentation, Apple WWDC design sessions, then community material. Do not call a deliberate deviation Apple-aligned.
 
-Use this source order: current Apple Human Interface Guidelines, current Apple Developer Documentation, Apple WWDC design sessions, then community implementation material. Community techniques may solve Web limitations but may not redefine Apple's hierarchy, material variants, lensing, adaptivity, motion, or legibility rules.
+Keep four axes separate: Apple material variant (`Regular` / `Clear`), Web rendering tier (`baseline` / `enhanced`), appearance theme, and interaction state. `baseline` / `enhanced` are never asset-mode names or aliases for `Regular` / `Clear`.
 
-Treat the official logic as the primary acceptance standard, including when a user proposes a visual model. Correct an inaccurate premise instead of silently encoding it. If the user deliberately chooses a deviation after it is identified, implement it as a custom glass effect and do not describe it as Apple-aligned.
+## Select One Asset Mode
 
-Keep four axes separate: Apple material variant (`Regular` or `Clear`), Web rendering tier (`baseline` or `enhanced`), appearance theme (`light` or `dark`), and interaction state. Baseline/Enhanced are never aliases for Regular/Clear.
+Use exactly one mode before copying code. Read the mode's asset files and the public references named below.
 
-## Versioned Asset Selection
+| Mode | Select when | Asset and result |
+| --- | --- | --- |
+| `v1-fidelity` | The user explicitly asks to reproduce the V1 original Demo, visual fidelity, 9/10, or not redesign. | [assets/v1-fidelity-kit/](assets/v1-fidelity-kit/): frozen high-fidelity React route. Preserve its stage, menu, theme, floating-panel drag, measured surfaces, and RGB field/filter. |
+| `v2-default` | Ordinary Web navigation, sidebars, temporary selection lenses, or Liquid Glass cards. | [assets/v2-reference-implementation/](assets/v2-reference-implementation/): the default React route with vertical navigation and three cards. |
+| `v3-horizontal` | The user explicitly asks for V3 or a horizontal four-column navigation lens. | [assets/v3-horizontal-navigation/](assets/v3-horizontal-navigation/): M04 horizontal-navigation React route. It is independent and never replaces V2. |
 
-Use `assets/v2-reference-implementation/` for ordinary Web navigation unless the user explicitly requests another version. It is the current default: flat committed selection plus a temporary, single-sample navigation lens.
+When no mode is named, use `v2-default` unless the request explicitly triggers V1 or V3. If an unknown `vN` is requested, do not guess or silently map it to V1/V3: state that only these three modes are available and ask the user to choose.
 
-Use the repository's `/v3` implementation only when the user explicitly requests the independent V3 horizontal-navigation lens. V3 is not a V2 replacement: it uses an inset navigation-level selection slider with a clipped active visual replica, a click-driven travelling lens, and direct all-pointer drag snapping. `/brand-preview` is the project-mark review page; `public/brand/` contains project assets, not a general-purpose color requirement for this skill.
+`/v3-05-failed` and `v3-milestone-05-failed` are failed-M05 historical archives. Never copy them, present them as a mode, use them as a default/reference baseline, or add them to a verifier or visual acceptance.
 
-When the request says **match/reproduce the V1 Demo**, **visual fidelity**, **9/10**, or **do not redesign**, use low freedom. Copy `assets/v1-fidelity-kit/` as a unit before changing content. It is the archived V1 high-fidelity asset, not the default navigation pattern. Do not replace its `SceneArtwork`, geometry-specific RGB filter, toolbar-popover coupling, or measured persistent selection plate with locally written equivalents.
+## Copyable Route Assets
 
-Run `node skills/liquid-glass-interface/scripts/verify-v1-fidelity-kit.js` after copying V1. For a V1 fidelity blind test, test the same menu at top, middle, and bottom scroll positions over readable large type, a grid, and color bands. The user must explicitly pass the experienced page; screenshots and automated checks cannot pass it. Add future generations as parallel `assets/vN-*` and `scripts/verify-vN-*` paths; never overwrite an archived version's assets.
+Each asset folder is the smallest complete Next App Router route bundle. Copy its `layout.tsx`, `page.tsx`, CSS, and `lens-optics.ts` where present as a unit; do not combine source files from different modes.
 
-## Workflow
+- **V1:** Read `assets/v1-fidelity-kit/page.tsx`, `v1.css`, and `layout.tsx`. Run `node skills/liquid-glass-interface/scripts/verify-v1-fidelity-kit.js` after copying. Use low freedom and do not redesign the archived interaction.
+- **V2:** Read `assets/v2-reference-implementation/page.tsx`, `lens-optics.ts`, `v2.css`, and `layout.tsx`. It keeps one transient vertical lens, all-primary-pointer drag, V2 theme storage, capability detection, and independently refracted card containers. Run `node skills/liquid-glass-interface/scripts/verify-v2-reference-implementation.js`.
+- **V3:** Read `assets/v3-horizontal-navigation/page.tsx`, `lens-optics.ts`, `v3.css`, and `layout.tsx`. It keeps an inset slider, one large travelling lens, current-tab-only all-primary-pointer drag, M04 Baseline/Edge review selection, system-first theme, and direct no-filter/reduced-motion/forced-colors fallback. Run `node skills/liquid-glass-interface/scripts/verify-v3-horizontal-navigation.js`.
 
-1. Read the official design logic, then inspect the existing component, background, interaction states, browser targets, accessibility requirements, and performance constraints.
-2. Decide whether glass belongs to the floating functional layer and clarifies navigation, controls, spatial hierarchy, or a transition. Prefer an ordinary opaque or translucent surface when it does not; avoid content-layer glass and glass-on-glass.
-3. Establish readable layout, focus behavior, and the baseline material (fill, border, shadow) before adding optical effects.
-4. Read [material-system.md](references/material-system.md) before implementing refraction or edge optics. For ordinary navigation, start with [v2-reference-implementation/index.html](assets/v2-reference-implementation/index.html), then read [react-integration.md](references/react-integration.md). If V3 is explicitly selected, use its repository implementation and the V3 contracts in those references; do not retrofit its behavior into the V2 asset. For V1 fidelity mode, copy [assets/v1-fidelity-kit/index.tsx](assets/v1-fidelity-kit/index.tsx) and [fidelity.css](assets/v1-fidelity-kit/fidelity.css) instead.
-5. Read [interactions.md](references/interactions.md) before implementing menus, selection plates, coupled motion, or optional dragging.
-6. Tune light and dark themes independently, then complete [themes-and-qa.md](references/themes-and-qa.md).
-7. Verify the result in a real browser at rest, during transitions, over varied backgrounds, with keyboard input, on a narrow viewport, with reduced motion enabled, and with advanced optics disabled.
+## Common Workflow
 
-## Build the Material
+1. Read [material-system.md](references/material-system.md) before refraction or edge optics, [interactions.md](references/interactions.md) before menu motion or dragging, and [themes-and-qa.md](references/themes-and-qa.md) before acceptance.
+2. Establish semantic layout, focus, contrast, and functional baseline fill/border/shadow before optical enhancement.
+3. Use independently adjustable environment, controlled refraction replica, translucent fill, edge optics, and undistorted content. Never filter labels, focus, hit targets, forms, user data, or third-party content.
+4. Use an application-controlled scene replica only after measured coordinate alignment is ready. Read [react-integration.md](references/react-integration.md) for React IDs, geometry lifecycle, privacy, V2, and V3 contracts.
+5. Tune light and dark themes independently. Complete [visual-acceptance.md](references/visual-acceptance.md) before claiming enhanced refraction.
 
-Keep these layers independently adjustable:
+## Material and Motion Rules
 
-1. Environment: meaningful color, light, and structure behind the surface.
-2. Refraction: an optional clipped scene replica that displaces the environment without distorting foreground content.
-3. Translucent fill: tint, blur, saturation, and contrast appropriate to the theme.
-4. Edge optics: restrained highlights, shadows, and localized caustics that respond to shape and environment.
-5. Content: undistorted labels, icons, focus indicators, and hit targets above the optical layers.
+Use `Regular` by default for navigation, menus, popovers, sidebars, and substantial text. Use `Clear` only over rich media with bold foreground content and justified local dimming. Keep the refraction interior low-gradient and stable; concentrate stronger geometry-following change near rounded edges. Blur supports legibility and scattering but never substitutes for lensing.
 
-The whole surface participates in lensing, but its spatial gradient must follow geometry. Keep the center low-gradient, continuous, stable, and recognizable. Concentrate stronger position-dependent bending near rounded edges, where curvature is higher. Blur may support Regular-material legibility or soft scattering, but it must not replace lensing or dominate the enhanced result.
+Ship baseline first: readable fill, border, shadow, focus, and controls without SVG. Enhanced Web refraction uses a clipped, `aria-hidden`, application-controlled replica aligned to the visible scene and displaced with `feDisplacementMap`. Do not use screenshots, arbitrary DOM capture, `feTurbulence`, repeated gradients, or `backdrop-filter` alone as claimed refraction.
 
-Choose the Apple material variant semantically. Use Regular by default for menus, popovers, sidebars, and substantial text; allow controlled blur, luminosity, tint, and shadow adaptation for legibility. Use Clear only over visually rich media when bold foreground content and a localized dimming treatment are acceptable. Do not mix variants casually.
+For V2, keep the committed selection flat while the temporary lens is active; commit content and the single `aria-current` only after settling and fading. Primary mouse, touch, and pen share the `>5px` Pointer Events drag contract. For V3, only the committed button begins a drag; retain one `aria-current`, preview visually, snap in `260ms`, and release pointer capture, timers, and animation frames on every terminal path. Do not make ordinary menus draggable outside these explicit patterns.
 
-Use two levels. The baseline is fill, border, shadow, then `backdrop-filter` when supported. The enhanced level is an environment-coordinate-aligned replica of an application-controlled visual scene, filtered and clipped behind the fill. Web platforms cannot reliably pass the live CSS backdrop directly into SVG `feDisplacementMap`; do not imply otherwise. Read [material-system.md](references/material-system.md) for the replica, React IDs, detection order, and privacy constraints.
+## Fallback and Acceptance
 
-## Reference Routing
+Honor reduced motion and forced colors. Keep hierarchy, focus, keyboard operation, and semantic selection when Canvas, SVG, filters, transparency, or motion are unavailable. V2 and V3 use direct/static selection if their required enhanced path is unavailable; V3 explicitly supports SVG/Canvas no-filter fallback and forced colors.
 
-- Official Apple semantics and vetoes: [apple-design-logic.en.md](references/apple-design-logic.en.md), with equivalent [Chinese edition](references/apple-design-logic.zh.md). Read this before all other references for Apple-inspired work.
-- V2 reference: [assets/v2-reference-implementation/index.html](assets/v2-reference-implementation/index.html), [styles.css](assets/v2-reference-implementation/styles.css), and [script.js](assets/v2-reference-implementation/script.js). It demonstrates a temporary single-sample navigation lens, a stable 1.03 baseline, a continuous 1.03→1.12 edge field, deterministic pointer release, and baseline/enhanced switches. Validate it with [scripts/verify-v2-edge-field.js](scripts/verify-v2-edge-field.js).
-- V3 repository reference: `/v3` is the opt-in four-column horizontal navigation lens. Its navigation-level selection slider owns the active material and clipped white visual replica; its large lens crosses intermediate tabs without changing their semantic state. Its Edge tier filters a fixed lens-sized viewport containing the translated navigation world replica.
-- V1 fidelity asset: [assets/v1-fidelity-kit/index.tsx](assets/v1-fidelity-kit/index.tsx) and [fidelity.css](assets/v1-fidelity-kit/fidelity.css). It preserves the archived V1 scene complexity, RGB filter, material tokens, coupled menu motion, and measured persistent plate. Validate it with [scripts/verify-v1-fidelity-kit.js](scripts/verify-v1-fidelity-kit.js).
-- React production integration: [react-integration.md](references/react-integration.md). Use it for per-instance IDs, measurement lifecycle, clipping boundaries, and privacy limits.
-- Optical acceptance gate: [visual-acceptance.md](references/visual-acceptance.md). Do not call an implementation enhanced refraction unless every gate passes.
-- V2 field-only check: run `node skills/liquid-glass-interface/scripts/verify-v2-edge-field.js`.
+Automated checks support review but never replace the human visual gate. Test rest and transition states, light/dark themes, narrow viewports, keyboard focus, varied backgrounds, and fallback modes. For V1, test the same menu at top, middle, and bottom scroll positions and obtain explicit user approval. Call an implementation enhanced refraction only when controlled background grid, type, or color bands visibly bend by position at the lens edge while foreground content remains stable.
 
-Match the filter region, clipping path, and corner radius. Keep every layer removable so the component remains usable when standard `filter`, `backdrop-filter`, or `-webkit-backdrop-filter` are unsupported or too expensive.
+## Output
 
-## Add Semantic Motion
-
-Drive motion from explicit interface state: open or closed, selected item, theme, material mode, or intentional panel position. Couple related toolbar and menu surfaces through a shared field or coordinated transform without temporarily flattening their rounded corners.
-
-Treat material and motion as one system. Prefer changes in lensing, illumination, shape, connection, and apparent thickness over an ordinary fade-only transition. Keep the resting state visually quiet; let interaction energize the material. Larger menus may use deeper shadows, more pronounced lensing, and softer scattering than small controls while preserving a stable interior.
-
-For ordinary navigation, commit selection with a flat low-contrast fill and show glass only during a click, press, or mouse drag. Use `click → dragging → settling → fading`; remove the lens after it settles, then commit the flat selected state, content, and `aria-current`. Use a persistent glass selection plate only when durable material selection is explicitly required. Keep hover quieter than committed selection. Avoid continuous pointer-following effects unless they communicate a real interaction.
-
-For explicitly selected V3, keep the semantic gray buttons beneath one inset navigation-level slider; render the current or previewed white icon and label in the slider's clipped visual replica. Maintain exactly one `aria-current="page"` on the committed button. A click on another tab runs the large travelling lens and activates only after arrival. Only the committed tab may begin a Pointer Events drag; use primary mouse, touch, and pen with `touch-action: none`, `setPointerCapture`, a `5px` threshold, rail clamping, nearest-tab preview, and a `260ms` release snap. Drag release commits directly without replaying the large lens; cancellation, lost capture, or resize during a drag returns to the committed tab. Reject overlapping input and clean pointer capture, timers, and animation frames on every terminal path.
-
-Do not make ordinary menus draggable. The explicitly selected V3 navigation pattern is the narrow exception: its drag starts only from the current tab and retains native button semantics. Otherwise, enable dragging only for a genuine floating panel, canvas tool, spatial workspace, or an explicit user request; then follow the pointer, focus, capture, and boundary rules in the interaction reference.
-
-## Theme and Accessibility Checks
-
-Treat light mode as a separate optical system. Reduce chromatic separation and saturation when a displaced rounded edge becomes a fixed blue or purple ring. Preserve visible focus, readable text, adequate targets, and complete keyboard operation.
-
-Apply Scroll Edge Effects semantics when moving body content competes with a floating control: soften, dissolve, or dim the content near the control to protect legibility. In production steady states, avoid disruptive high-contrast intersections between content and glass. Deliberately cross text, grids, and color bands only in QA scenes that need to prove refraction.
-
-Honor `prefers-reduced-motion`; remove nonessential spring, morphing, and parallax motion while retaining immediate state changes. Keep the functional surface intact when filters, transparency, or motion are disabled. In the current V3 implementation, Baseline keeps the inset slider and large lens transition while omitting Edge displacement; direct selection is used for reduced motion or unavailable measured geometry. Forced-colors and explicit filter-support gates are future work, not implemented V3 behavior.
-
-## Safety and Scope
-
-- Do not request, read, store, or transmit credentials, private files, personal data, or analytics for this visual workflow.
-- Do not add external packages, remote assets, telemetry, or network calls unless the user explicitly requests them and the project requires them.
-- Do not copy Apple artwork, source code, or proprietary assets. Describe the result as Apple-inspired unless the user owns the relevant rights.
-- For native iOS 26 or later, prefer the platform's native Liquid Glass APIs. This skill intentionally provides Web guidance, not SwiftUI implementation recipes.
-- Explain material limitations and browser fallbacks when handing off the result.
-
-## Output Expectations
-
-Report the selected asset version, Apple material variant, Web rendering tier, theme, component and states changed, material layers used, fallback behavior, accessibility coverage, validation performed, and any browser or performance risks. State any deliberate deviation from official Apple guidance. Keep archived V1 behavior out of default V2 recommendations.
+Report the selected asset mode, Apple material variant, Web rendering tier, theme, changed states, material layers, fallback behavior, accessibility coverage, validation performed, and browser/performance risks. State deliberate deviations from Apple guidance. Do not claim deployment, release, or human visual approval unless actually verified.

@@ -107,9 +107,9 @@ Chromatic dispersion is optional. It is useful only when weak channel offsets re
 
 ### V2 navigation: one continuous sampler
 
-For ordinary navigation, keep the committed item flat and render one temporary lens only while the user clicks, holds, or mouse-drags. Use one complete, clipped scene replica and one `feDisplacementMap`; do not compose a stable core copy with a second edge-only copy. Their overlap or mask boundary produces visible seams, folded text, and doubled glyphs.
+For ordinary navigation, keep the committed item flat and render one temporary lens only while the user clicks, holds, or primary mouse/touch/pen-drags. Use one complete, clipped scene replica and one `feDisplacementMap`; do not compose a stable core copy with a second edge-only copy. Their overlap or mask boundary produces visible seams, folded text, and doubled glyphs.
 
-Generate one geometry-specific rounded-rectangle signed-distance field at 2× resolution. Drive both optical changes from the same interior distance:
+Generate one geometry-specific rounded-rectangle signed-distance field at adaptive 1×/2× resolution, capped at 2×. Drive both optical changes from the same interior distance:
 
 - keep the stable interior at `1.03` sampling scale;
 - over the final `16px`, increase continuously to `1.12` with `pow(1 - smoothstep(0, 16, distance), 2.7)`;
