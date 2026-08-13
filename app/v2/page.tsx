@@ -5,6 +5,7 @@ import {
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type RefObject,
+  type ReactNode,
   memo,
   useCallback,
   useEffect,
@@ -14,9 +15,11 @@ import {
   useState,
 } from "react";
 import {
+  V2_CARD_LENS_OPTICS,
   V2_CAPSULE_LENS_OPTICS,
   clamp,
   createCapsuleLensField,
+  createRoundedCardLensField,
 } from "./lens-optics";
 
 type ThemeMode = "light" | "dark";
@@ -49,6 +52,11 @@ interface SurfaceGeometry {
   width: number;
   height: number;
   ready: boolean;
+}
+
+interface CardSurfaceGeometry extends SurfaceGeometry {
+  worldX: number;
+  worldY: number;
 }
 
 interface SelectionSweep {
@@ -177,6 +185,21 @@ function persistTheme(theme: ThemeMode) {
 function supportsEnhancedOptics() {
   const canvas = document.createElement("canvas");
   if (!canvas.getContext("2d")) return false;
+  if (
+    !CSS.supports("backdrop-filter", "blur(1px)") &&
+    !CSS.supports("-webkit-backdrop-filter", "blur(1px)")
+  ) {
+    return false;
+  }
+  if (
+    !CSS.supports("mask-image", "linear-gradient(black, black)") &&
+    !CSS.supports("-webkit-mask-image", "linear-gradient(black, black)")
+  ) {
+    return false;
+  }
+  if (!CSS.supports("filter", "url(#v2-card-optics-probe)")) {
+    return false;
+  }
   const { SVGFEImageElement, SVGFEDisplacementMapElement } = window;
   if (!SVGFEImageElement || !SVGFEDisplacementMapElement) return false;
   const image = document.createElementNS(SVG_NAMESPACE, "feImage");
@@ -187,6 +210,53 @@ function supportsEnhancedOptics() {
   return (
     image instanceof SVGFEImageElement &&
     displacement instanceof SVGFEDisplacementMapElement
+  );
+}
+
+function RoundedCardLensFilter({
+  id,
+  displacementField,
+  width,
+  height,
+  overscan,
+}: {
+  id: string;
+  displacementField: string;
+  width: number;
+  height: number;
+  overscan: number;
+}) {
+  return (
+    <filter
+      id={id}
+      filterUnits="userSpaceOnUse"
+      x={-overscan}
+      y={-overscan}
+      width={width + overscan * 2}
+      height={height + overscan * 2}
+      colorInterpolationFilters="sRGB"
+    >
+      <feImage
+        href={displacementField}
+        x="0"
+        y="0"
+        width={width}
+        height={height}
+        preserveAspectRatio="none"
+        result="card-field"
+      />
+      <feDisplacementMap
+        in="SourceGraphic"
+        in2="card-field"
+        scale={V2_CARD_LENS_OPTICS.fieldScaleCssPx}
+        x="0"
+        y="0"
+        width={width}
+        height={height}
+        xChannelSelector="R"
+        yChannelSelector="G"
+      />
+    </filter>
   );
 }
 
@@ -311,12 +381,14 @@ function Icon({ name }: { name: IconName }) {
 
 const AmbientScene = memo(function AmbientScene({
   copy,
+  className = "",
 }: {
   copy: "visible" | "replica";
+  className?: string;
 }) {
   return (
     <div
-      className="v2-ambient-scene"
+      className={`v2-ambient-scene ${className}`.trim()}
       data-v2-scene={copy}
       aria-hidden="true"
     >
@@ -432,6 +504,201 @@ function useSurfaceGeometry(
   }, [geometryKey, stageRef, surfaceRef]);
 
   return geometry;
+}
+
+function useCardSurfaceGeometry(
+  stageRef: RefObject<HTMLElement | null>,
+  surfaceRef: RefObject<HTMLElement | null>,
+) {
+  const [geometry, setGeometry] = useState<CardSurfaceGeometry>({
+    stageWidth: 0,
+    stageHeight: 0,
+    width: 0,
+    height: 0,
+    worldX: 0,
+    worldY: 0,
+    ready: false,
+  });
+
+  useEffect(() => {
+    let layoutFrame = 0;
+    let observer: ResizeObserver | null = null;
+    const updateLayout = () => {
+      layoutFrame = 0;
+      const stage = stageRef.current;
+      const surface = surfaceRef.current;
+      if (!stage || !surface) return;
+
+      const stageBounds = stage.getBoundingClientRect();
+      const surfaceBounds = surface.getBoundingClientRect();
+      const nextGeometry: CardSurfaceGeometry = {
+        stageWidth: stageBounds.width,
+        stageHeight: stageBounds.height,
+        width: surfaceBounds.width,
+        height: surfaceBounds.height,
+        worldX: stageBounds.left - surfaceBounds.left,
+        worldY: stageBounds.top - surfaceBounds.top,
+        ready: surfaceBounds.width > 0 && surfaceBounds.height > 0,
+      };
+      setGeometry((current) =>
+        current.stageWidth === nextGeometry.stageWidth &&
+        current.stageHeight === nextGeometry.stageHeight &&
+        current.width === nextGeometry.width &&
+        current.height === nextGeometry.height &&
+        current.worldX === nextGeometry.worldX &&
+        current.worldY === nextGeometry.worldY &&
+        current.ready === nextGeometry.ready
+          ? current
+          : nextGeometry,
+      );
+    };
+    const scheduleLayout = () => {
+      if (!layoutFrame) layoutFrame = window.requestAnimationFrame(updateLayout);
+    };
+
+    observer = new ResizeObserver(scheduleLayout);
+    const stage = stageRef.current;
+    const surface = surfaceRef.current;
+    if (stage) observer.observe(stage);
+    if (surface) observer.observe(surface);
+    window.addEventListener("resize", scheduleLayout);
+    // The content state enters with a transform. Transforms do not change the
+    // card's box size, so ResizeObserver cannot realign the scene after it
+    // settles; animationend bubbles from that state through the stage.
+    stage?.addEventListener("animationend", scheduleLayout);
+    scheduleLayout();
+
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", scheduleLayout);
+      stage?.removeEventListener("animationend", scheduleLayout);
+      if (layoutFrame) window.cancelAnimationFrame(layoutFrame);
+    };
+  }, [stageRef, surfaceRef]);
+
+  return geometry;
+}
+
+function LiquidCardSurface({
+  children,
+  stageRef,
+  enhancedOptics,
+}: {
+  children: ReactNode;
+  stageRef: RefObject<HTMLElement | null>;
+  enhancedOptics: boolean;
+}) {
+  const surfaceRef = useRef<HTMLElement>(null);
+  const instanceId = makeSvgSafeId(useId());
+  const filterId = `${instanceId}-card-filter`;
+  const geometry = useCardSurfaceGeometry(stageRef, surfaceRef);
+  const [devicePixelRatio, setDevicePixelRatio] = useState(1);
+  const [cardRadius, setCardRadius] = useState(V2_CARD_LENS_OPTICS.radiusCssPx);
+  const [forcedColors, setForcedColors] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const cardOpticsConfig = useMemo(
+    () => ({ ...V2_CARD_LENS_OPTICS, radiusCssPx: cardRadius }),
+    [cardRadius],
+  );
+  const shouldRefract =
+    enhancedOptics && geometry.ready && !forcedColors && !reducedMotion;
+
+  useEffect(() => {
+    const updateDevicePixelRatio = () => {
+      setDevicePixelRatio((current) => {
+        const next = window.devicePixelRatio || 1;
+        return current === next ? current : next;
+      });
+    };
+    updateDevicePixelRatio();
+    window.addEventListener("resize", updateDevicePixelRatio);
+    return () => window.removeEventListener("resize", updateDevicePixelRatio);
+  }, []);
+
+  useEffect(() => {
+    const compactQuery = window.matchMedia("(max-width: 960px)");
+    const forcedColorsQuery = window.matchMedia("(forced-colors: active)");
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateCapabilities = () => {
+      setCardRadius(compactQuery.matches ? 28 : V2_CARD_LENS_OPTICS.radiusCssPx);
+      setForcedColors(forcedColorsQuery.matches);
+      setReducedMotion(motionQuery.matches);
+    };
+    updateCapabilities();
+    compactQuery.addEventListener("change", updateCapabilities);
+    forcedColorsQuery.addEventListener("change", updateCapabilities);
+    motionQuery.addEventListener("change", updateCapabilities);
+    return () => {
+      compactQuery.removeEventListener("change", updateCapabilities);
+      forcedColorsQuery.removeEventListener("change", updateCapabilities);
+      motionQuery.removeEventListener("change", updateCapabilities);
+    };
+  }, []);
+
+  const displacementField = useMemo(
+    () =>
+      shouldRefract
+        ? createRoundedCardLensField(
+            geometry.width,
+            geometry.height,
+            devicePixelRatio,
+            cardOpticsConfig,
+          )
+        : "",
+    [
+      devicePixelRatio,
+      cardOpticsConfig,
+      geometry.height,
+      geometry.width,
+      shouldRefract,
+    ],
+  );
+  const opticsReady = Boolean(displacementField);
+  const worldStyle = {
+    width: `${geometry.stageWidth}px`,
+    height: `${geometry.stageHeight}px`,
+    transform: `translate3d(${geometry.worldX}px, ${geometry.worldY}px, 0)`,
+  } as CSSProperties;
+  const filterStyle = {
+    filter: opticsReady ? `url("#${filterId}")` : "none",
+  } as CSSProperties;
+
+  return (
+    <article
+      ref={surfaceRef}
+      className="v2-card"
+      data-card-optics={opticsReady ? "enhanced" : "baseline"}
+      data-card-refraction-target={opticsReady ? "edge-ring" : undefined}
+    >
+      {opticsReady ? (
+        <svg className="v2-card-filter-definitions" aria-hidden="true">
+          <defs>
+            <RoundedCardLensFilter
+              id={filterId}
+              displacementField={displacementField}
+              width={geometry.width}
+              height={geometry.height}
+              overscan={cardOpticsConfig.filterPaddingCssPx}
+            />
+          </defs>
+        </svg>
+      ) : null}
+      <span className="v2-card-optical-clip" aria-hidden="true">
+        {opticsReady ? (
+          <span className="v2-card-optics-rim" data-card-optics-layer="edge-ring">
+            <span className="v2-card-optics-replica-filter" style={filterStyle}>
+              <span className="v2-card-optics-world" style={worldStyle}>
+                <AmbientScene copy="replica" />
+              </span>
+            </span>
+          </span>
+        ) : null}
+        <span className="v2-card-glass-fill" />
+        <span className="v2-card-glass-edge" />
+      </span>
+      <span className="v2-card-content">{children}</span>
+    </article>
+  );
 }
 
 function LiquidSelectionPlate({
@@ -623,6 +890,7 @@ export default function V2Page() {
   const [sweep, setSweep] = useState<SelectionSweep | null>(null);
   const [opticsTier, setOpticsTier] = useState<OpticsTier>("baseline");
   const [enhancedOpticsSupported, setEnhancedOpticsSupported] = useState(false);
+  const [forcedColorsActive, setForcedColorsActive] = useState(false);
   const glassInteractionRef = useRef<GlassInteraction | null>(null);
   const dragSessionRef = useRef<DragSession | null>(null);
   const motionTimerRef = useRef<number | null>(null);
@@ -684,6 +952,14 @@ export default function V2Page() {
       window.cancelAnimationFrame(initializationFrame);
       window.removeEventListener("storage", handleStorage);
     };
+  }, []);
+
+  useEffect(() => {
+    const forcedColorsQuery = window.matchMedia("(forced-colors: active)");
+    const updateForcedColors = () => setForcedColorsActive(forcedColorsQuery.matches);
+    updateForcedColors();
+    forcedColorsQuery.addEventListener("change", updateForcedColors);
+    return () => forcedColorsQuery.removeEventListener("change", updateForcedColors);
   }, []);
 
   useEffect(() => {
@@ -1265,7 +1541,9 @@ export default function V2Page() {
                 position={platePosition}
                 collapsed={collapsed}
                 enhancedOptics={
-                  opticsTier === "enhanced" && enhancedOpticsSupported
+                  opticsTier === "enhanced" &&
+                  enhancedOpticsSupported &&
+                  !forcedColorsActive
                 }
                 isVisible={glassInteraction.isVisible}
                 phase={glassInteraction.phase}
@@ -1315,11 +1593,19 @@ export default function V2Page() {
           <p className="v2-intro">{activeItem.description}</p>
           <div className="v2-card-grid">
             {activeItem.cards.map((card) => (
-              <article key={card.label} className="v2-card">
+              <LiquidCardSurface
+                key={card.label}
+                stageRef={stageRef}
+                enhancedOptics={
+                  opticsTier === "enhanced" &&
+                  enhancedOpticsSupported &&
+                  !forcedColorsActive
+                }
+              >
                 <span>{card.label}</span>
                 <strong>{card.value}</strong>
                 <p>{card.detail}</p>
-              </article>
+              </LiquidCardSurface>
             ))}
           </div>
         </div>

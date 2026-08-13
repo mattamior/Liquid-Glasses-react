@@ -65,6 +65,13 @@ test("renders the Liquid Lab V2 navigation demo", async () => {
   assert.equal((html.match(/aria-current="page"/g) ?? []).length, 1);
   assert.match(html, /aria-label="液态玻璃渲染方式"/);
   assert.match(html, /v2-menu-visual-item" data-selected="true"/);
+  assert.equal((html.match(/<article\b[^>]*class="v2-card"/g) ?? []).length, 3);
+  assert.equal((html.match(/data-card-optics="baseline"/g) ?? []).length, 3);
+  assert.equal((html.match(/class="v2-card-content"/g) ?? []).length, 3);
+  assert.equal((html.match(/aria-hidden="true"/g) ?? []).length > 0, true);
+  assert.doesNotMatch(html, /v2-card-filter-definitions/);
+  assert.doesNotMatch(html, /v2-card-optics-rim/);
+  assert.doesNotMatch(html, /data-v2-scene="replica"/);
   assert.doesNotMatch(html, /data-refraction="baseline"/);
   assert.doesNotMatch(html, /v2-menu-visual-world--lens/);
   assert.doesNotMatch(html, /v2-menu-visual-world--above/);

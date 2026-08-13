@@ -10,6 +10,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [Liquid Glass Method](./docs/liquid-glass-interface.en.md) ·
 [Logo Decision Record](./docs/decisions/liquid-lab-logo.en.md) ·
 [V2 Admin Template Enhancement](./docs/decisions/v2-admin-template-enhancement.en.md) ·
+[V2 Liquid-Glass Card Container（V2 卡片容器液态玻璃）](./docs/decisions/v2-liquid-glass-card-container.en.md) ·
 [V3 Decision Record](./docs/decisions/v3-horizontal-navigation-lens.en.md) ·
 [V3 Reference Calibration](./docs/decisions/v3-reference-calibration.en.md) ·
 [V3 Visual Gap Analysis](./docs/reports/v3-liquid-glass-visual-gap-analysis.en.md) ·
@@ -54,9 +55,12 @@ replace V2 or modify the frozen V1 Demo.
   preference, persists（持久化） across reloads, and synchronizes across tabs（跨标签页同步）.
 - Compact, reduced-motion, and forced-color fallback paths preserve navigation,
   focus visibility, and a single semantic selection（语义选中）.
-- The current V2 enhancement is released to production（已生产发布） as Worker
-  `liquid-lab-optics-demo` version `58a41f02-7a84-4499-9ce1-dd032b99c3b2`, serving
-  100% of traffic. See the [V2 enhancement decision（V2 增强决策）](./docs/decisions/v2-admin-template-enhancement.en.md).
+- The liquid-glass card-container reimplementation（卡片容器重实现） is deployed as
+  Worker `liquid-lab-optics-demo` version `50355dc2-6b65-4b7f-9955-83933c3ce75c`,
+  serving 100% of traffic at [`/v2`](https://liquid.hkooii.com/v2). Its release
+  message is `reimplement v2 cards from references`; the rollback target（回滚目标） is
+  `1329511c-1c22-4fe9-a639-5c1fa384fa96`; see the
+  [V2 card-container decision（V2 卡片容器决策）](./docs/decisions/v2-liquid-glass-card-container.en.md).
 
 ### V3: independent horizontal navigation lens
 

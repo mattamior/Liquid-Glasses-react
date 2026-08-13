@@ -82,6 +82,16 @@ async function selectEnhanced(page: Page) {
   await expect(enhanced).toHaveAttribute("aria-pressed", "true");
 }
 
+async function expectEveryCardOptics(page: Page, optics: "baseline" | "enhanced") {
+  const cards = page.locator("article.v2-card");
+  await expect(cards).toHaveCount(3);
+  await Promise.all(
+    Array.from({ length: 3 }, (_, index) =>
+      expect(cards.nth(index)).toHaveAttribute("data-card-optics", optics),
+    ),
+  );
+}
+
 test("preserves the V2 admin layout, ARIA ownership, controls, and idle visual", async ({ page }) => {
   await openV2(page);
   const root = page.locator(".v2-demo");
@@ -259,7 +269,7 @@ test("bypasses temporary glass under compact, reduced-motion, and forced-colors 
   await expect(page.locator(".v2-selection-plate")).toHaveCount(0);
 });
 
-test("falls back to static navigation without Canvas 2D or SVG filter support", async ({ page }) => {
+test("falls back to baseline navigation and cards without Canvas 2D, SVG filters, or backdrop-filter", async ({ page }) => {
   const consoleErrors: string[] = [];
   const pageErrors: string[] = [];
   page.on("console", (message) => { if (message.type() === "error") consoleErrors.push(message.text()); });
@@ -273,12 +283,18 @@ test("falls back to static navigation without Canvas 2D or SVG filter support", 
       SVGFEImageElement: { configurable: true, value: undefined },
       SVGFEDisplacementMapElement: { configurable: true, value: undefined },
     });
+    Object.defineProperty(CSS, "supports", {
+      configurable: true,
+      value: () => false,
+    });
   });
   await openV2(page);
   await selectEnhanced(page);
   await item(page, "products").click();
   await expectSingleCurrent(page, "products");
   await expect(page.locator(".v2-selection-plate")).toHaveCount(0);
+  await expectEveryCardOptics(page, "baseline");
+  await expect(page.locator(".v2-card-filter-definitions")).toHaveCount(0);
   expect(pageErrors).toEqual([]);
   expect(consoleErrors).toEqual([]);
 });
@@ -305,4 +321,140 @@ test("uses stored dark theme on the first client frame without hydration errors"
   await expect(page.locator(".v2-demo")).toHaveAttribute("data-theme", "dark");
   expect(hydrationMessages).toEqual([]);
   await expect(page).toHaveScreenshot("v2-dark-idle.png", { animations: "disabled" });
+});
+
+test("keeps baseline cards semantic while isolating all decorative glass layers", async ({ page }) => {
+  await openV2(page);
+  const cards = page.locator("article.v2-card");
+
+  await expect(cards).toHaveCount(3);
+  await expectEveryCardOptics(page, "baseline");
+  await expect(cards.locator(".v2-card-optical-clip")).toHaveCount(3);
+  await Promise.all(
+    Array.from({ length: 3 }, (_, index) =>
+      expect(cards.locator(".v2-card-optical-clip").nth(index)).toHaveAttribute("aria-hidden", "true"),
+    ),
+  );
+  await expect(cards.locator(".v2-card-content")).toHaveCount(3);
+  await expect(page.locator(".v2-card-filter-definitions")).toHaveCount(0);
+
+  for (const label of ["今日访问", "进行中", "完成率"]) {
+    await expect(page.getByText(label, { exact: true })).toHaveCount(1);
+  }
+});
+
+test("adds card refraction only in enhanced mode and preserves it across themes", async ({ page }) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on("console", (message) => { if (message.type() === "error") consoleErrors.push(message.text()); });
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  await openV2(page);
+  await selectEnhanced(page);
+
+  const cards = page.locator("article.v2-card");
+  await expectEveryCardOptics(page, "enhanced");
+  await expect(page.locator(".v2-card-filter-definitions")).toHaveCount(3);
+  await expect(page.locator('.v2-ambient-scene[data-v2-scene="visible"]')).toHaveCount(1);
+  await expect(page.locator('.v2-ambient-scene[data-v2-scene="replica"]')).toHaveCount(3);
+  await expect(cards.locator('.v2-card-optics-rim[data-card-optics-layer="edge-ring"]')).toHaveCount(3);
+  await Promise.all(
+    Array.from({ length: 3 }, (_, index) =>
+      expect(cards.nth(index)).toHaveAttribute("data-card-refraction-target", "edge-ring"),
+    ),
+  );
+
+  const geometry = await cards.evaluateAll((elements) =>
+    elements.map((card) => {
+      const cardBounds = card.getBoundingClientRect();
+      const world = card.querySelector<HTMLElement>(".v2-card-optics-world");
+      const scene = document.querySelector<HTMLElement>('.v2-ambient-scene[data-v2-scene="visible"]');
+      if (!world || !scene) throw new Error("Enhanced cards must sample the shared ambient scene.");
+      const transform = world.style.transform;
+      const match = /translate3d\((-?[\d.]+)px, (-?[\d.]+)px, 0px\)/.exec(transform);
+      if (!match) throw new Error(`Expected a stage-relative replica transform, received ${transform}.`);
+      const sceneBounds = scene.getBoundingClientRect();
+      return {
+        cardX: cardBounds.x,
+        cardY: cardBounds.y,
+        sceneX: sceneBounds.x,
+        sceneY: sceneBounds.y,
+        worldX: Number(match[1]),
+        worldY: Number(match[2]),
+      };
+    }),
+  );
+  for (const sample of geometry) {
+    expect(Math.abs(sample.worldX - (sample.sceneX - sample.cardX))).toBeLessThanOrEqual(1);
+    expect(Math.abs(sample.worldY - (sample.sceneY - sample.cardY))).toBeLessThanOrEqual(1);
+  }
+
+  await page.getByRole("button", { name: "切换到暗色模式" }).click();
+  await expect(page.locator(".v2-demo")).toHaveAttribute("data-theme", "dark");
+  await expectEveryCardOptics(page, "enhanced");
+  await expect(page.getByText("今日访问", { exact: true })).toHaveCount(1);
+  expect(pageErrors).toEqual([]);
+  expect(consoleErrors).toEqual([]);
+});
+
+test("keeps the three-card grid at desktop width and stacks it at 640px", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await openV2(page);
+  const cards = page.locator("article.v2-card");
+  const desktopBoxes = await cards.evaluateAll((elements) =>
+    elements.map((element) => {
+      const { x, y, width, height } = element.getBoundingClientRect();
+      return { x, y, width, height };
+    }),
+  );
+  expect(desktopBoxes).toHaveLength(3);
+  expect(desktopBoxes[1].x).toBeGreaterThan(desktopBoxes[0].x);
+  expect(desktopBoxes[2].x).toBeGreaterThan(desktopBoxes[1].x);
+  expect(Math.abs(desktopBoxes[1].y - desktopBoxes[0].y)).toBeLessThanOrEqual(1);
+
+  await page.setViewportSize({ width: 640, height: 960 });
+  await expect(cards).toHaveCount(3);
+  const compactBoxes = await cards.evaluateAll((elements) =>
+    elements.map((element) => {
+      const { x, y, width, height } = element.getBoundingClientRect();
+      return { x, y, width, height };
+    }),
+  );
+  expect(compactBoxes[1].y).toBeGreaterThan(compactBoxes[0].y);
+  expect(compactBoxes[2].y).toBeGreaterThan(compactBoxes[1].y);
+  expect(Math.abs(compactBoxes[1].x - compactBoxes[0].x)).toBeLessThanOrEqual(1);
+});
+
+test("falls back to baseline cards under forced colors", async ({ page }) => {
+  await page.emulateMedia({ forcedColors: "active" });
+  await openV2(page);
+  await selectEnhanced(page);
+  await expectEveryCardOptics(page, "baseline");
+  await expect(page.locator(".v2-card-filter-definitions")).toHaveCount(0);
+  const clips = page.locator(".v2-card-optical-clip");
+  await expect(clips).toHaveCount(3);
+  await Promise.all(
+    Array.from({ length: 3 }, (_, index) => expect(clips.nth(index)).toBeHidden()),
+  );
+});
+
+test("falls back to baseline cards when reduced motion is requested", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openV2(page);
+  await selectEnhanced(page);
+  await expectEveryCardOptics(page, "baseline");
+  await expect(page.locator(".v2-card-filter-definitions")).toHaveCount(0);
+  await expect(page.locator('.v2-ambient-scene[data-v2-scene="replica"]')).toHaveCount(0);
+});
+
+test("captures focused baseline and enhanced card material in both themes", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await openV2(page);
+  const firstCard = page.locator("article.v2-card").first();
+  await expect(firstCard).toHaveScreenshot("v2-card-light-baseline.png", { animations: "disabled" });
+
+  await selectEnhanced(page);
+  await expect(firstCard).toHaveScreenshot("v2-card-light-enhanced.png", { animations: "disabled" });
+
+  await page.getByRole("button", { name: "切换到暗色模式" }).click();
+  await expect(firstCard).toHaveScreenshot("v2-card-dark-enhanced.png", { animations: "disabled" });
 });

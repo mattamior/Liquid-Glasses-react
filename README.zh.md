@@ -9,6 +9,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 [液态玻璃方法](./docs/liquid-glass-interface.zh.md) ·
 [标志决策记录](./docs/decisions/liquid-lab-logo.zh.md) ·
 [V2 后台模板增强](./docs/decisions/v2-admin-template-enhancement.zh.md) ·
+[V2 卡片容器液态玻璃](./docs/decisions/v2-liquid-glass-card-container.zh.md) ·
 [V3 决策记录](./docs/decisions/v3-horizontal-navigation-lens.zh.md) ·
 [V3 参考校准](./docs/decisions/v3-reference-calibration.zh.md) ·
 [V3 视觉差距分析](./docs/reports/v3-liquid-glass-visual-gap-analysis.zh.md) ·
@@ -49,9 +50,11 @@ V2 仍是默认参考实现。V3 是独立实验，不替换 V2，也不会修�
 - 手动 `light` / `dark` 使用经过校验的 `liquid-lab:v2-theme` 偏好，刷新后保持并跨
   标签页同步。
 - 紧凑布局、减少动态和强制颜色降级路径继续保证导航、可见焦点与唯一语义选中。
-- 当前 V2 增强已生产发布为 Worker `liquid-lab-optics-demo` 版本
-  `58a41f02-7a84-4499-9ce1-dd032b99c3b2`，承载 100% 流量；详见
-  [V2 增强决策](./docs/decisions/v2-admin-template-enhancement.zh.md)。
+- 液态玻璃卡片容器重实现已发布为 Worker `liquid-lab-optics-demo` 版本
+  `50355dc2-6b65-4b7f-9955-83933c3ce75c`，承载 100% 流量，公开入口为
+  [`/v2`](https://liquid.hkooii.com/v2)。发布消息为 `reimplement v2 cards from references`；
+  回滚目标为 `1329511c-1c22-4fe9-a639-5c1fa384fa96`。详见
+  [V2 卡片容器决策](./docs/decisions/v2-liquid-glass-card-container.zh.md)。
 
 ### V3：独立横向导航透镜
 
