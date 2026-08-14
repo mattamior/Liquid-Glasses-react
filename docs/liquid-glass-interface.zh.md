@@ -4,15 +4,25 @@
 
 ## 版本路由与资产
 
-`/` 会进入当前的 V2 导航实验。`/v1` 仍可直接访问，但作为冻结的归档 Demo；它的视觉与交互不再是当前默认。`/v3` 是独立的横向导航透镜实验，而非 V2 的替代品。单一 Skill 有三个固定资产模式：普通导航默认使用 [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/)，只有明确要求复刻 V1 原始 Demo 时才使用 [`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/)，只有明确要求 V3 或四列横向透镜时才使用 [`assets/v3-horizontal-navigation`](../skills/liquid-glass-interface/assets/v3-horizontal-navigation/)。未知 `vN` 必须请求选择受支持模式；`/v3-05-failed` 仍只是归档，绝不能作为 Skill 资产或基线。
+`/` 会进入当前的 V2 导航实验。`/v1` 仍可作为冻结归档 Demo 直接访问；`/v3` 是独立横向导航实验，而非 V2 的替代品。旧的 [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/)、[`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/) 和 [`assets/v3-horizontal-navigation`](../skills/liquid-glass-interface/assets/v3-horizontal-navigation/) bundle 仍是与源码同步的发布参考。严格目标项目改用 `assets/strict-kernels/`、所选框架模板和六个 schema `2.0` manifest 之一。未知 `vN` 必须请求选择受支持模式；`/v3-05-failed` 仍只是归档，绝不能作为 Skill 资产或基线。
 
 `/brand-preview` 是项目标志审阅页。权威公开品牌资产位于 `public/brand/`；它们是项目资产，不是可复用 Liquid Glass 色彩方案的规定。
+
+## 严格合规工作流
+
+三个固定模式名不是风格标签。应从六个 schema `2.0` 模式/框架 manifest 中选择一个，安装对应的完整冻结 kernel 与 integration，并将产品选择限制在强类型 adapter config。Target verifier 要求真实产品运行时挂载、精确的 adapter/route/scene/registration/harness 哈希和干净的完整源码树；它只读文件，绝不执行 manifest 命令字符串。
+
+使用 JSON reporter 运行冻结 Playwright harness，哈希锁定零失败且包含全部必需标题的报告，再用独立、哈希锁定的 JSON 文件记录审核人、ISO 时间戳和截图。机器证据无效时为 `non-compliant`；机器证据有效但视觉审阅 pending 或 rejected 时为 `implemented-awaiting-visual-approval`；只有有效 approved 证据才能成为 `strict-complete`。存在核心偏离时，必须使用对应的 `V1-inspired`、`V2-inspired` 或 `V3-inspired` 标签。
+
+严格目标集成仅支持 Next.js App Router 和 Vite/React Router。已有已安装副本不会自动升级。迁移时应恢复所有冻结哈希，在产品运行时挂载 adapter，新增开发/测试合规路由，运行 E2E，清空 deviations，并获得视觉批准。其他框架可以 inspired 方式采用本方法，但不能声称严格合规。参见[严格合规决策](./decisions/liquid-glass-interface-strict-conformance.zh.md)。
+
+冻结 V1 kernel 仍使用 `liquid-lens-filter` 等固定 SVG filter ID；在版本化合同提供实例安全 ID 前，每个 document 只挂载一个 V1 实例。
 
 ## 适用边界
 
 液态玻璃适合承载导航、工具栏、菜单、选择状态和浮动控制层，用材质变化表达层级、上下文或状态转换。若组件只是普通内容卡片，或背景缺少可被折射的视觉信息，应优先采用简单的实色或半透明表面。
 
-本方法面向 React、CSS、SVG 及相近的 Web 技术栈，不提供原生 iOS 或 SwiftUI 实现配方。iOS 26 及以上的原生应用应优先使用系统提供的 Liquid Glass API。
+本方法面向 React、CSS、SVG 及相近的 Web 技术栈；严格目标合规仅限 Next.js App Router 和 Vite/React Router，其他技术栈仅能使用 inspired 方式。本方法不提供原生 iOS 或 SwiftUI 配方。iOS 26 及以上的原生应用应优先使用系统提供的 Liquid Glass API。
 
 ## 苹果官方设计基准
 
@@ -132,8 +142,8 @@ Skill 只提供界面设计与实现指导，不需要读取凭证、私有文�
 | 归档 Demo | `/v1`，视觉与交互冻结并使用归档元数据 |
 | V2 折射 | 一个应用可控的菜单副本与一个连续圆角 SDF `feDisplacementMap` 采样 |
 | V2 选择 | 扁平已提交态加临时点击/拖拽透镜；淡出后提交内容 |
-| V2 拖拽 | 仅鼠标使用 Pointer Capture、最终释放位置就近吸附、取消回退 |
-| 动效降级 | 窄屏、触摸/笔、减少动态、强制颜色和保底路径直接提交 |
+| V2 拖拽 | 主鼠标、触摸和触控笔均使用 Pointer Capture；按最终释放位置就近吸附，取消时回退 |
+| 动效降级 | 减少动态、强制颜色和不支持光学能力时直接提交 |
 | V3 横向透镜 | 按需启用的四列轨道、导航级内嵌滑块、点击横向旅行透镜和全指针直接拖拽吸附 |
 | V3 边缘光学 | 位于固定透镜同尺寸滤镜 viewport 内的完整导航世界副本 |
 | 品牌审阅 | `/brand-preview` 审阅项目标志；权威公开资产位于 `public/brand/` |

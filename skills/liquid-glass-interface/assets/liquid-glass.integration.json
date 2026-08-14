@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "2.0",
+  "mode": "v2-default",
+  "conformance": "strict",
+  "framework": "next-app-router",
+  "kernel": {
+    "assetRoot": "assets/strict-kernels/v2",
+    "files": [
+      {
+        "path": "app/liquid-glass/kernel/LiquidGlassV2Kernel.tsx",
+        "sha256": "8b2ff21d91c0139f9428d4ebcfdc17b1fddadec5cd87bc906d1dbc5c20df4555"
+      },
+      {
+        "path": "app/liquid-glass/kernel/lens-optics.ts",
+        "sha256": "b6e62ed2e0add8b6c2f7ad38fb60ce659407d46488af590a7f5c64ee967c4956"
+      },
+      {
+        "path": "app/liquid-glass/kernel/v2-strict.css",
+        "sha256": "057af7b702745a7cb509b2c01f6ef7b2a22b4145b3f59d8d63435c04a90663ca"
+      }
+    ]
+  },
+  "adapter": {
+    "path": "app/liquid-glass/strict-adapter.tsx",
+    "sha256": "73bc1ddcad9c38b55cfa39b48ac513b83524e3ca9d1ec38effe34a72a848e122"
+  },
+  "frozenIntegration": {
+    "adapter": {
+      "path": "app/liquid-glass/strict-adapter.tsx",
+      "sha256": "73bc1ddcad9c38b55cfa39b48ac513b83524e3ca9d1ec38effe34a72a848e122"
+    },
+    "conformanceRoute": {
+      "path": "app/__liquid-glass-conformance/page.tsx",
+      "sha256": "05566d67c27abc973a325ac2b868b1567337e012b39e34df8c039730d8e6f230"
+    },
+    "controlledScene": {
+      "path": "app/__liquid-glass-conformance/conformance-scene.tsx",
+      "sha256": "3dcd2d22e14d66bfa5dab81f17c72936243b4cc7001a1842c5009fd5f43a5b28"
+    },
+    "playwrightHarness": {
+      "path": "tests/liquid-glass-contract.spec.ts",
+      "sha256": "e106ecc4268f6990c7872711d3d0fe1613d8775a6b18a5a5fa6b87f3a9de5da2"
+    }
+  },
+  "product": {
+    "entryPoints": [
+      "app/dashboard/page.tsx"
+    ]
+  },
+  "conformanceRoute": {
+    "path": "app/__liquid-glass-conformance/page.tsx",
+    "sha256": "05566d67c27abc973a325ac2b868b1567337e012b39e34df8c039730d8e6f230",
+    "availability": "development-and-test; production-disabled-or-protected"
+  },
+  "routeRegistration": {
+    "path": "app/__liquid-glass-conformance/page.tsx"
+  },
+  "counts": {
+    "navigationItems": 2,
+    "opticalCards": 1
+  },
+  "roles": [
+    {
+      "name": "v2-controlled-scene",
+      "selector": "[data-liquid-glass-role=v2-controlled-scene]"
+    },
+    {
+      "name": "v2-controlled-scene-replica",
+      "selector": "[data-liquid-glass-role=v2-controlled-scene-replica]"
+    },
+    {
+      "name": "v2-navigation",
+      "selector": "[data-liquid-glass-role=v2-navigation]"
+    },
+    {
+      "name": "v2-navigation-item",
+      "selector": "[data-liquid-glass-role=v2-navigation-item]"
+    },
+    {
+      "name": "v2-selection-lens",
+      "selector": "[data-liquid-glass-role=v2-selection-lens]"
+    },
+    {
+      "name": "v2-selection-replica",
+      "selector": "[data-liquid-glass-role=v2-selection-replica]"
+    },
+    {
+      "name": "v2-optical-card",
+      "selector": "[data-liquid-glass-role=v2-optical-card]"
+    }
+  ],
+  "controlledScene": {
+    "path": "app/__liquid-glass-conformance/conformance-scene.tsx",
+    "sha256": "3dcd2d22e14d66bfa5dab81f17c72936243b4cc7001a1842c5009fd5f43a5b28",
+    "deterministic": true,
+    "grid": true,
+    "type": true,
+    "colorBands": true
+  },
+  "optics": {
+    "tier": "enhanced",
+    "enhanced": true
+  },
+  "fallback": {
+    "reducedMotion": "direct-selection",
+    "forcedColors": "direct-selection",
+    "noSvgFilter": "baseline",
+    "noBackdropFilter": "baseline"
+  },
+  "allowedAdaptations": [
+    "navigation-data",
+    "card-data",
+    "route-callback",
+    "copy",
+    "icon",
+    "brand-tokens",
+    "outer-layout"
+  ],
+  "deviations": [],
+  "verification": {
+    "e2e": {
+      "path": "tests/liquid-glass-contract.spec.ts",
+      "sha256": "e106ecc4268f6990c7872711d3d0fe1613d8775a6b18a5a5fa6b87f3a9de5da2",
+      "reportPath": "test-results/liquid-glass-report.json",
+      "reportSha256": ""
+    }
+  },
+  "visualApproval": {
+    "status": "pending",
+    "evidencePath": "test-results/liquid-glass-visual-approval.json",
+    "evidenceSha256": ""
+  }
+}

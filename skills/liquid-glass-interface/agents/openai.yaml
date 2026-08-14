@@ -1,4 +1,4 @@
 interface:
-  display_name: "Liquid Glass Interface"
-  short_description: "Build Apple-inspired Liquid Glass interfaces"
-  default_prompt: "Use $liquid-glass-interface to build an accessible V2 Liquid Glass navigation."
+  display_name: "Liquid Glass Strict Contracts"
+  short_description: "Verify strict V1 V2 V3 Liquid Glass implementations"
+  default_prompt: "Use $liquid-glass-interface to implement strict V2 Liquid Glass with a manifest, target verification, and visual approval."

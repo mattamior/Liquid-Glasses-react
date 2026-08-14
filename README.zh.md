@@ -19,6 +19,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 [V3 M04 回归 / 失败 M05 路由](./docs/decisions/v3-m04-rollback-failed-route.zh.md) ·
 [Lint 范围决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
 [Liquid Glass Skill 三模式](./docs/decisions/liquid-glass-interface-three-modes.zh.md) ·
+[Liquid Glass Skill 严格合规](./docs/decisions/liquid-glass-interface-strict-conformance.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## 在线体验
@@ -161,15 +162,24 @@ tests/
   rendered-html.test.mjs          服务端渲染路由断言
 skills/
   liquid-glass-interface/         供 Agent 与商店使用的版本化 Skill 源码
+    assets/strict-kernels/        冻结 V1/V2/V3 strict kernel
+    assets/strict-templates/      冻结 Next.js 与 Vite integration
+    assets/liquid-glass.integration.*.json  六个 schema 2.0 manifest 与 V2 Next 起始模板
+    scripts/verify-target-integration.mjs   只读目标验证器
 ```
 
 ## Agent Skill
 
 可复用的 `liquid-glass-interface` Skill 位于
-[`skills/liquid-glass-interface`](./skills/liquid-glass-interface/)。其中
-固定的可移植 React 资产模式为 `v1-fidelity`、默认 `v2-default` 和显式
-`v3-horizontal`。`v1-fidelity` 仅用于明确的 V1 原 Demo 复刻；`v3-horizontal`
-仅用于独立横向透镜需求，不覆盖 V2。失败 M05 只保留为归档，不是 Skill 模式、资产或验收基线。
+[`skills/liquid-glass-interface`](./skills/liquid-glass-interface/)。它提供完整冻结的
+V1/V2/V3 kernel，以及适用于 Next.js App Router 和 Vite/React Router 的六个 schema `2.0`
+模式/框架 manifest。严格验证会锁定 kernel、adapter、路由、场景、路由注册和 Playwright
+harness，检查真实产品运行时挂载与完整源码树，并读取哈希锁定的 Playwright JSON 和视觉证据，
+但绝不执行 manifest 命令。视觉审阅 pending 或 rejected 时为
+`implemented-awaiting-visual-approval`；机器证据无效时为 `non-compliant`；只有有效 approved
+证据才能成为 `strict-complete`。否则必须报告 `V1-inspired`、`V2-inspired` 或
+`V3-inspired`。已有安装不会自动升级；V2 仍为默认模式；失败 M05 仍只作为归档。参见
+[严格合规决策](./docs/decisions/liquid-glass-interface-strict-conformance.zh.md)。
 
 Skill 只包含实现指导，不访问凭证、个人数据、远程资源、遥测或隐藏网络服务。
 

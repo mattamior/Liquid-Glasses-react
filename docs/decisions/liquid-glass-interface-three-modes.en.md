@@ -83,3 +83,15 @@ new release evidence for this batch.
   re-run every listed check in the next implementation batch.
 - Keep M05 isolated. Do not copy it into an asset, add it to an acceptance
   baseline, or alter its snapshots while maintaining this Skill.
+
+### Strict-conformance successor
+
+This record preserves the 2026-08-13 source-to-asset synchronization evidence.
+Its three static verifiers establish only that this repository's portable assets
+match their source routes; they do not establish target-project conformance.
+The successor [strict-conformance decision](./liquid-glass-interface-strict-conformance.en.md)
+defines schema `2.0` strict kernels, six mode/framework manifests, frozen
+integration hashes, structured E2E/visual evidence, full-tree contamination
+scanning, and the mandatory human visual gate. The older portable bundles and
+their verifiers remain publication references; they are not strict target
+kernels or target-project evidence.

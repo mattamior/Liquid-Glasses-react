@@ -34,4 +34,4 @@ assert.match(optics, /export const V3_LENS_OPTICS/);
 assert.match(optics, /createEllipticalField/);
 assert.match(css, /@media \(forced-colors: active\)/);
 assert.doesNotMatch(page + optics + css, /v3-05-failed|M05|dynamicProfile|velocityBucket/);
-console.log("v3-horizontal assertions passed", { files: pairs.length, source: "app/v3 M04" });
+console.log("v3-horizontal source-to-asset synchronization assertions passed", { files: pairs.length, source: "app/v3 M04", scope: "skill-published-assets-only" });

@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "2.0",
+  "mode": "v3-horizontal",
+  "conformance": "strict",
+  "framework": "next-app-router",
+  "kernel": {
+    "assetRoot": "assets/strict-kernels/v3",
+    "files": [
+      {
+        "path": "app/liquid-glass/kernel/LiquidGlassV3Kernel.tsx",
+        "sha256": "51c2d7696b99998d46aefa5e395eda8858a6ec6470da11662ef9f02108fa5bcb"
+      },
+      {
+        "path": "app/liquid-glass/kernel/v3-strict.css",
+        "sha256": "503e850bdef024b156175ddc2c0a368fc76861a85d4e8271108f4b4d3c78c04f"
+      }
+    ]
+  },
+  "adapter": {"path":"app/liquid-glass/strict-adapter.tsx","sha256":"c0c02f3bce796ede017f74748b7124756c81cd6575aeb71639af36b355edb604"},
+  "frozenIntegration": {"adapter":{"path":"app/liquid-glass/strict-adapter.tsx","sha256":"c0c02f3bce796ede017f74748b7124756c81cd6575aeb71639af36b355edb604"},"conformanceRoute":{"path":"app/__liquid-glass-conformance/page.tsx","sha256":"1b711ecff814784eab65972bb50755ce93687167f7cb0ec26aae667a0978a9d4"},"controlledScene":{"path":"app/__liquid-glass-conformance/conformance-scene.tsx","sha256":"3dcd2d22e14d66bfa5dab81f17c72936243b4cc7001a1842c5009fd5f43a5b28"},"playwrightHarness":{"path":"tests/liquid-glass-contract.spec.ts","sha256":"e106ecc4268f6990c7872711d3d0fe1613d8775a6b18a5a5fa6b87f3a9de5da2"}},
+  "product": {
+    "entryPoints": [
+      "app/dashboard/page.tsx"
+    ]
+  },
+  "conformanceRoute": {
+    "path": "app/__liquid-glass-conformance/page.tsx", "sha256":"1b711ecff814784eab65972bb50755ce93687167f7cb0ec26aae667a0978a9d4",
+    "availability": "development-and-test; production-disabled-or-protected"
+  },
+  "routeRegistration": {
+    "path": "app/__liquid-glass-conformance/page.tsx"
+  },
+  "counts": {
+    "navigationItems": 2,
+    "opticalCards": 0
+  },
+  "roles": [
+    {
+      "name": "v3-controlled-scene",
+      "selector": "[data-liquid-glass-role=v3-controlled-scene]"
+    },
+    {
+      "name": "v3-navigation",
+      "selector": "[data-liquid-glass-role=v3-navigation]"
+    },
+    {
+      "name": "v3-navigation-item",
+      "selector": "[data-liquid-glass-role=v3-navigation-item]"
+    },
+    {
+      "name": "v3-selection-slider",
+      "selector": "[data-liquid-glass-role=v3-selection-slider]"
+    },
+    {
+      "name": "v3-selection-lens",
+      "selector": "[data-liquid-glass-role=v3-selection-lens]"
+    },
+    {
+      "name": "v3-selection-replica",
+      "selector": "[data-liquid-glass-role=v3-selection-replica]"
+    },
+    {
+      "name": "v3-selection-world",
+      "selector": "[data-liquid-glass-role=v3-selection-world]"
+    }
+  ],
+  "controlledScene": {
+    "path": "app/__liquid-glass-conformance/conformance-scene.tsx", "sha256":"3dcd2d22e14d66bfa5dab81f17c72936243b4cc7001a1842c5009fd5f43a5b28",
+    "deterministic": true,
+    "grid": true,
+    "type": true,
+    "colorBands": true
+  },
+  "optics": {
+    "tier": "edge",
+    "edge": true
+  },
+  "fallback": {
+    "reducedMotion": "direct-selection",
+    "forcedColors": "direct-selection",
+    "noSvgFilter": "baseline",
+    "noCanvas": "baseline",
+    "noBackdropFilter": "baseline"
+  },
+  "allowedAdaptations": [
+    "navigation-data",
+    "route-callback",
+    "copy",
+    "icon",
+    "brand-tokens",
+    "outer-layout"
+  ],
+  "deviations": [],
+  "verification":{"e2e":{"path":"tests/liquid-glass-contract.spec.ts","sha256":"e106ecc4268f6990c7872711d3d0fe1613d8775a6b18a5a5fa6b87f3a9de5da2","reportPath":"test-results/liquid-glass-report.json","reportSha256":""}},
+  "visualApproval":{"status":"pending","evidencePath":"test-results/liquid-glass-visual-approval.json","evidenceSha256":""}
+}

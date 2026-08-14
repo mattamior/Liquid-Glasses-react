@@ -1,0 +1,71 @@
+.lg-v3 {
+  --lg-v3-page: #061318;
+  --lg-v3-ink: #effbfc;
+  --lg-v3-rail: rgb(18 31 40 / 82%);
+  --lg-v3-border: rgb(230 248 250 / 28%);
+  --lg-v3-active: rgb(255 255 255 / 15%);
+  background: var(--lg-v3-page);
+  color: var(--lg-v3-ink);
+  font: 16px/1.4 system-ui, sans-serif;
+  isolation: isolate;
+  min-height: 100svh;
+  overflow: hidden;
+  padding: 12vh 8vw;
+  position: relative;
+}
+
+.lg-v3[data-theme="light"] {
+  --lg-v3-page: #e6f1f2;
+  --lg-v3-ink: #10232a;
+  --lg-v3-rail: rgb(247 253 253 / 82%);
+  --lg-v3-border: rgb(23 49 57 / 22%);
+  --lg-v3-active: rgb(28 52 60 / 10%);
+}
+
+.lg-v3 * { box-sizing: border-box; }
+.v3-controlled-scene-layer, .lg-v3-scene { inset: 0; overflow: hidden; pointer-events: none; position: absolute; }
+.v3-controlled-scene-layer--visible { z-index: 0; }
+.lg-v3-scene { z-index: 0; }
+.lg-v3-scene i { background-image: linear-gradient(rgb(255 255 255 / 21%) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 21%) 1px, transparent 1px); background-size: 36px 36px; inset: 0; position: absolute; }
+.lg-v3-scene b { color: rgb(255 255 255 / 66%); font-size: clamp(32px, 9vw, 150px); left: 8%; position: absolute; top: 40%; }
+.lg-v3-scene em { background: linear-gradient(90deg, #1fb7a6, #59c7e7, #bd80f6, #ffbe68); bottom: 10%; height: 14%; left: 0; position: absolute; right: 0; }
+
+.v3-nav { background: var(--lg-v3-rail); border: 1px solid var(--lg-v3-border); border-radius: 999px; display: grid; grid-template-columns: repeat(var(--v3-nav-count), minmax(0, 1fr)); height: clamp(118px, 18vw, 210px); isolation: isolate; max-width: 880px; position: relative; z-index: 1; }
+.v3-navigation-world, .v3-nav-visual, .v3-tab-actions { inset: 0; position: absolute; }
+.v3-nav-visual, .v3-tab-actions { display: grid; grid-template-columns: repeat(var(--v3-nav-count), minmax(0, 1fr)); }
+.v3-tab-visual { align-content: center; color: color-mix(in srgb, var(--lg-v3-ink) 66%, transparent); display: grid; font-size: clamp(15px, 2.5vw, 28px); font-weight: 650; gap: 9px; justify-items: center; letter-spacing: -.04em; }
+.v3-tab-visual[data-suppressed] { visibility: hidden; }
+.v3-tab-icon { align-items: center; display: flex; justify-content: center; }
+.v3-tab-icon svg { height: clamp(28px, 5vw, 60px); width: clamp(28px, 5vw, 60px); }
+.v3-navigation-world--selection .v3-tab-visual, .v3-navigation-world--lens .v3-tab-visual[data-highlighted] { color: var(--lg-v3-ink); }
+.v3-tab-actions { z-index: 5; }
+.v3-tab-actions button { background: transparent; border: 0; color: transparent; cursor: pointer; min-width: 0; touch-action: pan-y; }
+.v3-tab-actions button:focus-visible { border-radius: 999px; outline: 2px solid #57e4d0; outline-offset: -10px; }
+
+.v3-selection-slider { bottom: 13px; height: calc(100% - 26px); left: 4px; overflow: hidden; pointer-events: none; position: absolute; top: 13px; transform: translateX(var(--v3-slider-x)); transition: transform 260ms cubic-bezier(.22, .74, .25, 1); width: calc(var(--v3-slider-width) - 8px); z-index: 2; }
+.v3-selection-slider[data-visible="false"] { visibility: hidden; }
+.v3-selection-optical-clip { background: var(--lg-v3-active); border: 1px solid var(--lg-v3-border); border-radius: 999px; height: 100%; overflow: hidden; }
+.v3-selection-world { height: calc(100% + 26px); inset: -13px -4px; position: absolute; transform: translateX(calc(0px - var(--v3-slider-x))); width: var(--v3-world-width); }
+
+.v3-lens-position { height: var(--v3-lens-height); left: 0; pointer-events: none; position: absolute; top: 0; transform: translate3d(calc(var(--v3-lens-x) - var(--v3-lens-width) / 2), calc(var(--v3-lens-y) - var(--v3-lens-height) / 2), 0); width: var(--v3-lens-width); z-index: 3; }
+.v3-lens-position[data-phase="idle"] { visibility: hidden; }
+.v3-lens-position[data-phase="travelling"], .v3-lens-position[data-phase="drag-settling"] { transition: transform 680ms cubic-bezier(.18, .82, .22, 1); }
+.v3-lens-position[data-phase="drag-settling"] { transition-duration: 260ms; }
+.v3-lens-shell { border: 1.5px solid rgb(235 250 255 / 70%); border-radius: 50%; box-shadow: inset 1px 1px 1px rgb(255 255 255 / 38%), inset -12px -14px 24px rgb(4 7 13 / 30%), 12px 14px 30px rgb(0 3 9 / 42%); height: 100%; isolation: isolate; opacity: 0; overflow: hidden; transform: scale(.53); transition: transform 190ms cubic-bezier(.18, .82, .22, 1), opacity 100ms linear; }
+.v3-lens-position[data-phase="primed"] .v3-lens-shell { opacity: 1; }
+.v3-lens-position[data-phase="expanding"] .v3-lens-shell, .v3-lens-position[data-phase="travelling"] .v3-lens-shell, .v3-lens-position[data-phase="dragging"] .v3-lens-shell, .v3-lens-position[data-phase="drag-settling"] .v3-lens-shell { opacity: 1; transform: scale(1); }
+.v3-lens-optics-viewport { height: 100%; overflow: hidden; position: absolute; width: 100%; }
+.v3-lens-world-sample { inset: 0; position: absolute; }
+.v3-navigation-world--lens { height: var(--v3-world-height); transform: translate3d(var(--v3-world-sample-x), var(--v3-world-sample-y), 0); transform-origin: top left; width: var(--v3-world-width); }
+.v3-navigation-world__rail { background: var(--lg-v3-rail); inset: 0; position: absolute; }
+.v3-lens-inner { border-radius: inherit; box-shadow: inset 0 0 0 5px rgb(5 8 14 / 20%), inset 8px 7px 16px rgb(0 0 0 / 13%); inset: 5px; pointer-events: none; position: absolute; }
+.v3-lens-sheen { background: linear-gradient(135deg, rgb(255 255 255 / 18%), transparent 22% 68%, rgb(255 255 255 / 7%)); border-radius: inherit; inset: 0; pointer-events: none; position: absolute; }
+.v3-filter-definitions { height: 0; position: absolute; width: 0; }
+
+.lg-v3-content { margin-top: 14vh; position: relative; z-index: 1; }
+.lg-v3-content button { background: var(--lg-v3-rail); border: 1px solid var(--lg-v3-border); border-radius: 999px; color: inherit; margin-right: 8px; padding: 8px 12px; }
+.lg-v3-content h1 { font-size: clamp(42px, 9vw, 120px); margin: 18px 0 0; }
+
+@media (max-width: 700px) { .lg-v3 { padding: 8vh 10px; } .v3-tab-visual { gap: 5px; } .v3-tab-icon svg { height: 28px; width: 28px; } }
+@media (prefers-reduced-motion: reduce) { .lg-v3 * { animation-duration: 0ms !important; transition-duration: 0ms !important; } }
+@media (forced-colors: active) { .lg-v3 { background: Canvas; color: CanvasText; } .v3-nav, .v3-selection-optical-clip { background: Canvas; border-color: CanvasText; } .v3-lens-position { visibility: hidden !important; } .v3-tab-visual { color: CanvasText; } }

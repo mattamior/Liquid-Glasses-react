@@ -20,6 +20,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [V3 M04 Rollback / Failed M05 Route](./docs/decisions/v3-m04-rollback-failed-route.en.md) ·
 [Lint Scope Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Liquid Glass Skill Three Modes（Liquid Glass Skill 三模式）](./docs/decisions/liquid-glass-interface-three-modes.en.md) ·
+[Liquid Glass Skill Strict Conformance（Liquid Glass Skill 严格合规）](./docs/decisions/liquid-glass-interface-strict-conformance.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Live Demo
@@ -185,17 +186,27 @@ tests/
   rendered-html.test.mjs          Server-rendered route assertions
 skills/
   liquid-glass-interface/         Versioned Skill source for agents and stores
+    assets/strict-kernels/        Frozen V1/V2/V3 strict kernels
+    assets/strict-templates/      Frozen Next.js and Vite integrations
+    assets/liquid-glass.integration.*.json  Six schema 2.0 manifests plus V2 Next starter
+    scripts/verify-target-integration.mjs   Read-only target verifier
 ```
 
 ## Agent Skill
 
 The reusable `liquid-glass-interface` Skill lives in
-[`skills/liquid-glass-interface`](./skills/liquid-glass-interface/). Its
-fixed portable React asset modes are `v1-fidelity`, default `v2-default`, and
-explicit `v3-horizontal`. `v1-fidelity` is for an explicit V1 reproduction;
-`v3-horizontal` is an independent（独立） horizontal-lens request and never
-overwrites V2. Failed M05 remains archive-only, not a Skill mode, asset, or
-acceptance baseline（验收基线）.
+[`skills/liquid-glass-interface`](./skills/liquid-glass-interface/). It ships
+complete frozen V1/V2/V3 kernels and six schema `2.0` mode/framework manifests
+for Next.js App Router and Vite/React Router. Strict verification（严格验证）
+locks the kernel, adapter, route, scene, router registration, and Playwright
+harness（测试框架）; verifies a runtime product mount（运行时产品挂载） and the
+complete source tree; and consumes hash-locked（哈希锁定） Playwright JSON and
+visual evidence without executing manifest commands. Pending or rejected
+visual review is `implemented-awaiting-visual-approval`; invalid machine
+evidence is `non-compliant`; only valid approved evidence is `strict-complete`.
+Otherwise report `V1-inspired`, `V2-inspired`, or `V3-inspired`. Existing
+installations do not upgrade automatically. V2 remains the default; failed M05
+remains archive-only. See the [strict-conformance decision（严格合规决策）](./docs/decisions/liquid-glass-interface-strict-conformance.en.md).
 
 The Skill contains implementation guidance only. It does not access
 credentials, personal data, remote assets, telemetry（遥测）, or hidden network

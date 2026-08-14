@@ -2,6 +2,10 @@
 
 Use `assets/v2-reference-implementation/` as the default behavioral reference for current navigation. Its controlled visual world and temporary lens copy are generated from one menu model; React should follow the same rule. Use `assets/v1-fidelity-kit/` only for explicit archived-V1 reproduction. Use `assets/v3-horizontal-navigation/` only for the independent, opt-in M04 horizontal-navigation pattern; it is not a replacement for V2. Never use `/v3-05-failed` as a copyable reference.
 
+## Strict integration boundary
+
+For a strict result, read [strict-conformance-contract.json](strict-conformance-contract.json) before this reference. Copy its selected kernel byte-for-byte and use only the matching `assets/strict-templates/<framework>/` adapter and conformance route. V2/V3 adapters pass typed config into the strict kernel; the kernel must render its supplied navigation/card data and call its supplied route callback only after semantic commitment. Do not fork kernel imports, state, optics, roles, or fallback behavior. A modified kernel, omitted V2/V3 route, or framework other than Next App Router/Vite React Router is an inspired implementation.
+
 ## Instance-safe SVG IDs
 
 Every glass instance needs its own filter and clip IDs. `useId()` values may include punctuation, so encode them before constructing the IDs. Use quoted `url("#...")` values in inline styles; do not CSS-select an ID generated this way.

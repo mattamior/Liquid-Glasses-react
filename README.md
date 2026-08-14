@@ -33,6 +33,8 @@ adaptive highlights, and navigation lenses.
 [Lint 决策记录](./docs/decisions/lint-scope-maintenance.zh.md) ·
 [Liquid Glass Skill Three Modes](./docs/decisions/liquid-glass-interface-three-modes.en.md) ·
 [Liquid Glass Skill 三模式](./docs/decisions/liquid-glass-interface-three-modes.zh.md) ·
+[Liquid Glass Skill Strict Conformance](./docs/decisions/liquid-glass-interface-strict-conformance.en.md) ·
+[Liquid Glass Skill 严格合规](./docs/decisions/liquid-glass-interface-strict-conformance.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Highlights
@@ -52,7 +54,7 @@ adaptive highlights, and navigation lenses.
   [V2 card-container decision](./docs/decisions/v2-liquid-glass-card-container.en.md) /
   [V2 卡片容器决策](./docs/decisions/v2-liquid-glass-card-container.zh.md). V3 remains
   an independent App-style experiment and does not replace V2.
-- The reusable Agent Skill has three fixed, portable React asset modes: `v1-fidelity`, default `v2-default`, and explicit `v3-horizontal`. Failed M05 remains an archive and is not a Skill mode or asset.
+- The reusable Agent Skill now enforces schema `2.0` strict contracts for `v1-fidelity`, default `v2-default`, and `v3-horizontal` across Next.js App Router and Vite/React Router. Failed M05 remains an archive and is not a Skill mode or asset.
 
 ## Quick Start
 
@@ -71,12 +73,17 @@ npm test
 ## Agent Skill
 
 The versioned [`liquid-glass-interface` Skill](./skills/liquid-glass-interface/)
-has fixed `v1-fidelity`, default `v2-default`, and explicit `v3-horizontal`
-portable React assets. It helps agents select the correct reference, build
-layered Web refraction, and preserve semantic interaction and accessible
-fallbacks. Failed M05 is archive-only, never a Skill mode or baseline. The Skill
-is guidance only: it does not access credentials, personal data, remote assets,
-telemetry, or hidden network services.
+ships complete frozen V1/V2/V3 kernels and six schema `2.0` mode/framework
+manifests for Next.js App Router and Vite/React Router. Strict verification
+locks the kernel, adapter, route, scene, router registration, and Playwright
+harness; checks a real product mount and the complete source tree; and consumes
+hash-locked Playwright JSON plus visual evidence without executing manifest
+commands. Pending or rejected visual review is
+`implemented-awaiting-visual-approval`; invalid machine evidence is
+`non-compliant`; only approved evidence is `strict-complete`. Existing
+installations do not upgrade automatically, and failed M05 remains archive-only.
+See the bilingual [strict-conformance decision](./docs/decisions/liquid-glass-interface-strict-conformance.en.md) /
+[严格合规决策](./docs/decisions/liquid-glass-interface-strict-conformance.zh.md).
 
 ## License
 

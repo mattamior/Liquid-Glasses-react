@@ -39,4 +39,4 @@ assert.match(css, /\.apple-menu-cluster/);
 assert.match(css, /clip-path: inset\(0 round 999px\)/);
 assert.match(css, /@media \(max-width: 640px\)/);
 assert.match(skill, /`v1-fidelity`/);
-console.log("v1-fidelity-kit assertions passed", { files: pairs.length, source: "app/v1" });
+console.log("v1-fidelity-kit source-to-asset synchronization assertions passed", { files: pairs.length, source: "app/v1", scope: "skill-published-assets-only" });

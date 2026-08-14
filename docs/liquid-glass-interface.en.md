@@ -4,15 +4,44 @@ This method turns the Demo's iterated（迭代调校的） visual findings into 
 
 ## Versioned Demo and Asset Routing（版本路由与资产）
 
-`/` redirects to the current V2 navigation study. `/v1` remains directly reachable as a frozen archived Demo; its visual and interaction behavior are not the current default. `/v3` is a separate horizontal-navigation lens study, not a replacement for V2. The single Skill has three fixed asset modes: use [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/) by default for ordinary navigation, [`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/) only for an explicit V1-original reproduction, and [`assets/v3-horizontal-navigation`](../skills/liquid-glass-interface/assets/v3-horizontal-navigation/) only for an explicit V3 or four-column horizontal lens request. Unknown `vN` requests require a supported selection; `/v3-05-failed` remains an archive, never a Skill asset or baseline.
+`/` redirects to the current V2 navigation study. `/v1` remains directly reachable as a frozen archived Demo; `/v3` is a separate horizontal-navigation study, not a V2 replacement. The older [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/), [`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/), and [`assets/v3-horizontal-navigation`](../skills/liquid-glass-interface/assets/v3-horizontal-navigation/) bundles remain source-synchronized publication references. Strict targets instead use `assets/strict-kernels/`, the selected framework templates, and one of six schema `2.0` manifests. Unknown `vN` requests require a supported selection; `/v3-05-failed` remains an archive, never a Skill asset or baseline.
 
 `/brand-preview` is the project mark review page. Authoritative public brand assets live under `public/brand/`; they are project assets, not a prescription for a reusable Liquid Glass color palette.
+
+## Strict Conformance Workflow（严格合规工作流）
+
+The three fixed mode names are not style labels. Select one of six schema `2.0`
+mode/framework manifests, install the matching complete frozen kernel（冻结核心）
+and integration, and limit product choices to the typed adapter config. The
+target verifier requires a runtime product mount, the exact adapter/route/scene/
+registration/harness hashes, and a clean complete source tree. It reads files
+only and never executes manifest command strings.
+
+Run the frozen Playwright harness with JSON reporting. Hash-lock a zero-failure
+report containing every required title, then record visual review in a separate
+hash-locked JSON file with reviewer, ISO timestamp, and screenshots. Invalid
+machine evidence is `non-compliant`; valid machine evidence with pending or
+rejected visual review is `implemented-awaiting-visual-approval`; only valid
+approved evidence permits `strict-complete`. A core deviation requires the
+matching `V1-inspired`, `V2-inspired`, or `V3-inspired` label.
+
+Strict target integration supports Next.js App Router and Vite/React Router
+only. Existing installed copies are not upgraded automatically. Migrate them by
+restoring all frozen hashes, mounting the adapter in the product runtime, adding
+the development/test conformance route, running E2E, clearing deviations, and
+obtaining visual approval. Other frameworks may adopt the method as inspired
+work but cannot claim strict conformance（严格合规）. See the
+[strict-conformance decision](./decisions/liquid-glass-interface-strict-conformance.en.md).
+
+The frozen V1 kernel still has fixed SVG filter IDs, including
+`liquid-lens-filter`; mount only one V1 instance per document until a versioned
+contract revision supplies instance-safe IDs.
 
 ## Scope（适用范围）
 
 Liquid Glass suits navigation, toolbars, menus, selection states（选择状态）, and floating controls where material communicates hierarchy（层级）, context（上下文）, or a state transition（状态转换）. Prefer a simple opaque（不透明） or translucent（半透明） surface when a component is only a content card or its background lacks useful visual information to refract（折射）.
 
-This method targets React, CSS, SVG, and comparable（相近的） Web stacks（技术栈）. It does not provide native iOS or SwiftUI recipes（实现配方）. Native applications on iOS 26 or later should prefer the system Liquid Glass APIs.
+This method targets React, CSS, SVG, and comparable（相近的） Web stacks（技术栈）. Strict target conformance is limited to Next.js App Router and Vite/React Router; other stacks are inspired-only. It does not provide native iOS or SwiftUI recipes（实现配方）. Native applications on iOS 26 or later should prefer the system Liquid Glass APIs.
 
 ## Official Apple Design Authority（苹果官方设计基准）
 
@@ -132,8 +161,8 @@ Describe implementations as inspired by Apple Liquid Glass. Do not copy Apple so
 | Archived Demo（归档 Demo） | `/v1`, frozen visual and interaction behavior with archived metadata |
 | V2 refraction（V2 折射） | One application-controlled menu replica and one continuous rounded-SDF `feDisplacementMap` sample |
 | V2 selection（V2 选择） | Flat committed state plus a temporary click/drag lens that fades before committing content |
-| V2 dragging（V2 拖拽） | Mouse-only Pointer Capture, final-release nearest-item snapping, cancellation rollback |
-| Motion fallback（动效降级） | Direct commit for narrow, touch/pen, reduced-motion, forced-color, and baseline paths |
+| V2 dragging（V2 拖拽） | Primary mouse, touch, and pen Pointer Capture; final-release nearest-item snapping and cancellation rollback |
+| Motion fallback（动效降级） | Direct commit for reduced-motion, forced-colors, and unsupported optical capabilities |
 | V3 horizontal lens（V3 横向透镜） | Opt-in four-column rail, inset navigation-level slider, click-travel lens, and all-pointer direct drag snapping |
 | V3 Edge optics（V3 边缘光学） | Full navigation world replica inside a fixed lens-sized filter viewport |
 | Brand review（品牌审阅） | `/brand-preview` reviews the project mark; authoritative public assets are in `public/brand/` |

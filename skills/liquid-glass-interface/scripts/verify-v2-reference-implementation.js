@@ -32,4 +32,4 @@ assert.match(optics, /V2_CARD_LENS_OPTICS/);
 assert.match(optics, /MAX_ROUNDED_CARD_FIELD_CACHE_ENTRIES = 8/);
 assert.match(optics, /createRoundedCardLensField/);
 assert.match(css, /@media \(forced-colors: active\)/);
-console.log("v2-default assertions passed", { files: pairs.length, source: "app/v2" });
+console.log("v2-default source-to-asset synchronization assertions passed", { files: pairs.length, source: "app/v2", scope: "skill-published-assets-only" });

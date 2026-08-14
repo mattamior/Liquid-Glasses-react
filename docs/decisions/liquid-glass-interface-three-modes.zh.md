@@ -67,3 +67,7 @@ frontmatter 验证已成功完成。没有安装任何依赖。
 - 资产验证器会在相应的 `app/v1`、`app/v2` 或 M04 `app/v3` 源码改变时有意失败。下一个
   实施批次应同步对应资产，并重跑上述全部检查。
 - 必须保持 M05 隔离。维护本 Skill 时，不得将其复制进资产、加入验收基线或修改其快照。
+
+### 严格合规后续决策
+
+本记录保留 2026-08-13 的 source-to-asset 同步证据。三项静态 verifier 仅能证明本仓库可移植资产与其源路由相符，不能证明目标项目合规。后续的[严格合规决策](./liquid-glass-interface-strict-conformance.zh.md)定义了 schema `2.0` strict kernel、六个模式/框架 manifest、冻结 integration 哈希、结构化 E2E/视觉证据、完整源码树污染扫描和强制人工视觉门禁。旧可移植 bundle 及其 verifier 仍是发布参考，不是严格目标 kernel 或目标项目证据。
