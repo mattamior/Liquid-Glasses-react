@@ -4,7 +4,7 @@
 
 ## 版本路由与资产
 
-`/` 会进入当前的 V2 导航实验。`/v1` 仍可作为冻结归档 Demo 直接访问；`/v3` 是独立横向导航实验，而非 V2 的替代品。旧的 [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/)、[`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/) 和 [`assets/v3-horizontal-navigation`](../skills/liquid-glass-interface/assets/v3-horizontal-navigation/) bundle 仍是与源码同步的发布参考。严格目标项目改用 `assets/strict-kernels/`、所选框架模板和六个 schema `2.0` manifest 之一。未知 `vN` 必须请求选择受支持模式；`/v3-05-failed` 仍只是归档，绝不能作为 Skill 资产或基线。
+`/` 会进入当前的 V2 导航实验。`/apple-clear` 是 Apple Clear 文件夹/面板源实现，也是 Skill 默认内核。`/v1` 仍可作为冻结归档 Demo 直接访问；`/v3` 是独立横向导航实验，而非 V2 的替代品。旧的 [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/)、[`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/) 和 [`assets/v3-horizontal-navigation`](../skills/liquid-glass-interface/assets/v3-horizontal-navigation/) bundle 仍是这些模拟预设的发布参考。未点名版本的 Skill 请求现在选择 `apple-liquid-glass` 并复制 [`assets/strict-kernels/apple/`](../skills/liquid-glass-interface/assets/strict-kernels/apple/)。未知 `vN` 必须请求选择受支持模式；`/v3-05-failed` 仍只是归档，绝不能作为 Skill 资产或基线。
 
 `/brand-preview` 是项目标志审阅页。权威公开品牌资产位于 `public/brand/`；它们是项目资产，不是可复用 Liquid Glass 色彩方案的规定。
 

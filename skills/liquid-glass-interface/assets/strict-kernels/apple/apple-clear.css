@@ -1,0 +1,687 @@
+html:has(.apple-clear),
+body:has(.apple-clear) {
+  min-height: 100%;
+  margin: 0;
+}
+
+.apple-clear,
+.apple-clear * {
+  box-sizing: border-box;
+}
+
+.apple-clear {
+  --apple-clear-ink: #f7fbff;
+  --apple-clear-caption: rgb(255 255 255 / 92%);
+  --apple-clear-fill: rgb(255 255 255 / 3%);
+  --apple-clear-rim: rgb(255 255 255 / 62%);
+  --apple-clear-highlight: rgb(255 255 255 / 70%);
+  --apple-clear-shadow: 0 18px 48px rgb(18 46 92 / 18%);
+  --apple-clear-occluder: transparent;
+  --apple-clear-blur: 10px;
+  --apple-selection-y: 0px;
+  --apple-selection-height: 58px;
+  --apple-travel-y-nudge: 0px;
+  --apple-plate-inset: 8px;
+  --apple-menu-radius: 28px;
+  --apple-world-x: 0px;
+  --apple-world-y: 0px;
+  --apple-menu-size-idle: 14px;
+  --apple-menu-size-active: 20px;
+  --apple-menu-weight-idle: 500;
+  --apple-menu-weight-active: 700;
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  overflow: hidden;
+  color: var(--apple-clear-ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+}
+
+.apple-clear[data-theme="dark"] {
+  --apple-clear-ink: #f4f0ff;
+  --apple-clear-caption: rgb(255 255 255 / 88%);
+  --apple-clear-fill: rgb(255 255 255 / 2%);
+  --apple-clear-rim: rgb(255 255 255 / 38%);
+  --apple-clear-highlight: rgb(255 255 255 / 42%);
+  --apple-clear-shadow: 0 18px 48px rgb(0 0 0 / 34%);
+  --apple-clear-occluder: transparent;
+}
+
+.apple-clear-scene,
+.apple-clear-homescreen,
+.apple-clear-homescreen__sky,
+.apple-clear-homescreen__ribbon {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.apple-clear-homescreen {
+  overflow: hidden;
+  background: #4ea4ee;
+}
+
+.apple-clear[data-theme="dark"] .apple-clear-homescreen {
+  background: #2b1638;
+}
+
+.apple-clear-homescreen__sky {
+  background:
+    radial-gradient(120% 80% at 18% -10%, #d7f0ff 0%, #7ec8ff 28%, #3b8ee8 58%, #2457c4 100%);
+}
+
+.apple-clear[data-theme="dark"] .apple-clear-homescreen__sky {
+  background:
+    radial-gradient(120% 80% at 78% -8%, #efc4ff 0%, #a46bc4 26%, #5a2f78 58%, #1a0c24 100%);
+}
+
+.apple-clear-homescreen__ribbon {
+  left: 8%;
+  width: 54%;
+  background: linear-gradient(118deg, rgb(255 255 255 / 0%), rgb(255 255 255 / 38%) 46%, rgb(80 150 255 / 0%));
+  filter: blur(18px);
+  transform: rotate(-18deg);
+}
+
+.apple-clear[data-theme="dark"] .apple-clear-homescreen__ribbon {
+  background: linear-gradient(118deg, rgb(255 180 255 / 0%), rgb(214 150 255 / 34%) 46%, transparent);
+}
+
+.apple-clear-homescreen__clock {
+  position: absolute;
+  top: 5.5%;
+  left: 4.5%;
+  z-index: 1;
+  display: grid;
+  width: min(20vw, 136px);
+  aspect-ratio: 1;
+  place-items: center;
+  padding: 10px 8px 8px;
+  border-radius: 28%;
+  background:
+    radial-gradient(circle, rgb(255 255 255 / 97%) 62%, transparent 63%),
+    repeating-conic-gradient(from 0deg, #1a1a1a 0 1.1deg, transparent 1.1deg 6deg);
+  background-color: #fff;
+  color: #111;
+  font-size: clamp(20px, 3.2vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.07em;
+  line-height: 0.9;
+}
+
+.apple-clear[data-theme="dark"] .apple-clear-homescreen__clock {
+  background:
+    radial-gradient(circle, rgb(28 22 36 / 92%) 62%, transparent 63%),
+    repeating-conic-gradient(from 0deg, #f7f3ff 0 1.1deg, transparent 1.1deg 6deg);
+  background-color: #1c1624;
+  color: #f7f3ff;
+}
+
+.apple-clear-homescreen__grid {
+  position: absolute;
+  top: 8%;
+  right: 6%;
+  bottom: 16%;
+  left: max(26%, 164px);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-content: start;
+  gap: clamp(12px, 2.2vw, 20px);
+}
+
+.apple-clear-homescreen__icon {
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 22%;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 28%),
+    0 10px 18px rgb(20 40 80 / 16%);
+}
+
+.apple-clear-homescreen__dock {
+  position: absolute;
+  right: 10%;
+  bottom: 4%;
+  left: 10%;
+  height: clamp(68px, 10vw, 92px);
+  border-radius: 32px;
+  background: rgb(255 255 255 / 22%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 40%);
+}
+
+@property --apple-selection-y {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --apple-selection-height {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 58px;
+}
+
+@property --apple-travel-y-nudge {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --apple-plate-inset {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 8px;
+}
+
+.apple-clear-cluster {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  transform: translate(-50%, -50%);
+}
+
+.apple-clear-heading,
+.apple-clear-status {
+  margin: 0;
+  color: #fff;
+  text-shadow: 0 2px 16px rgb(20 40 80 / 35%);
+}
+
+.apple-clear-heading {
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.apple-clear-status {
+  font-size: 13px;
+  opacity: 0.82;
+}
+
+.apple-clear-toolbar {
+  position: absolute;
+  z-index: 4;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+  max-width: min(420px, calc(100% - 24px));
+}
+
+.apple-clear-toolbar button {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid rgb(255 255 255 / 34%);
+  border-radius: 999px;
+  background: rgb(12 20 36 / 28%);
+  color: #fff;
+  font: 650 12px/1 inherit;
+  cursor: pointer;
+}
+
+.apple-clear-toolbar button.is-active {
+  background: rgb(255 255 255 / 86%);
+  color: #132033;
+}
+
+.apple-clear-menu-frame {
+  border-radius: var(--apple-menu-radius);
+  box-shadow: var(--apple-clear-shadow);
+}
+
+.apple-clear-menu {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  width: min(280px, calc(100vw - 48px));
+  isolation: isolate;
+  gap: 8px;
+  padding: 12px 10px;
+  overflow: visible;
+  border-radius: var(--apple-menu-radius);
+  background: transparent;
+  touch-action: none;
+  --apple-plate-inset: 8px;
+  transition:
+    --apple-selection-y 680ms cubic-bezier(.22, .82, .28, 1),
+    --apple-selection-height 680ms cubic-bezier(.22, .82, .28, 1),
+    --apple-travel-y-nudge 680ms cubic-bezier(.22, .82, .28, 1),
+    --apple-plate-inset 680ms cubic-bezier(.22, .82, .28, 1);
+}
+
+.apple-clear-menu[data-glass-phase="click"],
+.apple-clear-menu[data-glass-phase="dragging"],
+.apple-clear-menu[data-glass-phase="settling"] {
+  --apple-plate-inset: -6px;
+}
+
+.apple-clear-menu[data-glass-phase="dragging"] {
+  transition-duration: 0ms;
+}
+
+.apple-clear-menu[data-glass-phase="settling"] {
+  transition-duration: 260ms;
+}
+
+.apple-clear-menu[data-glass-phase="fading"] {
+  transition-duration: 160ms;
+}
+
+.apple-clear-shell {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.apple-clear-filter {
+  position: fixed;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.apple-clear-shell__optical,
+.apple-clear-shell__overscan,
+.apple-clear-shell__replica,
+.apple-clear-shell__world,
+.apple-clear-shell__fill,
+.apple-clear-shell__edge {
+  position: absolute;
+  pointer-events: none;
+}
+
+.apple-clear-shell__optical,
+.apple-clear-shell__fill,
+.apple-clear-shell__edge {
+  inset: 0;
+  border-radius: inherit;
+}
+
+.apple-clear-shell__optical {
+  overflow: hidden;
+  background: var(--apple-clear-occluder);
+}
+
+.apple-clear-shell__replica {
+  z-index: 0;
+  overflow: visible;
+}
+
+.apple-clear-shell__replica[data-ready="true"] {
+  opacity: 1;
+}
+
+.apple-clear-shell__world {
+  overflow: hidden;
+  transform-origin: top left;
+}
+
+.apple-clear-shell__fill {
+  z-index: 1;
+  background: var(--apple-clear-fill);
+}
+
+.apple-clear-shell__edge {
+  z-index: 2;
+  border: 0.5px solid var(--apple-clear-rim);
+  box-shadow:
+    inset 0 1px 0 var(--apple-clear-highlight),
+    inset 0 -1px 0 rgb(20 30 50 / 12%);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .apple-clear[data-optics-tier="enhanced"] .apple-clear-shell[data-refraction="enhanced"] .apple-clear-shell__fill {
+    -webkit-backdrop-filter: blur(2px) saturate(108%);
+    backdrop-filter: blur(2px) saturate(108%);
+  }
+}
+
+.apple-menu-visual {
+  position: absolute;
+  inset: 0 8px auto 8px;
+  z-index: 2;
+  display: grid;
+  align-content: start;
+  grid-auto-rows: 58px;
+  padding-top: 12px;
+  gap: 8px;
+  color: #fff;
+  pointer-events: none;
+}
+
+.apple-menu-visual--above {
+  clip-path: inset(0 0 calc(100% - (12px + var(--apple-selection-y))) 0);
+}
+
+.apple-menu-visual--below {
+  clip-path: inset(calc(12px + var(--apple-selection-y) + 58px) 0 0 0);
+}
+
+.apple-menu-visual__item {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+  display: flex;
+  height: 58px;
+  min-height: 58px;
+  align-items: center;
+  padding: 0 22px;
+  color: rgb(255 255 255 / 78%);
+  font-size: var(--apple-menu-size-active);
+  font-weight: var(--apple-menu-weight-active);
+  line-height: 1;
+}
+
+.apple-menu-visual__label {
+  display: inline-block;
+  transform: scale(calc(var(--apple-menu-size-idle) / var(--apple-menu-size-active)));
+  transform-origin: center;
+  transition:
+    transform 160ms ease,
+    color 160ms ease;
+}
+
+.apple-menu-visual__item[data-selected="true"] .apple-menu-visual__label,
+.apple-menu-visual--lens .apple-menu-visual__label {
+  color: #fff;
+  transform: scale(1);
+}
+
+.apple-menu-item {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  min-height: 58px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--apple-menu-radius);
+  background: transparent;
+  cursor: pointer;
+}
+
+.apple-menu-item[aria-current="page"] {
+  cursor: grab;
+}
+
+.apple-clear-menu[data-glass-phase="dragging"] .apple-menu-item {
+  cursor: grabbing;
+}
+
+.apple-selection-plate {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  right: var(--apple-plate-inset, 8px);
+  left: var(--apple-plate-inset, 8px);
+  height: var(--apple-selection-height, 58px);
+  border-radius: var(--apple-menu-radius);
+  opacity: 0;
+  transform: translate3d(0, calc(var(--apple-selection-y, 0px) + var(--apple-travel-y-nudge, 0px)), 0);
+  box-shadow: 0 4px 10px rgb(12 22 44 / 12%);
+  will-change: height, border-radius;
+  pointer-events: none;
+  transition:
+    height 680ms cubic-bezier(.22, .82, .28, 1),
+    border-radius 680ms cubic-bezier(.22, .82, .28, 1),
+    opacity 120ms ease,
+    box-shadow 160ms ease;
+}
+
+.apple-selection-plate.is-ready[data-entered="true"],
+.apple-selection-plate[data-phase="idle"] {
+  opacity: 1;
+}
+
+.apple-selection-plate[data-phase="idle"],
+.apple-selection-plate[data-phase="fading"] {
+  height: 58px;
+  border-radius: var(--apple-menu-radius);
+}
+
+.apple-selection-plate[data-phase="click"],
+.apple-selection-plate[data-phase="dragging"],
+.apple-selection-plate[data-phase="settling"] {
+  height: 74px;
+  border-radius: var(--apple-menu-radius);
+}
+
+.apple-selection-plate[data-phase="idle"] {
+  box-shadow: none;
+}
+
+.apple-selection-plate[data-phase="dragging"],
+.apple-selection-plate[data-phase="dragging"] .apple-selection-plate__world,
+.apple-selection-plate[data-phase="dragging"] .apple-menu-visual--lens {
+  transition-duration: 0ms;
+}
+
+.apple-selection-plate[data-phase="settling"] {
+  transition-duration: 260ms, 260ms, 160ms, 160ms;
+}
+
+.apple-selection-plate[data-phase="fading"] {
+  box-shadow: none;
+  transition:
+    height 160ms ease,
+    border-radius 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.apple-selection-plate__optical,
+.apple-selection-plate__overscan,
+.apple-selection-plate__replica,
+.apple-selection-plate__world,
+.apple-selection-plate__fill,
+.apple-selection-plate__edge,
+.apple-selection-plate__sweep {
+  position: absolute;
+  pointer-events: none;
+}
+
+.apple-selection-plate__optical {
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  background: rgb(255 255 255 / 4%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 54%),
+    inset 0 -1px 0 rgb(49 72 121 / 12%);
+}
+
+.apple-selection-plate__replica {
+  overflow: visible;
+}
+
+.apple-selection-plate__overscan {
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.apple-selection-plate__overscan[data-ready="true"] {
+  opacity: 1;
+}
+
+.apple-selection-plate[data-refraction="baseline"] .apple-selection-plate__overscan {
+  transform: scale(1.03);
+  transform-origin: center;
+}
+
+.apple-selection-plate__world {
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  transform: translate3d(
+    var(--apple-world-x, 0px),
+    calc(var(--apple-world-y, 0px) - var(--apple-selection-y, 0px) - var(--apple-travel-y-nudge, 0px)),
+    0
+  );
+  transform-origin: top left;
+  will-change: transform;
+}
+
+.apple-menu-visual--lens {
+  z-index: 4;
+  top: 0;
+  right: 0;
+  bottom: auto;
+  left: 0;
+  height: auto;
+  transform: translate3d(
+    calc(8px - var(--apple-plate-inset, 8px)),
+    calc(-12px - var(--apple-selection-y, 0px) - var(--apple-travel-y-nudge, 0px)),
+    0
+  );
+}
+
+.apple-selection-plate__fill,
+.apple-selection-plate__edge,
+.apple-selection-plate__sweep {
+  inset: 0;
+  border-radius: inherit;
+}
+
+.apple-selection-plate__fill {
+  z-index: 1;
+  opacity: 0.2;
+  background:
+    radial-gradient(circle at 24% 15%, rgb(255 255 255 / 40%), transparent 44%),
+    linear-gradient(
+      110deg,
+      rgb(255 255 255 / 26%),
+      rgb(255 255 255 / 12%) 48%,
+      rgb(220 236 255 / 18%)
+    );
+  transition: opacity 180ms ease;
+}
+
+.apple-clear[data-theme="dark"] .apple-selection-plate__fill {
+  background:
+    radial-gradient(circle at 24% 15%, rgb(255 255 255 / 22%), transparent 43%),
+    linear-gradient(
+      110deg,
+      rgb(255 255 255 / 16%),
+      rgb(12 22 47 / 10%) 50%,
+      rgb(214 196 255 / 14%)
+    );
+}
+
+.apple-selection-plate__edge {
+  z-index: 2;
+  background:
+    radial-gradient(76% 86% at 8% -10%, rgb(255 255 255 / 68%), transparent 40%),
+    radial-gradient(58% 82% at 102% 110%, rgb(255 255 255 / 20%), transparent 48%);
+  box-shadow:
+    inset 2px 2px 2px rgb(255 255 255 / 62%),
+    inset -3px -4px 9px rgb(59 82 135 / 15%),
+    inset 0 0 0 1px rgb(255 255 255 / 34%);
+  opacity: 0.9;
+  transition:
+    opacity 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.apple-clear[data-theme="dark"] .apple-selection-plate__edge {
+  background:
+    radial-gradient(76% 86% at 8% -10%, rgb(255 255 255 / 44%), transparent 40%),
+    radial-gradient(58% 82% at 102% 110%, rgb(105 214 255 / 18%), transparent 48%);
+  box-shadow:
+    inset 2px 2px 2px rgb(255 255 255 / 42%),
+    inset -3px -4px 10px rgb(0 5 24 / 28%),
+    inset 0 0 0 1px rgb(193 219 255 / 18%);
+}
+
+.apple-selection-plate[data-entered="false"] .apple-selection-plate__edge {
+  opacity: 0.52;
+}
+
+.apple-selection-plate[data-phase="click"] .apple-selection-plate__overscan,
+.apple-selection-plate[data-phase="dragging"] .apple-selection-plate__overscan,
+.apple-selection-plate[data-phase="settling"] .apple-selection-plate__overscan {
+  opacity: 1;
+}
+
+.apple-selection-plate[data-phase="click"] .apple-selection-plate__fill,
+.apple-selection-plate[data-phase="dragging"] .apple-selection-plate__fill,
+.apple-selection-plate[data-phase="settling"] .apple-selection-plate__fill {
+  opacity: 0.2;
+}
+
+.apple-selection-plate[data-phase="idle"] .apple-selection-plate__fill,
+.apple-selection-plate[data-phase="fading"] .apple-selection-plate__fill {
+  opacity: 1;
+  background: rgb(255 255 255 / 3%);
+}
+
+.apple-selection-plate[data-phase="idle"] .apple-selection-plate__edge,
+.apple-selection-plate[data-phase="fading"] .apple-selection-plate__edge {
+  background: none;
+  box-shadow: inset 0 0 0 0.5px var(--apple-clear-rim);
+  opacity: 0.9;
+}
+
+.apple-selection-plate[data-phase="idle"] .apple-selection-plate__overscan,
+.apple-selection-plate[data-phase="idle"] .apple-selection-plate__sweep,
+.apple-selection-plate[data-phase="fading"] .apple-selection-plate__overscan,
+.apple-selection-plate[data-phase="fading"] .apple-selection-plate__sweep {
+  opacity: 0;
+}
+
+.apple-selection-plate__sweep {
+  z-index: 3;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(255 255 255 / 38%),
+    rgb(255 255 255 / 10%) 24%,
+    transparent 52%
+  );
+  opacity: 0;
+}
+
+.apple-menu-item:focus-visible,
+.apple-clear-toolbar button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+@media (max-width: 680px) {
+  .apple-clear-cluster {
+    top: 46%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .apple-clear-shell__replica,
+  .apple-selection-plate__replica {
+    filter: none !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .apple-clear,
+  .apple-clear-menu,
+  .apple-clear-toolbar button {
+    background: Canvas;
+    color: CanvasText;
+    border: 1px solid CanvasText;
+  }
+
+  .apple-clear-shell__optical,
+  .apple-selection-plate {
+    display: none;
+  }
+}

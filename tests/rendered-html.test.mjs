@@ -45,6 +45,20 @@ test("renders the frozen Liquid Lab V1 demo", async () => {
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/);
 });
 
+test("renders the Apple Clear folder panel", async () => {
+  const response = await render("/apple-clear");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /<title>Liquid Lab — Apple Liquid Glass menu/);
+  assert.match(html, /data-liquid-glass-mode="apple-liquid-glass"/);
+  assert.match(html, /apple-clear-menu/);
+  assert.match(html, /apple-clear-homescreen/);
+  assert.match(html, /aria-current="page"/);
+  assert.doesNotMatch(html, /v2-ambient-orb/);
+});
+
 test("renders the Liquid Lab V2 navigation demo", async () => {
   const response = await render("/v2");
   assert.equal(response.status, 200);

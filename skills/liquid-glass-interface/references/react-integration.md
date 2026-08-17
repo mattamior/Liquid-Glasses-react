@@ -1,6 +1,6 @@
 # React Integration Reference
 
-Use `assets/v2-reference-implementation/` as the default behavioral reference for current navigation. Its controlled visual world and temporary lens copy are generated from one menu model; React should follow the same rule. Use `assets/v1-fidelity-kit/` only for explicit archived-V1 reproduction. Use `assets/v3-horizontal-navigation/` only for the independent, opt-in M04 horizontal-navigation pattern; it is not a replacement for V2. Never use `/v3-05-failed` as a copyable reference.
+Use `assets/strict-kernels/apple/` as the default implementation. It is extracted from `app/apple-clear` and must stay a floating Clear pane over a home-screen scene. Use `assets/v2-reference-implementation/` only when the request names V2 vertical navigation. Use `assets/v1-fidelity-kit/` only for explicit archived-V1 reproduction. Use `assets/v3-horizontal-navigation/` only for the independent, opt-in M04 horizontal-navigation pattern. Never use `/v3-05-failed` as a copyable reference.
 
 ## Strict integration boundary
 

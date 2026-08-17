@@ -1,39 +1,42 @@
 ---
 name: liquid-glass-interface
-description: Build or audit strict Apple-inspired Web Liquid Glass interfaces. Use for translucent navigation, menus, toolbars, floating panels, selection lenses, and Liquid Glass cards in React; use especially when a request requires the V1 original Demo, V2 vertical navigation, V3 horizontal navigation, visual fidelity, or verifiable implementation compliance.
+description: Build or audit Apple-system Liquid Glass on the Web. Default to a floating menu with whole-surface refraction and a traveling selection lens. Backdrop-filter frost alone is not Liquid Glass. Use V1/V2/V3 only when the request explicitly asks to reproduce those repository studies.
 ---
 
 # Liquid Glass Interface
 
-Implement a versioned Liquid Glass contract, not a loose visual reference. Read [apple-design-logic.en.md](references/apple-design-logic.en.md) first.
+Implement Apple-system Liquid Glass on the Web. Read [apple-design-logic.en.md](references/apple-design-logic.en.md) first, then look at the gold stills in [assets/visual-targets/apple/clear-folder/](assets/visual-targets/apple/clear-folder/).
 
 ## Select the Contract
 
-Read [strict-conformance-contract.en.md](references/strict-conformance-contract.en.md) and [strict-conformance-contract.json](references/strict-conformance-contract.json) before copying assets. The JSON is the machine authority; the bilingual files explain it.
+Read [strict-conformance-contract.en.md](references/strict-conformance-contract.en.md) and [strict-conformance-contract.json](references/strict-conformance-contract.json) before copying V1/V2/V3 assets. Apple Clear uses the extracted kernel; do not invent a substitute pane.
 
 | Requested result | Select | Required result |
 | --- | --- | --- |
-| Original V1 Demo, fidelity, no redesign | `v1-fidelity` | Frozen V1 kernel. |
-| No version, vertical navigation, temporary lens, cards | `v2-default` | Strict V2 kernel with Enhanced conformance route. |
-| V3, horizontal navigation lens | `v3-horizontal` | Strict V3 kernel with Edge conformance route. |
+| No version, Apple glass, folder, floating panel, Clear | `apple-liquid-glass` | Extracted Clear kernel over a home-screen environment. |
+| Original V1 Demo, fidelity, no redesign | `v1-fidelity` | Frozen V1 kernel. Label `V1-inspired` unless every V1 gate passes. |
+| Vertical navigation, temporary lens, admin cards | `v2-default` | Strict V2 kernel. Label `V2-inspired` unless every V2 gate passes. |
+| V3, horizontal navigation lens, Longbridge-style thick lens | `v3-horizontal` | Strict V3 kernel. Label `V3-inspired` unless every V3 gate passes. |
 
-Use `v2-default` when no mode is named. For an unknown `vN`, stop and ask the user to choose V1, V2, or V3. Never use `/v3-05-failed` or `v3-milestone-05-failed`.
+Use `apple-liquid-glass` when no mode is named. For an unknown `vN`, stop and ask the user to choose Apple Clear, V1, V2, or V3. Never use `/v3-05-failed` or `v3-milestone-05-failed`. Never treat a KPI content card as the default Apple surface.
 
-Only report the selected name when every strict gate passes. If a kernel, state machine, optical layer, DOM role, required route, or evidence requirement changes, report `V1-inspired`, `V2-inspired`, or `V3-inspired` instead. Only Next.js App Router and Vite with React Router qualify for strict mode; all other frameworks are inspired.
+Only report the selected name when every strict gate passes. If a kernel, state machine, optical layer, DOM role, required route, or evidence requirement changes, report `Apple-inspired`, `V1-inspired`, `V2-inspired`, or `V3-inspired` instead. Only Next.js App Router and Vite with React Router qualify for strict mode; all other frameworks are inspired.
 
 ## Strict Workflow
 
 1. Preflight the target framework and select `strict` or `inspired`; do not call an unsupported framework strict.
-2. Copy exactly one mode's kernel files listed in the machine contract. Do not edit them or mix modes. V2/V3 canonical demo bundles are publication references; strict target hashes use `assets/strict-kernels/`.
-3. Copy the matching framework adapter and, for V2/V3, its conformance route and `conformance-scene.tsx` from [assets/](assets/). Pass typed V2/V3 config that the kernel renders: navigation items, V2 cards, copy, icons, route values, brand tokens, `initialOptics`, and post-commit callback. Preserve the adapter's strict kernel import and `config` hand-off; Vite projects must include `vite/client` types so `import.meta.env.PROD` type-checks. V1 permits only equal-length brand text, links, and outer layout.
-4. Copy the schema `2.0` manifest for the selected mode/framework from `assets/liquid-glass.integration.<mode>.<framework>.json` to the target root as `liquid-glass.integration.json`. The unqualified template is only the V2 Next.js starter. Preserve every frozen integration hash; fill product entry points, counts, route consumer, Playwright JSON report hash, and visual-evidence hash. Keep `deviations` empty.
-5. Keep V2/V3 conformance routes available in development/test and disabled or protected in production. Their deterministic scene must show a grid, type, and color bands; V2 must exercise Enhanced and V3 must exercise Edge.
-6. Run `node <skill>/scripts/verify-target-integration.mjs --root <project> --manifest liquid-glass.integration.json [--json]`, the frozen Playwright harness, and the host project's checks. The verifier reads files only and never executes manifest command strings. Obtain explicit human visual approval last.
+2. For `apple-liquid-glass`, copy every file in [assets/strict-kernels/apple/](assets/strict-kernels/apple/) and the matching `apple-strict-adapter.tsx`. Do not edit the kernel or replace the home-screen scene with decorative orbs. Look at the six Clear gold stills before changing any product chrome.
+3. For V1/V2/V3, copy exactly one mode's kernel files listed in the machine contract. Do not edit them or mix modes. V2/V3 canonical demo bundles are publication references; strict target hashes use `assets/strict-kernels/`.
+4. Copy the matching framework adapter and, for V2/V3, its conformance route and `conformance-scene.tsx` from [assets/](assets/). Apple Clear config may only change title, items, theme, size, optics, brand tokens, and the controlled scene renderer. V2/V3 config remains navigation items, V2 cards, copy, icons, route values, brand tokens, `initialOptics`, and post-commit callback. Preserve the adapter's strict kernel import and `config` hand-off; Vite projects must include `vite/client` types so `import.meta.env.PROD` type-checks. V1 permits only equal-length brand text, links, and outer layout.
+5. For V1/V2/V3, copy the schema `2.0` manifest for the selected mode/framework from `assets/liquid-glass.integration.<mode>.<framework>.json` to the target root as `liquid-glass.integration.json`. The unqualified template is only the V2 Next.js starter. Preserve every frozen integration hash; fill product entry points, counts, route consumer, Playwright JSON report hash, and visual-evidence hash. Keep `deviations` empty.
+6. Keep V2/V3 conformance routes available in development/test and disabled or protected in production. Their deterministic scene must show a grid, type, and color bands; V2 must exercise Enhanced and V3 must exercise Edge. Apple Clear must keep the wallpaper grid, clock type, and color icons visible through the pane.
+7. Run `node <skill>/scripts/verify-apple-clear-kernel.js` when shipping Apple Clear from this repository, or `node <skill>/scripts/verify-target-integration.mjs --root <project> --manifest liquid-glass.integration.json [--json]` for V1/V2/V3. The verifier reads files only and never executes manifest command strings. Obtain explicit human visual approval last. Without that approval, report `implemented-awaiting-visual-approval`.
 
 Read [strict-conformance-contract.zh.md](references/strict-conformance-contract.zh.md) for the same contract in Chinese. Read [react-integration.md](references/react-integration.md), [interactions.md](references/interactions.md), [material-system.md](references/material-system.md), and [themes-and-qa.md](references/themes-and-qa.md) only for the selected implementation work.
 
 ## Kernel Boundaries
 
+- **Apple Liquid Glass:** Preserve the extracted floating menu. The menu shell displaces a world replica across the whole surface. Item changes MUST run the temporary traveling lens (`click → dragging → settling → fading`) before committing `aria-current`. Blur is optional scattering only (`<=10px`). If the result is indistinguishable from frosted glass (`backdrop-filter` without position-dependent bending), it is not Liquid Glass.
 - **V1:** Preserve every kernel file and interaction. Permit only route mounting, equal-length brand copy, link targets, and outer layout.
 - **V2:** Preserve vertical navigation, one transient selection lens, delayed commit of content and `aria-current`, primary mouse/touch/pen drag, controlled replica, and independently refracted cards. Provide at least two configured navigation items and one configured optical card.
 - **V3:** Preserve horizontal navigation, one inset slider, travelling lens, preview/commit separation, current-tab-only primary drag, `>5px` threshold, and `260ms` release snap. Provide at least two configured navigation items.

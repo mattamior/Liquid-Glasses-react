@@ -57,7 +57,7 @@ Apply the filter to the aligned controlled scene replica, not foreground content
 
 ### Field requirements
 
-The field is not a decorative gradient. Generate it per lens geometry: RGB 128 at the interior, positive/negative R/G values in an edge band, and vectors that follow the signed-distance normal of the rounded rectangle. The reference implementation's `createRoundedEdgeField({ width, height, radius, edgeBand, strength })` is the copyable implementation and its script asserts center, straight-edge, and corner samples. Do not use `feTurbulence`, repeating CSS gradients, or a fixed image as a substitute for that field.
+The field is not a decorative gradient. Generate it per lens geometry: RGB 128 at the interior, positive/negative R/G values in an edge band, and vectors that follow the signed-distance normal of the rounded rectangle. The copyable implementations are `createClearPanelLensField` for Apple Clear, `createRoundedCardLensField` / `createCapsuleLensField` for V2, and `createEllipticalField` for V3. Each script asserts center, straight-edge, and corner samples of its own field. Do not use `feTurbulence`, repeating CSS gradients, or a fixed image as a substitute for that field.
 
 Keep the optical wrapper's overscan at least `maximum displacement + blur radius` (the reference uses 28 px for scale 18 and blur 2), and make the SVG filter region larger too. The panel itself must not use `overflow: hidden` if a popover or menu is allowed to escape; clip only the replica/fill/edge wrapper.
 

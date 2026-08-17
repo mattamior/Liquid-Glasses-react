@@ -21,6 +21,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [Lint Scope Decision Record](./docs/decisions/lint-scope-maintenance.en.md) ·
 [Liquid Glass Skill Three Modes（Liquid Glass Skill 三模式）](./docs/decisions/liquid-glass-interface-three-modes.en.md) ·
 [Liquid Glass Skill Strict Conformance（Liquid Glass Skill 严格合规）](./docs/decisions/liquid-glass-interface-strict-conformance.en.md) ·
+[Apple Clear default kernel](./docs/decisions/apple-clear-default-kernel.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Live Demo
@@ -36,10 +37,11 @@ The public version is hosted on Cloudflare Workers:
 | `/v2` | Default vertical navigation-lens reference implementation. |
 | `/v3` | Independent horizontal navigation-lens experiment; the M04 candidate baseline is restored and deployed. |
 | `/v3-05-failed` | Public direct-access archive for the failed M05 candidate; `noindex, nofollow` and absent from site navigation. |
+| `/apple-clear` | Apple Clear folder/panel preview; source of the Skill default kernel. |
 | `/brand-preview` | Light/dark review surface for the current Liquid Lab logo. |
 
-V2 remains the default reference. V3 is a separate experiment; it does not
-replace V2 or modify the frozen V1 Demo.
+The Skill default is Apple Clear, not the V2 admin template. `/` still redirects
+to `/v2` as this repository's navigation study. V3 remains a separate experiment.
 
 ## Features
 
