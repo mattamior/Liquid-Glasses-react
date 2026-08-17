@@ -28,7 +28,8 @@ Skill 默认不再是 `v2-default`。未点名的请求选择 `apple-liquid-glas
 - Y 运动只由 `.apple-clear-menu` 上已注册的 `@property --apple-selection-y`（及 nudge）驱动。选择板仍用 `transform: translate3d(0, calc(var(--apple-selection-y) + var(--apple-travel-y-nudge)), 0)`，但 **不** 把 `transform` 列入 `transition`。`.apple-selection-plate__world` 与 `.apple-menu-visual--lens` 没有 `transition: transform`。这消除了双重插值：标签洞已到信息、胶囊还停在照片。拖拽仍设 `transition-duration: 0ms`。结算只缩短高度/半径（`260ms, 260ms, 160ms, 160ms`），不再加回 transform 过渡。
 - 旅行世界 X 是静止选择板原点 `stage.left − (menu.left + 8)`（y=0，高 58）。作为具体的 `translate3d(worldX, …)` 写在世界层上（`top: 0; left: 0`）。旅行不再重测选择板 X。选择透镜 SDF 为 `radiusCssPx: 32`（与旅行 CSS 半径一致）、`edgeZoneCssPx: 20`、`maximumZoom: 1.09`、`minimumZoom: 1.05`、`edgeRefractionCssPx: 4`，避免较小胶囊抹糊。填充保持 `0.2`；无毛玻璃；无 dock blur。
 - 菜单字体：所有标签按 `--apple-menu-size-active: 20px` / `--apple-menu-weight-active: 700` 排版，盒子尺寸不变。未选中字形以 `transform-origin: center` 做 `scale(14/20)`，颜色 `rgb(255 255 255 / 78%)`。选中项与滑块标签为 `scale(1)` + `#fff`。字号变化是绕中心的均匀两轴缩放（静止 14、激活 20），不再是 1px 的 `font-size` 微调。旅行中 above/below 的 `data-selected` 跟 `interaction.targetIndex`。
-- 菜单项、菜单窗、外框和选择板（静止与旅行）都用 `--apple-menu-radius: 28px`。旅行态不再切到 `32px`。选择透镜 SDF `radiusCssPx` 为 `28`。
+- 菜单窗、外框和菜单项用 `--apple-menu-radius: 28px`。选择板用同心内圆角 `--apple-plate-radius: 20px`（`28 − 8` 静止内边距）。58px 高的板上写 28px 会变成半圆端，不再像容器的角。选择透镜 SDF `radiusCssPx` 为 `20`。
+- 透镜弹簧：按下为 `data-lens-spring="pressed"`（`scale 1.09 / 0.84`，90ms）。旅行 / 拖拽 / 结算为 `"stretch"`（`scaleX 1 / scaleY 1.16`）。横向胀只走 `--apple-plate-inset`，旅行态不得对光学层做 `scaleX`，否则未缩放的选择板外框会在左右形成重影。投影加在 `__optical` 上，跟着玻璃走。消失和静止回到 `"rest"`。Y、胀缩和内边距用 `--apple-spring` 插值。`prefers-reduced-motion` 关闭压扁、拉长和过冲。
 - 选中/静止选择板保持通栏宽度（`--apple-plate-inset: 8px`）。旅行内边距为 `-6px`，胶囊可向两侧各超出窗约 6px。菜单 `overflow: visible`，横向胀不被裁掉。透镜标签用 `translateX(calc(8px - var(--apple-plate-inset)))`。世界/场锁在旅行内边距（`PLATE_INSET = -6`）。
 
 ## 3. 验证证据

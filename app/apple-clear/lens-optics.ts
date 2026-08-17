@@ -33,7 +33,7 @@ export const APPLE_SELECTION_LENS_OPTICS: Readonly<ClearPanelOpticsConfig> = {
   maximumRasterScale: 2,
   maximumZoom: 1.09,
   minimumZoom: 1.05,
-  radiusCssPx: 28,
+  radiusCssPx: 20,
 };
 
 const fieldCache = new Map<string, string>();

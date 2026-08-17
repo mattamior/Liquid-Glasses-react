@@ -42,6 +42,11 @@ assert.match(css, /--apple-clear-blur: 10px/);
 assert.match(css, /--apple-menu-size-idle: 14px/);
 assert.match(css, /--apple-menu-size-active: 20px/);
 assert.match(css, /--apple-menu-radius: 28px/);
+assert.match(css, /--apple-plate-radius: 20px/);
+assert.match(css, /--apple-spring: cubic-bezier\(\.22, 1\.48, \.28, 1\)/);
+assert.match(page, /data-lens-spring=\{lensSpring\}/);
+assert.match(page, /setLensSpring\("pressed"\)/);
+assert.match(page, /setLensSpring\("stretch"\)/);
 assert.match(optics, /radiusCssPx: 28/);
 assert.doesNotMatch(
   css.match(/apple-selection-plate\[data-phase="click"\][\s\S]*?apple-selection-plate\[data-phase="idle"\]/)?.[0] ?? "",

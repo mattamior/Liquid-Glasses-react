@@ -49,6 +49,7 @@ export interface AppleClearKernelConfig {
 }
 
 type GlassPhase = "click" | "dragging" | "settling" | "fading";
+type LensSpring = "rest" | "pressed" | "stretch";
 interface Interaction {
   phase: GlassPhase;
   targetIndex: number;
@@ -183,6 +184,8 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
 
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const [interaction, setInteraction] = useState<Interaction | null>(null);
+  const [lensSpring, setLensSpring] = useState<LensSpring>("rest");
+  const pressKind = useRef<"same" | "other" | null>(null);
   const interactionRef = useRef<Interaction | null>(null);
   const [theme, setTheme] = useState<AppleClearTheme>(() => {
     if (config.initialTheme) return config.initialTheme;
@@ -355,6 +358,7 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
       const motion = window.setTimeout(() => {
         const current = interactionRef.current;
         if (!current) return;
+        setLensSpring("rest");
         setTransient({ ...current, phase: "fading", y: itemY(targetIndex) });
         const fade = window.setTimeout(() => {
           if (commit) {
@@ -375,11 +379,13 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
     (index: number) => {
       if (index === selectedIndex || interactionRef.current) return;
       if (bypass()) {
+        setLensSpring("rest");
         setSelectedIndex(index);
         config.onRouteCommit?.(navItems[index]);
         return;
       }
       clearWork();
+      setLensSpring("stretch");
       playSweepBetween(
         itemRefs.current[selectedIndex]?.getBoundingClientRect(),
         itemRefs.current[index]?.getBoundingClientRect(),
@@ -406,6 +412,7 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
       if (cancelled) {
         clearWork();
         setSweep(null);
+        setLensSpring("rest");
         setTransient(null);
         return;
       }
@@ -419,6 +426,7 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
         plateRef.current?.getBoundingClientRect(),
         itemRefs.current[target]?.getBoundingClientRect(),
       );
+      setLensSpring("stretch");
       setTransient({ phase: "settling", targetIndex: target, y: itemY(target), visible: true });
       commitAfterFade(target, SETTLE_DURATION, target !== selectedIndex);
       const timer = window.setTimeout(() => {
@@ -433,12 +441,15 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
     if (
       !event.isPrimary ||
       (event.pointerType === "mouse" && event.button !== 0) ||
-      interactionRef.current ||
-      index !== selectedIndex ||
-      bypass()
+      interactionRef.current
     ) {
       return;
     }
+    if (!bypass()) {
+      pressKind.current = index === selectedIndex ? "same" : "other";
+      setLensSpring("pressed");
+    }
+    if (index !== selectedIndex || bypass()) return;
     const bounds = menuRef.current?.getBoundingClientRect();
     if (!bounds) return;
     const origin = itemY(index);
@@ -462,6 +473,7 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
     drag.y = y;
     drag.moved ||= Math.abs(y - drag.originY) > DRAG_THRESHOLD;
     if (!drag.moved) return;
+    setLensSpring("stretch");
     setTransient({ phase: "dragging", targetIndex: nearestItem(y, navItems.length), y, visible: true });
     event.preventDefault();
   };
@@ -602,6 +614,7 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
           data-liquid-glass-role="apple-clear-panel"
           data-glass-active={interaction ? "true" : "false"}
           data-glass-phase={interaction?.phase ?? "idle"}
+          data-lens-spring={lensSpring}
           aria-label={config.title ?? "菜单"}
         >
           <article ref={shellRef} className="apple-clear-shell" data-refraction={shellField ? "enhanced" : "baseline"}>
@@ -719,8 +732,18 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
               aria-label={item.label}
               onPointerDown={(event) => onPointerDown(event, index)}
               onPointerMove={onPointerMove}
-              onPointerUp={(event) => finishDrag(event.pointerId, false, event.clientY)}
-              onPointerCancel={(event) => finishDrag(event.pointerId, true)}
+              onPointerUp={(event) => {
+                finishDrag(event.pointerId, false, event.clientY);
+                if (pressKind.current === "same" && !interactionRef.current) {
+                  setLensSpring("rest");
+                }
+                pressKind.current = null;
+              }}
+              onPointerCancel={(event) => {
+                finishDrag(event.pointerId, true);
+                if (!interactionRef.current) setLensSpring("rest");
+                pressKind.current = null;
+              }}
               onLostPointerCapture={(event) => finishDrag(event.pointerId, true)}
               onClick={(event: ReactMouseEvent<HTMLButtonElement>) => {
                 if (suppressedClick.current?.target === event.currentTarget && event.detail !== 0) return;

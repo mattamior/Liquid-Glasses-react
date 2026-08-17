@@ -23,12 +23,17 @@ body:has(.apple-clear) {
   --apple-travel-y-nudge: 0px;
   --apple-plate-inset: 8px;
   --apple-menu-radius: 28px;
+  --apple-plate-radius: 20px;
   --apple-world-x: 0px;
   --apple-world-y: 0px;
   --apple-menu-size-idle: 14px;
   --apple-menu-size-active: 20px;
   --apple-menu-weight-idle: 500;
   --apple-menu-weight-active: 700;
+  --apple-spring: cubic-bezier(.22, 1.48, .28, 1);
+  --apple-spring-press: cubic-bezier(.32, .72, .28, 1);
+  --apple-lens-scale-x: 1;
+  --apple-lens-scale-y: 1;
   position: relative;
   isolation: isolate;
   min-height: 100svh;
@@ -250,10 +255,20 @@ body:has(.apple-clear) {
   touch-action: none;
   --apple-plate-inset: 8px;
   transition:
-    --apple-selection-y 680ms cubic-bezier(.22, .82, .28, 1),
-    --apple-selection-height 680ms cubic-bezier(.22, .82, .28, 1),
-    --apple-travel-y-nudge 680ms cubic-bezier(.22, .82, .28, 1),
-    --apple-plate-inset 680ms cubic-bezier(.22, .82, .28, 1);
+    --apple-selection-y 680ms var(--apple-spring),
+    --apple-selection-height 680ms var(--apple-spring),
+    --apple-travel-y-nudge 680ms var(--apple-spring),
+    --apple-plate-inset 680ms var(--apple-spring);
+}
+
+.apple-clear-menu[data-lens-spring="pressed"] {
+  --apple-lens-scale-x: 1.09;
+  --apple-lens-scale-y: 0.84;
+}
+
+.apple-clear-menu[data-lens-spring="stretch"] {
+  --apple-lens-scale-x: 1;
+  --apple-lens-scale-y: 1.16;
 }
 
 .apple-clear-menu[data-glass-phase="click"],
@@ -424,17 +439,15 @@ body:has(.apple-clear) {
   right: var(--apple-plate-inset, 8px);
   left: var(--apple-plate-inset, 8px);
   height: var(--apple-selection-height, 58px);
-  border-radius: var(--apple-menu-radius);
+  border-radius: var(--apple-plate-radius);
   opacity: 0;
   transform: translate3d(0, calc(var(--apple-selection-y, 0px) + var(--apple-travel-y-nudge, 0px)), 0);
-  box-shadow: 0 4px 10px rgb(12 22 44 / 12%);
   will-change: height, border-radius;
   pointer-events: none;
   transition:
-    height 680ms cubic-bezier(.22, .82, .28, 1),
-    border-radius 680ms cubic-bezier(.22, .82, .28, 1),
-    opacity 120ms ease,
-    box-shadow 160ms ease;
+    height 680ms var(--apple-spring),
+    border-radius 680ms var(--apple-spring),
+    opacity 120ms ease;
 }
 
 .apple-selection-plate.is-ready[data-entered="true"],
@@ -445,18 +458,14 @@ body:has(.apple-clear) {
 .apple-selection-plate[data-phase="idle"],
 .apple-selection-plate[data-phase="fading"] {
   height: 58px;
-  border-radius: var(--apple-menu-radius);
+  border-radius: var(--apple-plate-radius);
 }
 
 .apple-selection-plate[data-phase="click"],
 .apple-selection-plate[data-phase="dragging"],
 .apple-selection-plate[data-phase="settling"] {
   height: 74px;
-  border-radius: var(--apple-menu-radius);
-}
-
-.apple-selection-plate[data-phase="idle"] {
-  box-shadow: none;
+  border-radius: var(--apple-plate-radius);
 }
 
 .apple-selection-plate[data-phase="dragging"],
@@ -466,15 +475,13 @@ body:has(.apple-clear) {
 }
 
 .apple-selection-plate[data-phase="settling"] {
-  transition-duration: 260ms, 260ms, 160ms, 160ms;
+  transition-duration: 260ms, 260ms, 160ms;
 }
 
 .apple-selection-plate[data-phase="fading"] {
-  box-shadow: none;
   transition:
     height 160ms ease,
-    border-radius 160ms ease,
-    box-shadow 160ms ease;
+    border-radius 160ms ease;
 }
 
 .apple-selection-plate__optical,
@@ -493,6 +500,22 @@ body:has(.apple-clear) {
   overflow: hidden;
   border-radius: inherit;
   background: rgb(255 255 255 / 4%);
+  box-shadow:
+    0 4px 10px rgb(12 22 44 / 12%),
+    inset 0 1px 0 rgb(255 255 255 / 54%),
+    inset 0 -1px 0 rgb(49 72 121 / 12%);
+  transform: scale3d(var(--apple-lens-scale-x), var(--apple-lens-scale-y), 1);
+  transform-origin: center;
+  transition: transform 420ms var(--apple-spring);
+}
+
+.apple-clear-menu[data-lens-spring="pressed"] .apple-selection-plate__optical {
+  transition-duration: 90ms;
+  transition-timing-function: var(--apple-spring-press);
+}
+
+.apple-selection-plate[data-phase="idle"] .apple-selection-plate__optical,
+.apple-selection-plate[data-phase="fading"] .apple-selection-plate__optical {
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 54%),
     inset 0 -1px 0 rgb(49 72 121 / 12%);
@@ -665,9 +688,20 @@ body:has(.apple-clear) {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .apple-clear {
+    --apple-spring: cubic-bezier(.22, .82, .28, 1);
+    --apple-lens-scale-x: 1;
+    --apple-lens-scale-y: 1;
+  }
+
   .apple-clear-shell__replica,
   .apple-selection-plate__replica {
     filter: none !important;
+  }
+
+  .apple-selection-plate__optical {
+    transform: none;
+    transition: none;
   }
 }
 
