@@ -1,7 +1,7 @@
 "use client";
 
 import * as Menubar from "@radix-ui/react-menubar";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { LiquidMenu, type LiquidMenuItem } from "./LiquidMenu";
 import "./liquid-overlays.css";
 
@@ -39,30 +39,67 @@ const DEFAULT_GROUPS: readonly LiquidMenubarGroup[] = [
   },
 ];
 
+function initialSelection(groups: readonly LiquidMenubarGroup[]) {
+  return Object.fromEntries(groups.map((group) => [group.value, group.items[0]?.value ?? ""]));
+}
+
 export function LiquidMenubar({
   groups = DEFAULT_GROUPS,
   onValueChange,
   theme,
   optics,
 }: LiquidMenubarProps) {
-  const [epoch, setEpoch] = useState(0);
+  const [openMenu, setOpenMenu] = useState("");
+  const [selectedByGroup, setSelectedByGroup] = useState(initialSelection(groups));
+  const closeAfterCommit = useRef(false);
+
+  const commitItem = (group: string, next: string) => {
+    setSelectedByGroup((current) => ({ ...current, [group]: next }));
+    onValueChange?.(group, next);
+    if (closeAfterCommit.current) {
+      closeAfterCommit.current = false;
+      setOpenMenu("");
+    }
+  };
 
   return (
-    <Menubar.Root key={epoch} className="liquid-menubar">
+    <Menubar.Root
+      className="liquid-menubar"
+      value={openMenu}
+      onValueChange={(next) => {
+        if (!next) closeAfterCommit.current = false;
+        setOpenMenu(next);
+      }}
+    >
       {groups.map((group) => (
-        <Menubar.Menu key={group.value}>
+        <Menubar.Menu key={group.value} value={group.value}>
           <Menubar.Trigger className="liquid-menubar-trigger">{group.label}</Menubar.Trigger>
           <Menubar.Portal>
-            <Menubar.Content className="liquid-overlay-content" align="start" sideOffset={8}>
+            <Menubar.Content
+              className="liquid-overlay-content"
+              align="start"
+              sideOffset={8}
+              aria-label={group.label}
+              onPointerDown={() => {
+                closeAfterCommit.current = true;
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                closeAfterCommit.current = true;
+                const phase = event.currentTarget
+                  .querySelector("[data-glass-phase]")
+                  ?.getAttribute("data-glass-phase");
+                if (!phase || phase === "idle") setOpenMenu("");
+              }}
+            >
               <LiquidMenu
+                host="nested"
                 title={group.label}
                 items={group.items}
+                value={selectedByGroup[group.value]}
                 theme={theme}
                 optics={optics}
-                onValueChange={(next) => {
-                  onValueChange?.(group.value, next);
-                  setEpoch((value) => value + 1);
-                }}
+                onValueChange={(next) => commitItem(group.value, next)}
               />
             </Menubar.Content>
           </Menubar.Portal>

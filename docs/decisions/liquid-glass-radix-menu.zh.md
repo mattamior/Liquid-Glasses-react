@@ -5,9 +5,9 @@
 
 ## 1. 范围与决策
 
-可移植交付物是浮动菜单，不是主屏实验室。新工作在 `grok/liquid-glass-radix-menu`。产品安装复制内核并挂载 `LiquidMenu`、`LiquidDropdown`、`LiquidContextMenu`、`LiquidSelect` 或 `LiquidPopover`。Radix 负责开合、焦点与关闭。光学保持冻结。
+可移植交付物是浮动菜单，不是主屏实验室。新工作在 `grok/liquid-glass-radix-menu`。产品安装复制内核并挂载 `LiquidMenu` 或已完成的覆盖层（`LiquidDropdown`、`LiquidContextMenu`、`LiquidSelect`、`LiquidPopover`、`LiquidDialog`、`LiquidMenubar`）。Radix 负责开合、焦点与关闭。光学保持冻结。
 
-本批次只做完 **LiquidPopover**。其他未完成的覆盖层此处不改。
+本批次只做完 **LiquidMenubar**。覆盖层家族至此做完。
 
 菜单正下方必须是模糊或纯色，以保证文字可读。
 
@@ -19,9 +19,11 @@
 - `LiquidContextMenu` 是第二个做完的覆盖层：右键宿主 + Portal；嵌套宿主键盘与延迟关闭与 `LiquidDropdown` 相同。
 - `LiquidSelect` 是第三个做完的覆盖层：表单 Trigger + Popover Portal（不用 Radix Select），旅行透镜可以走完；空值显示 placeholder。
 - `LiquidPopover` 是第四个做完的覆盖层：点击 Trigger + Portal；提交后保持打开，直到 Escape、点外侧或再点 Trigger。
+- `LiquidDialog` 是第五个做完的覆盖层：模态遮罩 + 居中玻璃菜单；指针或 Enter 在旅行淡出后关闭；点遮罩和 Escape 立刻关闭。
+- `LiquidMenubar` 是第六个做完的覆盖层：横向「文件 / 编辑」触发器；每个菜单都是 `host="nested"`；指针或 Enter 在旅行淡出后关闭。不再用 `key` 整棵重挂。
 - 目录侧栏（`CatalogNav`）在提交后锁住 pending 选中项，避免 `router.push` 晚到时选择板弹回再播一遍旅行。侧栏标签 `nowrap`、从左侧缩放，长英文名不换行且左缘对齐。
 - `/ui` 预览台。左侧目录本身就是 `LiquidMenu`。`/liquid-menu` 重定向到 `/ui/liquid-menu`。
-- `LiquidDialog`、`LiquidMenubar` 仍是上一轮五件套的目录占位，本批次不完成。
+- 覆盖层家族已做完。后续是新表面，不再补未完成的五件套。
 - Skill 提取与 `app/apple-clear` 保持字节一致。
 
 ## 3. 验证证据
@@ -35,6 +37,8 @@
 | 浏览器 `/ui/liquid-context-menu` | 桌面：右键打开 nested host；点「信息」→ 旅行 → `onValueChange: messages` / 已关闭；ArrowDown 信息→设置 保持打开 / `settings`；Enter 关闭；Escape 关闭；点外侧关闭；重选「设置」立刻关闭。移动 390×844 长按打开；pointerdown+click「照片」→ 旅行 → 关闭 / `photos`。`/ui/liquid-dropdown` 仍能打开 nested host。 |
 | 浏览器 `/ui/liquid-select` | 桌面：trigger 显示 `选择…`；点「信息」→ 旅行 → trigger `信息` / `onValueChange: messages` / 已关闭；ArrowDown 信息→设置 保持打开 / trigger `设置`；Enter 关闭；Escape 关闭；点标题关闭；重选「设置」立刻关闭。移动 390×844：pointerdown+click「照片」→ 旅行 → trigger `照片` / 已关闭。 |
 | 浏览器 `/ui/liquid-popover` | 桌面：点 trigger 打开；点「信息」→ 旅行 → `onValueChange: messages` / 保持打开；ArrowDown → `settings` / 保持打开；Enter 保持打开；Escape 关闭；点标题关闭；再点 trigger 关闭。移动 390×844：pointerdown+click「照片」→ 旅行 → `photos` / 保持打开。 |
+| 浏览器 `/ui/liquid-dialog` | 桌面：打开居中模态；点「信息」→ 旅行 → `onValueChange: messages` / 已关闭；ArrowDown 信息→设置 保持打开 / `settings`；Enter 关闭；Escape 关闭；点遮罩关闭；重选「设置」立刻关闭。移动 390×844：pointerdown+click「照片」→ 旅行 → `photos` / 已关闭。 |
+| 浏览器 `/ui/liquid-menubar` | 桌面：文件打开 新建/打开/保存；点「打开」→ 旅行 → `file/open` / 已关闭；编辑打开 剪切/复制/粘贴；ArrowDown → `edit/copy` / 保持打开；Enter 关闭；文件→编辑切换菜单；Escape 关闭；点标题关闭。移动 390×844：文件 → 保存 → 旅行 → `file/save` / 已关闭。 |
 | 生产部署 | 未执行 |
 
 ## 4. 部署与发布状态
@@ -46,4 +50,4 @@
 - 嵌套宿主没有 typeahead。Radix Dropdown 没有 `Item` 子节点，因此不会跟打字跳转。
 - 方向键浏览在旅行淡出后更新 `value`，这样面板留在新行上、菜单仍保持打开。
 - 嵌入态 `backdrop-filter` 采样舞台后的页面；副本仍克隆 backdrop 节点，不是每个字形下的实时像素。
-- 下一批次：只做完 `LiquidDialog`，复用 `host="nested"`。
+- 覆盖层占位已清完。Tab bar / 控制中心 Regular 在系统截图到位前不做。
