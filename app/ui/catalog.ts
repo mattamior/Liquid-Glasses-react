@@ -70,7 +70,7 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   {
     slug: "liquid-context-menu",
     title: "LiquidContextMenu",
-    summary: "Right-click host. Same glass panel in a Radix portal. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits.",
+    summary: "Right-click host. Compact glass panel with the same liquid pop as LiquidDropdown. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits.",
     usage: `<LiquidContextMenu items={items} value={value} onValueChange={setValue}>
   在此区域右键
 </LiquidContextMenu>`,

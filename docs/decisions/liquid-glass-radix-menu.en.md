@@ -7,7 +7,7 @@
 
 The portable deliverable is the floating menu, not the home-screen lab. New work lives on `grok/liquid-glass-radix-menu`. Product mounts copy the kernel and render `LiquidMenu` or one of the finished overlays (`LiquidDropdown`, `LiquidContextMenu`, `LiquidSelect`, `LiquidPopover`, `LiquidDialog`, `LiquidMenubar`). Radix owns open, focus, and dismiss. Optics stay frozen.
 
-This batch changes **only** `LiquidDropdown` open motion. Other overlays stay as they are.
+This batch occludes nested overlay underlays (`host="nested"`). Standalone `LiquidMenu` is unchanged.
 
 The layer immediately behind the menu must be blur or a solid color so labels stay readable.
 
@@ -16,7 +16,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 - `LiquidMenu` accepts `items`, `value`, `defaultValue`, `onValueChange`, `title`, `theme`, `optics`, optional `scene`, and `host`.
 - Kernel `host` is `standalone` (wraps `@radix-ui/react-navigation-menu`) or `nested` (plain `nav`, own arrow/Home/End/Enter). Overlay hosts must pass `nested` so two Radix menus are not stacked.
 - `LiquidDropdown` is the first finished overlay: trigger + portal; pointer or reselect closes after the travel fade; Arrow/Home/End browse and commit without dismissing; Enter/Space confirm and close; Escape and outside click dismiss immediately.
-- `LiquidContextMenu` is the second finished overlay: right-click surface + portal; same nested-host keyboard and delayed close as `LiquidDropdown`.
+- `LiquidContextMenu` is the second finished overlay: right-click surface + portal; same nested-host keyboard and delayed close as `LiquidDropdown`. It now uses `density: "compact"` and the same three-beat liquid pop (no trigger squash; there is no standing trigger).
 - `LiquidSelect` is the third finished overlay: form trigger + Popover portal (not Radix Select) so the travel lens can finish; empty value shows the placeholder.
 - `LiquidPopover` is the fourth finished overlay: click trigger + portal; commit stays open until Escape, outside click, or the trigger.
 - `LiquidDialog` is the fifth finished overlay: modal dim + centered glass menu; pointer or Enter closes after the travel fade; overlay and Escape dismiss immediately.
@@ -26,6 +26,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 - Overlay family is complete. Further work is new surfaces, not another unfinished 5-pack.
 - `LiquidDropdown` uses kernel `density: "compact"` (36px rows, 13/16 type, 200px, 16/12 radius). Standalone `LiquidMenu` stays `panel` (58 / 14↔20 / 280).
 - Dropdown open is a three-beat liquid morph on the inner wrap, matching Control Center calculator → copy-result chip: press-only trigger squash (`scaleX 1.1 / scaleY 0.84`) that releases 120ms after open so the trigger returns to rest; source-sized blob, oversized overshoot, compact settle. Closing does not replay the squash. Radix still owns Content placement. `cssAncestorScale` keeps the world replica off the animated scale.
+- Nested overlay underlay (`data-host="nested"`) is `rgb(14 18 30 / 54%)` + `blur(40px)` in dark (light: `rgb(28 48 78 / 52%)`) so page type behind portals is just unreadable. Standalone panel underlay stays `16%` + `blur(22px)`. Refraction is unchanged.
 - Skill extract stays byte-equal with `app/apple-clear`.
 
 ## 3. Verification Evidence
@@ -44,6 +45,8 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 | Skill install `test-7` | New blank Vite React app at `/Users/jay/Code/Liquid-Glasses-skill-test/test-7`. 14 kernel files + adapter byte-equal. `tsc -b` passed. Desktop: LiquidMenu 信息 travel → `menu: messages`, Enhanced optics. LiquidDropdown 设置 travel → close / `dropdown: settings`. Mobile: 设置 → `menu: settings`. Kernel bundle SHA-256 `60d21ba6c82f365ab71a4ee375d290e33d1f84e9bfa1358363775dbece0cb23c`. Visual approval pending. |
 | Compact dropdown | `/ui/liquid-dropdown`: trigger 40×61 / 14px; open panel 200×172, row 36, travel plate 46, radius 16, density=compact. Click 信息 travels then closes. Sidebar still row 58 / density=panel. |
 | Dropdown morph pop | Desktop 1280×800: pointerdown trigger `matrix(1.1, 0, 0, 0.84)`; pop samples 68×31 (t0) → 150×112 (t80) → 227×201 overshoot (t270) → 190×158 recover (t420) → 200×172 settle (t700). Click 信息 → travel → trigger `信息` / `onValueChange: messages` / closed; no leftover pop node. Mobile 390×844: same press squash; mid 174×140 then settle 200×172; click 照片 → trigger `照片` / `onValueChange: photos` / closed. Console errors: none. |
+| ContextMenu compact + morph | `/ui/liquid-context-menu` desktop: right-click pop `liquid-context-pop-right` 36×58 (t80) → 243×201 overshoot (t270) → 200×172 settle (t700), `data-density=compact`. Click 信息 → travel → `onValueChange: messages` / closed. |
+| Nested overlay occlusion | `/ui/liquid-context-menu`: right-click over 「在此区域右键」. Nested backdrop computed `rgba(14, 18, 30, 0.54)` / `blur(40px) saturate(1.8)`. Hint glyphs not readable through the plate. Sidebar `LiquidMenu` still `data-host=standalone`. |
 | Production deploy | Not run |
 
 ## 4. Deployment and Release Status

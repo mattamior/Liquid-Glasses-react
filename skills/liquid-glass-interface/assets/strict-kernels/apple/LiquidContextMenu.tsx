@@ -53,7 +53,7 @@ export function LiquidContextMenu({
       </ContextMenu.Trigger>
       <ContextMenu.Portal>
         <ContextMenu.Content
-          className="liquid-overlay-content"
+          className="liquid-overlay-content liquid-context-content"
           alignOffset={-4}
           aria-label={title}
           onPointerDown={() => {
@@ -68,15 +68,18 @@ export function LiquidContextMenu({
             if (!phase || phase === "idle") setOpen(false);
           }}
         >
-          <LiquidMenu
-            host="nested"
-            title={title}
-            items={items}
-            value={selected}
-            theme={theme}
-            optics={optics}
-            onValueChange={commitValue}
-          />
+          <div className="liquid-context-pop">
+            <LiquidMenu
+              host="nested"
+              density="compact"
+              title={title}
+              items={items}
+              value={selected}
+              theme={theme}
+              optics={optics}
+              onValueChange={commitValue}
+            />
+          </div>
         </ContextMenu.Content>
       </ContextMenu.Portal>
     </ContextMenu.Root>

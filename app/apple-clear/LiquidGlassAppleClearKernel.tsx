@@ -919,6 +919,7 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
       data-liquid-glass-mode="apple-liquid-glass"
       data-liquid-glass-role="apple-clear-stage"
       data-density={density}
+      data-host={host ?? "standalone"}
       data-variant={variant}
       data-theme={theme}
       data-optics-tier={enhanced && shellField ? "enhanced" : "baseline"}

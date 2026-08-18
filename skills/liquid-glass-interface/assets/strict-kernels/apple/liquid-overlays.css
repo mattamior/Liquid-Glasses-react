@@ -54,9 +54,124 @@
 .liquid-overlay-content {
   z-index: 40;
   padding: 0;
+  overflow: visible;
   border: 0;
   background: transparent;
   outline: none;
+}
+
+.liquid-context-pop {
+  transform-origin: top left;
+  animation: liquid-context-pop 640ms cubic-bezier(0.22, 0.12, 0.28, 1) both;
+}
+
+.liquid-context-content[data-side="top"] .liquid-context-pop {
+  transform-origin: bottom left;
+  animation-name: liquid-context-pop-top;
+}
+
+.liquid-context-content[data-side="left"] .liquid-context-pop {
+  transform-origin: right center;
+  animation-name: liquid-context-pop-left;
+}
+
+.liquid-context-content[data-side="right"] .liquid-context-pop {
+  transform-origin: left center;
+  animation-name: liquid-context-pop-right;
+}
+
+@keyframes liquid-context-pop {
+  0% {
+    opacity: 0.78;
+    transform: scale(0.34, 0.18) translate(-4px, -10px);
+  }
+  12% {
+    opacity: 0.92;
+    transform: scale(0.52, 0.34) translate(-2px, -6px);
+  }
+  42% {
+    opacity: 1;
+    transform: scale(1.2, 1.26) translate(6px, 8px);
+  }
+  70% {
+    transform: scale(0.95, 0.92) translate(-1px, -3px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1, 1) translate(0, 0);
+  }
+}
+
+@keyframes liquid-context-pop-top {
+  0% {
+    opacity: 0.78;
+    transform: scale(0.34, 0.18) translate(-4px, 10px);
+  }
+  12% {
+    opacity: 0.92;
+    transform: scale(0.52, 0.34) translate(-2px, 6px);
+  }
+  42% {
+    opacity: 1;
+    transform: scale(1.2, 1.26) translate(6px, -8px);
+  }
+  70% {
+    transform: scale(0.95, 0.92) translate(-1px, 3px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1, 1) translate(0, 0);
+  }
+}
+
+@keyframes liquid-context-pop-left {
+  0% {
+    opacity: 0.78;
+    transform: scale(0.18, 0.34) translate(10px, -4px);
+  }
+  12% {
+    opacity: 0.92;
+    transform: scale(0.34, 0.52) translate(6px, -2px);
+  }
+  42% {
+    opacity: 1;
+    transform: scale(1.26, 1.2) translate(-8px, 6px);
+  }
+  70% {
+    transform: scale(0.92, 0.95) translate(3px, -1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1, 1) translate(0, 0);
+  }
+}
+
+@keyframes liquid-context-pop-right {
+  0% {
+    opacity: 0.78;
+    transform: scale(0.18, 0.34) translate(-10px, -4px);
+  }
+  12% {
+    opacity: 0.92;
+    transform: scale(0.34, 0.52) translate(-6px, -2px);
+  }
+  42% {
+    opacity: 1;
+    transform: scale(1.26, 1.2) translate(8px, 6px);
+  }
+  70% {
+    transform: scale(0.92, 0.95) translate(-3px, -1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1, 1) translate(0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-context-pop {
+    animation: none;
+  }
 }
 
 .liquid-dialog-content {
@@ -86,4 +201,8 @@
 .liquid-dialog-content .apple-clear-menu,
 .liquid-overlay-content .apple-clear-menu {
   width: min(280px, calc(100vw - 32px));
+}
+
+.liquid-context-content .apple-clear-menu {
+  width: min(var(--apple-menu-width, 200px), calc(100vw - 32px));
 }
