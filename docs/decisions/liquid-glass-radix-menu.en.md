@@ -39,6 +39,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 | Browser `/ui/liquid-popover` | Desktop: click trigger opens; click 信息 → travel → `onValueChange: messages` / stayed open; ArrowDown → `settings` / stayed open; Enter stayed open; Escape closed; click heading dismissed; trigger toggle closed. Mobile 390×844: pointerdown+click 照片 → travel → `photos` / stayed open. |
 | Browser `/ui/liquid-dialog` | Desktop: trigger opens centered modal; click 信息 → travel → `onValueChange: messages` / closed; ArrowDown 信息→设置 stays open / `settings`; Enter closes; Escape closes; overlay pointerdown dismisses; reselect 设置 closes immediately. Mobile 390×844: pointerdown+click 照片 → travel → `photos` / closed. |
 | Browser `/ui/liquid-menubar` | Desktop: 文件 opens 新建/打开/保存; click 打开 → travel → `file/open` / closed; 编辑 opens 剪切/复制/粘贴; ArrowDown → `edit/copy` / stayed open; Enter closed; switch 文件→编辑 swaps menus; Escape closed; click heading dismissed. Mobile 390×844: 文件 → 保存 → travel → `file/save` / closed. |
+| Skill install `test-7` | New blank Vite React app at `/Users/jay/Code/Liquid-Glasses-skill-test/test-7`. 14 kernel files + adapter byte-equal. `tsc -b` passed. Desktop: LiquidMenu 信息 travel → `menu: messages`, Enhanced optics. LiquidDropdown 设置 travel → close / `dropdown: settings`. Mobile: 设置 → `menu: settings`. Kernel bundle SHA-256 `60d21ba6c82f365ab71a4ee375d290e33d1f84e9bfa1358363775dbece0cb23c`. Visual approval pending. |
 | Production deploy | Not run |
 
 ## 4. Deployment and Release Status
