@@ -99,7 +99,9 @@ assert.doesNotMatch(
   /border-radius:\s*32px/,
 );
 assert.match(css, /--apple-plate-inset: 8px/);
-assert.match(css, /--apple-plate-inset: -6px/);
+assert.match(css, /--apple-plate-inset-travel: -6px/);
+assert.match(page, /density \?\? "panel"/);
+assert.match(page, /itemHeight: 36/);
 assert.match(css, /overflow: visible/);
 assert.match(css, /\.apple-menu-visual--lens \.apple-menu-visual__label/);
 assert.match(css, /\.apple-menu-visual__label/);

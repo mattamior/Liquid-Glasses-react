@@ -40,11 +40,56 @@ export interface AppleClearItem {
 
 export type AppleClearVariant = "lab" | "embedded";
 export type AppleClearHost = "standalone" | "nested";
+export type AppleClearDensity = "panel" | "compact";
+
+interface AppleClearDensityMetrics {
+  itemHeight: number;
+  travelHeight: number;
+  itemGap: number;
+  menuTop: number;
+  plateInsetTravel: number;
+  menuRadius: number;
+  plateRadius: number;
+  sizeIdle: number;
+  sizeActive: number;
+  menuWidth: number;
+  itemPadX: number;
+}
+
+const DENSITY_METRICS: Record<AppleClearDensity, AppleClearDensityMetrics> = {
+  panel: {
+    itemHeight: 58,
+    travelHeight: 74,
+    itemGap: 8,
+    menuTop: 12,
+    plateInsetTravel: -6,
+    menuRadius: 28,
+    plateRadius: 20,
+    sizeIdle: 14,
+    sizeActive: 20,
+    menuWidth: 280,
+    itemPadX: 22,
+  },
+  compact: {
+    itemHeight: 36,
+    travelHeight: 46,
+    itemGap: 4,
+    menuTop: 8,
+    plateInsetTravel: -4,
+    menuRadius: 16,
+    plateRadius: 12,
+    sizeIdle: 13,
+    sizeActive: 16,
+    menuWidth: 200,
+    itemPadX: 14,
+  },
+};
 
 export interface AppleClearKernelConfig {
   title?: string;
   variant?: AppleClearVariant;
   host?: AppleClearHost;
+  density?: AppleClearDensity;
   navItems?: readonly AppleClearNavItem[];
   items?: readonly AppleClearItem[];
   value?: string;
@@ -87,12 +132,6 @@ const DEFAULT_NAV: readonly AppleClearNavItem[] = [
   { id: "settings", label: "设置" },
 ];
 
-const ITEM_HEIGHT = 58;
-const TRAVEL_HEIGHT = 74;
-const TRAVEL_Y_NUDGE = (ITEM_HEIGHT - TRAVEL_HEIGHT) / 2;
-const ITEM_GAP = 8;
-const MENU_TOP = 12;
-const PLATE_INSET = -6;
 const SHELL_OVERSCAN = APPLE_CLEAR_PANEL_OPTICS.filterPaddingCssPx;
 const LENS_OVERSCAN = APPLE_SELECTION_LENS_OPTICS.filterPaddingCssPx;
 const NAV_DURATION = 680;
@@ -107,16 +146,36 @@ function toSafeId(value: string) {
   ).join("")}`;
 }
 
-function itemY(index: number) {
-  return index * (ITEM_HEIGHT + ITEM_GAP);
+function itemPitch(metrics: AppleClearDensityMetrics) {
+  return metrics.itemHeight + metrics.itemGap;
 }
 
-function nearestItem(y: number, length: number) {
-  return clamp(Math.round(y / (ITEM_HEIGHT + ITEM_GAP)), 0, length - 1);
+function itemY(index: number, metrics: AppleClearDensityMetrics) {
+  return index * itemPitch(metrics);
+}
+
+function nearestItem(y: number, length: number, metrics: AppleClearDensityMetrics) {
+  return clamp(Math.round(y / itemPitch(metrics)), 0, length - 1);
 }
 
 function isTravelPhase(phase: GlassPhase | undefined) {
   return phase === "click" || phase === "dragging" || phase === "settling";
+}
+
+function cssAncestorScale(el: HTMLElement) {
+  let scaleX = 1;
+  let scaleY = 1;
+  let node: HTMLElement | null = el;
+  while (node) {
+    const transform = getComputedStyle(node).transform;
+    if (transform && transform !== "none") {
+      const matrix = new DOMMatrixReadOnly(transform);
+      scaleX *= Math.hypot(matrix.a, matrix.b);
+      scaleY *= Math.hypot(matrix.c, matrix.d);
+    }
+    node = node.parentElement;
+  }
+  return { scaleX: scaleX || 1, scaleY: scaleY || 1 };
 }
 
 function supportsEnhancedOptics() {
@@ -174,6 +233,9 @@ function LensFilter({
 export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKernelConfig }) {
   const variant = config.variant ?? "embedded";
   const host = config.host ?? "standalone";
+  const density = config.density ?? "panel";
+  const metrics = DENSITY_METRICS[density];
+  const travelYNudge = (metrics.itemHeight - metrics.travelHeight) / 2;
   const navItems =
     config.navItems && config.navItems.length >= 1
       ? config.navItems
@@ -249,9 +311,9 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
   const activeIndex = interaction?.targetIndex ?? selectedIndex;
   const enhanced = optics === "enhanced" && supported && !fallback;
   const traveling = isTravelPhase(interaction?.phase);
-  const plateHeight = traveling ? TRAVEL_HEIGHT : ITEM_HEIGHT;
-  const plateNudge = traveling ? TRAVEL_Y_NUDGE : 0;
-  const plateY = interaction ? interaction.y : itemY(selectedIndex);
+  const plateHeight = traveling ? metrics.travelHeight : metrics.itemHeight;
+  const plateNudge = traveling ? travelYNudge : 0;
+  const plateY = interaction ? interaction.y : itemY(selectedIndex, metrics);
 
   const setTransient = useCallback((next: Interaction | null) => {
     interactionRef.current = next;
@@ -319,31 +381,32 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
       const menu = menuRef.current;
       if (!stage) return;
       const stageBox = stage.getBoundingClientRect();
+      const { scaleX, scaleY } = cssAncestorScale(stage);
       if (shell) {
         const shellBox = shell.getBoundingClientRect();
         setShellGeometry({
-          stageWidth: stageBox.width,
-          stageHeight: stageBox.height,
-          width: shellBox.width,
-          height: shellBox.height,
-          worldX: stageBox.left - shellBox.left,
-          worldY: stageBox.top - shellBox.top,
-          ready: shellBox.width > 0 && shellBox.height > 0,
+          stageWidth: stage.offsetWidth,
+          stageHeight: stage.offsetHeight,
+          width: shell.offsetWidth,
+          height: shell.offsetHeight,
+          worldX: (stageBox.left - shellBox.left) / scaleX,
+          worldY: (stageBox.top - shellBox.top) / scaleY,
+          ready: shell.offsetWidth > 0 && shell.offsetHeight > 0,
         });
       }
       if (menu) {
         const menuBox = menu.getBoundingClientRect();
-        const plateWidth = Math.max(2, menuBox.width - PLATE_INSET * 2);
-        // Rest plate (y=0, height=58). Travel only CSS-offsets Y; never live plate Y.
-        const restPlateLeft = menuBox.left + PLATE_INSET;
+        const plateWidth = Math.max(2, menu.offsetWidth - metrics.plateInsetTravel * 2);
+        // Rest plate (y=0). Travel only CSS-offsets Y; never live plate Y.
+        const restPlateLeft = menuBox.left + metrics.plateInsetTravel * scaleX;
         setLensGeometry({
-          stageWidth: stageBox.width,
-          stageHeight: stageBox.height,
+          stageWidth: stage.offsetWidth,
+          stageHeight: stage.offsetHeight,
           width: plateWidth,
           // Pre-build at travel size so the first click/drag frame has url(#lens).
-          height: TRAVEL_HEIGHT,
-          worldX: stageBox.left - restPlateLeft,
-          worldY: stageBox.top - (menuBox.top + MENU_TOP),
+          height: metrics.travelHeight,
+          worldX: (stageBox.left - restPlateLeft) / scaleX,
+          worldY: (stageBox.top - (menuBox.top + metrics.menuTop * scaleY)) / scaleY,
           ready: plateWidth > 0,
         });
       }
@@ -364,7 +427,7 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
       window.removeEventListener("scroll", schedule, true);
       if (scheduled) cancelAnimationFrame(scheduled);
     };
-  }, [theme]);
+  }, [metrics, theme]);
 
   const bypass = useCallback(
     () =>
@@ -394,7 +457,7 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
         const current = interactionRef.current;
         if (!current) return;
         setLensSpring("rest");
-        setTransient({ ...current, phase: "fading", y: itemY(targetIndex) });
+        setTransient({ ...current, phase: "fading", y: itemY(targetIndex, metrics) });
         const fade = window.setTimeout(() => {
           if (commit) commitIndex(targetIndex);
           setSweep(null);
@@ -404,7 +467,7 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
       }, duration);
       timers.current.push(motion);
     },
-    [commitIndex, setTransient],
+    [commitIndex, metrics, setTransient],
   );
 
   const startClick = useCallback(
@@ -425,15 +488,15 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
         itemRefs.current[selectedIndex]?.getBoundingClientRect(),
         itemRefs.current[index]?.getBoundingClientRect(),
       );
-      setTransient({ phase: "click", targetIndex: index, y: itemY(selectedIndex), visible: true });
+      setTransient({ phase: "click", targetIndex: index, y: itemY(selectedIndex, metrics), visible: true });
       frame.current = requestAnimationFrame(() => {
         const current = interactionRef.current;
         if (!current) return;
-        setTransient({ ...current, y: itemY(index) });
+        setTransient({ ...current, y: itemY(index, metrics) });
         commitAfterFade(index, NAV_DURATION, true);
       });
     },
-    [bypass, clearWork, commitAfterFade, commitIndex, config, host, navItems, playSweepBetween, selectedIndex, setTransient],
+    [bypass, clearWork, commitAfterFade, commitIndex, config, host, metrics, navItems, playSweepBetween, selectedIndex, setTransient],
   );
 
   const onNavKeyDown = useCallback(
@@ -491,22 +554,26 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
       if (!drag.moved) return;
       const bounds = menuRef.current?.getBoundingClientRect();
       const y = bounds
-        ? clamp((finalY ?? drag.y + MENU_TOP) - bounds.top - MENU_TOP - drag.grabOffset, 0, itemY(navItems.length - 1))
+        ? clamp(
+            (finalY ?? drag.y + metrics.menuTop) - bounds.top - metrics.menuTop - drag.grabOffset,
+            0,
+            itemY(navItems.length - 1, metrics),
+          )
         : drag.y;
-      const target = nearestItem(y, navItems.length);
+      const target = nearestItem(y, navItems.length, metrics);
       playSweepBetween(
         plateRef.current?.getBoundingClientRect(),
         itemRefs.current[target]?.getBoundingClientRect(),
       );
       setLensSpring("stretch");
-      setTransient({ phase: "settling", targetIndex: target, y: itemY(target), visible: true });
+      setTransient({ phase: "settling", targetIndex: target, y: itemY(target, metrics), visible: true });
       commitAfterFade(target, SETTLE_DURATION, target !== selectedIndex);
       const timer = window.setTimeout(() => {
         suppressedClick.current = null;
       }, 450);
       suppressedClick.current = { target: drag.pointerTarget, timer };
     },
-    [clearWork, commitAfterFade, navItems.length, playSweepBetween, selectedIndex, setTransient],
+    [clearWork, commitAfterFade, metrics, navItems.length, playSweepBetween, selectedIndex, setTransient],
   );
 
   const onPointerDown = (event: ReactPointerEvent<HTMLButtonElement>, index: number) => {
@@ -524,12 +591,12 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
     if (index !== selectedIndex || bypass()) return;
     const bounds = menuRef.current?.getBoundingClientRect();
     if (!bounds) return;
-    const origin = itemY(index);
+    const origin = itemY(index, metrics);
     event.currentTarget.setPointerCapture(event.pointerId);
     dragRef.current = {
       pointerId: event.pointerId,
       pointerTarget: event.currentTarget,
-      grabOffset: event.clientY - (bounds.top + MENU_TOP + origin),
+      grabOffset: event.clientY - (bounds.top + metrics.menuTop + origin),
       originY: origin,
       y: origin,
       moved: false,
@@ -541,12 +608,16 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
     if (!drag || drag.pointerId !== event.pointerId) return;
     const bounds = menuRef.current?.getBoundingClientRect();
     if (!bounds) return;
-    const y = clamp(event.clientY - bounds.top - MENU_TOP - drag.grabOffset, 0, itemY(navItems.length - 1));
+    const y = clamp(
+      event.clientY - bounds.top - metrics.menuTop - drag.grabOffset,
+      0,
+      itemY(navItems.length - 1, metrics),
+    );
     drag.y = y;
     drag.moved ||= Math.abs(y - drag.originY) > DRAG_THRESHOLD;
     if (!drag.moved) return;
     setLensSpring("stretch");
-    setTransient({ phase: "dragging", targetIndex: nearestItem(y, navItems.length), y, visible: true });
+    setTransient({ phase: "dragging", targetIndex: nearestItem(y, navItems.length, metrics), y, visible: true });
     event.preventDefault();
   };
 
@@ -832,9 +903,22 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
         "--apple-selection-y": `${plateY}px`,
         "--apple-selection-height": `${plateHeight}px`,
         "--apple-travel-y-nudge": `${plateNudge}px`,
+        "--apple-item-height": `${metrics.itemHeight}px`,
+        "--apple-travel-height": `${metrics.travelHeight}px`,
+        "--apple-item-gap": `${metrics.itemGap}px`,
+        "--apple-menu-pad": `${metrics.menuTop}px`,
+        "--apple-menu-radius": `${metrics.menuRadius}px`,
+        "--apple-plate-radius": `${metrics.plateRadius}px`,
+        "--apple-menu-size-idle": `${metrics.sizeIdle}px`,
+        "--apple-menu-size-active": `${metrics.sizeActive}px`,
+        "--apple-menu-width": `${metrics.menuWidth}px`,
+        "--apple-item-pad-x": `${metrics.itemPadX}px`,
+        "--apple-plate-inset-idle": density === "compact" ? "6px" : "8px",
+        "--apple-plate-inset-travel": `${metrics.plateInsetTravel}px`,
       } as CSSProperties}
       data-liquid-glass-mode="apple-liquid-glass"
       data-liquid-glass-role="apple-clear-stage"
+      data-density={density}
       data-variant={variant}
       data-theme={theme}
       data-optics-tier={enhanced && shellField ? "enhanced" : "baseline"}

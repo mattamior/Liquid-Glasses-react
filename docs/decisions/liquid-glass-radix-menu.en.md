@@ -24,6 +24,8 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 - Catalog sidebar (`CatalogNav`) keeps a pending selected index after commit so a late `router.push` cannot spring the plate back and replay travel. Sidebar labels `nowrap` and scale from the left so long English names stay on one row and share a left edge.
 - `/ui` catalog. Left rail is itself a `LiquidMenu`. `/liquid-menu` redirects to `/ui/liquid-menu`.
 - Overlay family is complete. Further work is new surfaces, not another unfinished 5-pack.
+- `LiquidDropdown` uses kernel `density: "compact"` (36px rows, 13/16 type, 200px, 16/12 radius). Standalone `LiquidMenu` stays `panel` (58 / 14↔20 / 280).
+- Dropdown open is a spring pop on an inner wrap (`scale 0.84 → 1` with `--apple-spring`), not a hard mount. Radix still owns Content placement.
 - Skill extract stays byte-equal with `app/apple-clear`.
 
 ## 3. Verification Evidence
@@ -40,6 +42,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 | Browser `/ui/liquid-dialog` | Desktop: trigger opens centered modal; click 信息 → travel → `onValueChange: messages` / closed; ArrowDown 信息→设置 stays open / `settings`; Enter closes; Escape closes; overlay pointerdown dismisses; reselect 设置 closes immediately. Mobile 390×844: pointerdown+click 照片 → travel → `photos` / closed. |
 | Browser `/ui/liquid-menubar` | Desktop: 文件 opens 新建/打开/保存; click 打开 → travel → `file/open` / closed; 编辑 opens 剪切/复制/粘贴; ArrowDown → `edit/copy` / stayed open; Enter closed; switch 文件→编辑 swaps menus; Escape closed; click heading dismissed. Mobile 390×844: 文件 → 保存 → travel → `file/save` / closed. |
 | Skill install `test-7` | New blank Vite React app at `/Users/jay/Code/Liquid-Glasses-skill-test/test-7`. 14 kernel files + adapter byte-equal. `tsc -b` passed. Desktop: LiquidMenu 信息 travel → `menu: messages`, Enhanced optics. LiquidDropdown 设置 travel → close / `dropdown: settings`. Mobile: 设置 → `menu: settings`. Kernel bundle SHA-256 `60d21ba6c82f365ab71a4ee375d290e33d1f84e9bfa1358363775dbece0cb23c`. Visual approval pending. |
+| Compact dropdown | `/ui/liquid-dropdown`: trigger 40×61 / 14px; open panel 200×172, row 36, travel plate 46, radius 16, density=compact. Click 信息 travels then closes. Sidebar still row 58 / density=panel. |
 | Production deploy | Not run |
 
 ## 4. Deployment and Release Status

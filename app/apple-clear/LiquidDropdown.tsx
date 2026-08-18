@@ -72,15 +72,18 @@ export function LiquidDropdown({
             if (!phase || phase === "idle") setOpen(false);
           }}
         >
-          <LiquidMenu
-            host="nested"
-            title={title}
-            items={items}
-            value={selected}
-            theme={theme}
-            optics={optics}
-            onValueChange={commitValue}
-          />
+          <div className="liquid-dropdown__pop">
+            <LiquidMenu
+              host="nested"
+              density="compact"
+              title={title}
+              items={items}
+              value={selected}
+              theme={theme}
+              optics={optics}
+              onValueChange={commitValue}
+            />
+          </div>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

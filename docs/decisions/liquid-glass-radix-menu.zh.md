@@ -24,6 +24,8 @@
 - 目录侧栏（`CatalogNav`）在提交后锁住 pending 选中项，避免 `router.push` 晚到时选择板弹回再播一遍旅行。侧栏标签 `nowrap`、从左侧缩放，长英文名不换行且左缘对齐。
 - `/ui` 预览台。左侧目录本身就是 `LiquidMenu`。`/liquid-menu` 重定向到 `/ui/liquid-menu`。
 - 覆盖层家族已做完。后续是新表面，不再补未完成的五件套。
+- `LiquidDropdown` 使用内核 `density: "compact"`（36px 行、13/16 字、200px、16/12 圆角）。常驻 `LiquidMenu` 仍是 `panel`（58 / 14↔20 / 280）。
+- Dropdown 打开是内层弹簧弹出（`scale 0.84 → 1`，`--apple-spring`），不是硬切显示。定位仍由 Radix Content 负责。
 - Skill 提取与 `app/apple-clear` 保持字节一致。
 
 ## 3. 验证证据
@@ -40,6 +42,7 @@
 | 浏览器 `/ui/liquid-dialog` | 桌面：打开居中模态；点「信息」→ 旅行 → `onValueChange: messages` / 已关闭；ArrowDown 信息→设置 保持打开 / `settings`；Enter 关闭；Escape 关闭；点遮罩关闭；重选「设置」立刻关闭。移动 390×844：pointerdown+click「照片」→ 旅行 → `photos` / 已关闭。 |
 | 浏览器 `/ui/liquid-menubar` | 桌面：文件打开 新建/打开/保存；点「打开」→ 旅行 → `file/open` / 已关闭；编辑打开 剪切/复制/粘贴；ArrowDown → `edit/copy` / 保持打开；Enter 关闭；文件→编辑切换菜单；Escape 关闭；点标题关闭。移动 390×844：文件 → 保存 → 旅行 → `file/save` / 已关闭。 |
 | Skill 安装 `test-7` | 空白 Vite React 项目：`/Users/jay/Code/Liquid-Glasses-skill-test/test-7`。14 个内核文件 + adapter 字节一致。`tsc -b` 通过。桌面：LiquidMenu 点「信息」旅行 → `menu: messages`，Enhanced。LiquidDropdown 点「设置」旅行后关闭 / `dropdown: settings`。移动：设置 → `menu: settings`。内核包 SHA-256 `60d21ba6c82f365ab71a4ee375d290e33d1f84e9bfa1358363775dbece0cb23c`。视觉批准待定。 |
+| 紧凑 Dropdown | `/ui/liquid-dropdown`：trigger 40×61 / 14px；打开面板 200×172，行 36，旅行板 46，圆角 16，density=compact。点「信息」旅行后关闭。侧栏仍是行 58 / density=panel。 |
 | 生产部署 | 未执行 |
 
 ## 4. 部署与发布状态

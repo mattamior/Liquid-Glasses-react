@@ -21,6 +21,41 @@
   outline: none;
 }
 
+/* Animate an inner wrap. Radix owns Content transform for placement. */
+.liquid-dropdown__pop {
+  transform-origin: top center;
+  animation: liquid-dropdown-pop 420ms cubic-bezier(.22, 1.48, .28, 1) both;
+}
+
+.liquid-dropdown__content[data-side="top"] .liquid-dropdown__pop {
+  transform-origin: bottom center;
+}
+
+.liquid-dropdown__content[data-side="left"] .liquid-dropdown__pop {
+  transform-origin: right center;
+}
+
+.liquid-dropdown__content[data-side="right"] .liquid-dropdown__pop {
+  transform-origin: left center;
+}
+
+@keyframes liquid-dropdown-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.84) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-dropdown__pop {
+    animation: none;
+  }
+}
+
 .liquid-dropdown__content .apple-clear[data-variant="embedded"] {
   min-height: 0;
   overflow: visible;
@@ -36,5 +71,5 @@
 }
 
 .liquid-dropdown__content .apple-clear-menu {
-  width: min(280px, calc(100vw - 32px));
+  width: min(var(--apple-menu-width, 200px), calc(100vw - 32px));
 }

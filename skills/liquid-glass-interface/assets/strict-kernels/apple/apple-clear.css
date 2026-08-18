@@ -22,6 +22,14 @@ body:has(.apple-clear) {
   --apple-selection-height: 58px;
   --apple-travel-y-nudge: 0px;
   --apple-plate-inset: 8px;
+  --apple-plate-inset-idle: 8px;
+  --apple-plate-inset-travel: -6px;
+  --apple-item-height: 58px;
+  --apple-travel-height: 74px;
+  --apple-item-gap: 8px;
+  --apple-menu-pad: 12px;
+  --apple-menu-width: 280px;
+  --apple-item-pad-x: 22px;
   --apple-menu-radius: 28px;
   --apple-plate-radius: 20px;
   --apple-world-x: 0px;
@@ -281,17 +289,17 @@ body:has(.apple-clear) {
   position: relative;
   z-index: 3;
   display: grid;
-  width: min(280px, calc(100vw - 48px));
+  width: min(var(--apple-menu-width), calc(100vw - 48px));
   isolation: isolate;
   align-content: start;
-  grid-auto-rows: 58px;
-  gap: 8px;
-  padding: 12px 10px;
+  grid-auto-rows: var(--apple-item-height);
+  gap: var(--apple-item-gap);
+  padding: var(--apple-menu-pad) 10px;
   overflow: visible;
   border-radius: var(--apple-menu-radius);
   background: transparent;
   touch-action: none;
-  --apple-plate-inset: 8px;
+  --apple-plate-inset: var(--apple-plate-inset-idle, 8px);
   transition:
     --apple-selection-y 680ms var(--apple-spring),
     --apple-selection-height 680ms var(--apple-spring),
@@ -312,7 +320,7 @@ body:has(.apple-clear) {
 .apple-clear-menu[data-glass-phase="click"],
 .apple-clear-menu[data-glass-phase="dragging"],
 .apple-clear-menu[data-glass-phase="settling"] {
-  --apple-plate-inset: -6px;
+  --apple-plate-inset: var(--apple-plate-inset-travel, -6px);
 }
 
 .apple-clear-menu[data-glass-phase="dragging"] {
@@ -405,19 +413,19 @@ body:has(.apple-clear) {
   z-index: 2;
   display: grid;
   align-content: start;
-  grid-auto-rows: 58px;
-  padding-top: 12px;
-  gap: 8px;
+  grid-auto-rows: var(--apple-item-height);
+  padding-top: var(--apple-menu-pad);
+  gap: var(--apple-item-gap);
   color: #fff;
   pointer-events: none;
 }
 
 .apple-menu-visual--above {
-  clip-path: inset(0 0 calc(100% - (12px + var(--apple-selection-y))) 0);
+  clip-path: inset(0 0 calc(100% - (var(--apple-menu-pad) + var(--apple-selection-y))) 0);
 }
 
 .apple-menu-visual--below {
-  clip-path: inset(calc(12px + var(--apple-selection-y) + 58px) 0 0 0);
+  clip-path: inset(calc(var(--apple-menu-pad) + var(--apple-selection-y) + var(--apple-item-height)) 0 0 0);
 }
 
 .apple-menu-visual__item {
@@ -425,10 +433,10 @@ body:has(.apple-clear) {
   z-index: 2;
   isolation: isolate;
   display: flex;
-  height: 58px;
-  min-height: 58px;
+  height: var(--apple-item-height);
+  min-height: var(--apple-item-height);
   align-items: center;
-  padding: 0 22px;
+  padding: 0 var(--apple-item-pad-x);
   color: rgb(255 255 255 / 78%);
   font-size: var(--apple-menu-size-active);
   font-weight: var(--apple-menu-weight-active);
@@ -465,7 +473,7 @@ body:has(.apple-clear) {
   position: relative;
   z-index: 4;
   width: 100%;
-  min-height: 58px;
+  min-height: var(--apple-item-height);
   padding: 0;
   border: 0;
   border-radius: var(--apple-menu-radius);
@@ -484,10 +492,10 @@ body:has(.apple-clear) {
 .apple-selection-plate {
   position: absolute;
   z-index: 3;
-  top: 12px;
+  top: var(--apple-menu-pad);
   right: var(--apple-plate-inset, 8px);
   left: var(--apple-plate-inset, 8px);
-  height: var(--apple-selection-height, 58px);
+  height: var(--apple-selection-height, var(--apple-item-height));
   border-radius: var(--apple-plate-radius);
   opacity: 0;
   transform: translate3d(0, calc(var(--apple-selection-y, 0px) + var(--apple-travel-y-nudge, 0px)), 0);
@@ -506,14 +514,14 @@ body:has(.apple-clear) {
 
 .apple-selection-plate[data-phase="idle"],
 .apple-selection-plate[data-phase="fading"] {
-  height: 58px;
+  height: var(--apple-item-height);
   border-radius: var(--apple-plate-radius);
 }
 
 .apple-selection-plate[data-phase="click"],
 .apple-selection-plate[data-phase="dragging"],
 .apple-selection-plate[data-phase="settling"] {
-  height: 74px;
+  height: var(--apple-travel-height);
   border-radius: var(--apple-plate-radius);
 }
 

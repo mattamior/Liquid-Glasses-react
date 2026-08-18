@@ -44,7 +44,7 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   {
     slug: "liquid-dropdown",
     title: "LiquidDropdown",
-    summary: "Trigger plus portable glass menu in a Radix portal. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits.",
+    summary: "Trigger plus compact glass menu in a Radix portal. Density is smaller than the folder panel. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits.",
     usage: `import { LiquidDropdown } from "../apple-clear/LiquidDropdown";
 
 <LiquidDropdown

@@ -17,6 +17,7 @@ export interface LiquidMenuProps {
   optics?: AppleClearKernelConfig["initialOptics"];
   scene?: AppleClearKernelConfig["controlledScene"];
   host?: AppleClearKernelConfig["host"];
+  density?: AppleClearKernelConfig["density"];
 }
 
 function toNavItems(items: readonly LiquidMenuItem[] | undefined): AppleClearNavItem[] | undefined {
@@ -35,12 +36,14 @@ export function LiquidMenu({
   optics,
   scene,
   host,
+  density,
 }: LiquidMenuProps) {
   return (
     <LiquidGlassAppleClearKernel
       config={{
         variant: "embedded",
         host,
+        density,
         title,
         navItems: toNavItems(items),
         value,
