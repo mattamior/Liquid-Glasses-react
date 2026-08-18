@@ -42,6 +42,37 @@ body:has(.apple-clear) {
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
 }
 
+.apple-clear[data-variant="embedded"] {
+  min-height: 0;
+  overflow: visible;
+}
+
+.apple-clear[data-variant="embedded"] .apple-clear-toolbar,
+.apple-clear[data-variant="embedded"] .apple-clear-heading,
+.apple-clear[data-variant="embedded"] .apple-clear-status {
+  display: none;
+}
+
+.apple-liquid-menu-backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--apple-menu-radius);
+  background: rgb(36 64 110 / 42%);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .apple-liquid-menu-backdrop {
+    background: rgb(255 255 255 / 16%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    backdrop-filter: blur(22px) saturate(140%);
+  }
+
+  .apple-clear[data-theme="dark"] .apple-liquid-menu-backdrop {
+    background: rgb(12 16 28 / 28%);
+  }
+}
+
 .apple-clear[data-theme="dark"] {
   --apple-clear-ink: #f4f0ff;
   --apple-clear-caption: rgb(255 255 255 / 88%);
@@ -59,6 +90,11 @@ body:has(.apple-clear) {
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+.apple-clear[data-variant="embedded"] .apple-clear-scene {
+  overflow: hidden;
+  border-radius: var(--apple-menu-radius);
 }
 
 .apple-clear-homescreen {
@@ -247,6 +283,8 @@ body:has(.apple-clear) {
   display: grid;
   width: min(280px, calc(100vw - 48px));
   isolation: isolate;
+  align-content: start;
+  grid-auto-rows: 58px;
   gap: 8px;
   padding: 12px 10px;
   overflow: visible;
@@ -399,6 +437,10 @@ body:has(.apple-clear) {
 
 .apple-menu-visual__label {
   display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   transform: scale(calc(var(--apple-menu-size-idle) / var(--apple-menu-size-active)));
   transform-origin: center;
   transition:
@@ -410,6 +452,13 @@ body:has(.apple-clear) {
 .apple-menu-visual--lens .apple-menu-visual__label {
   color: #fff;
   transform: scale(1);
+  transform-origin: center;
+}
+
+.apple-menu-radix-list,
+.apple-menu-radix-item,
+.apple-clear-menu > div {
+  display: contents;
 }
 
 .apple-menu-item {
@@ -675,7 +724,11 @@ body:has(.apple-clear) {
   opacity: 0;
 }
 
-.apple-menu-item:focus-visible,
+.apple-menu-item:focus,
+.apple-menu-item:focus-visible {
+  outline: none;
+}
+
 .apple-clear-toolbar button:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;

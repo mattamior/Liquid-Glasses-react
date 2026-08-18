@@ -1,15 +1,12 @@
 "use client";
 
 import "./kernel/apple-clear.css";
-import {
-  LiquidGlassAppleClearKernel,
-  type AppleClearKernelConfig,
-} from "./kernel/LiquidGlassAppleClearKernel";
+import { LiquidMenu, type LiquidMenuProps } from "./kernel/LiquidMenu";
 
-export function AppleClearStrictAdapter(config: AppleClearKernelConfig) {
+export function AppleClearStrictAdapter(props: LiquidMenuProps) {
   return (
     <section data-liquid-glass-adapter="apple-liquid-glass" data-liquid-glass-kernel="apple">
-      <LiquidGlassAppleClearKernel config={config} />
+      <LiquidMenu {...props} />
     </section>
   );
 }

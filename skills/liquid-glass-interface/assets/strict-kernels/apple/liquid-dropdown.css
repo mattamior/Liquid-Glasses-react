@@ -1,0 +1,40 @@
+.liquid-dropdown__trigger {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 14px;
+  background: rgb(12 20 36 / 28%);
+  color: #fff;
+  font: 650 14px/1 inherit;
+  cursor: pointer;
+}
+
+.liquid-dropdown__trigger[data-state="open"] {
+  background: rgb(255 255 255 / 16%);
+}
+
+.liquid-dropdown__content {
+  z-index: 40;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+}
+
+.liquid-dropdown__content .apple-clear[data-variant="embedded"] {
+  min-height: 0;
+  overflow: visible;
+  border-radius: var(--apple-menu-radius);
+}
+
+.liquid-dropdown__content .apple-clear-cluster {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: max-content;
+}
+
+.liquid-dropdown__content .apple-clear-menu {
+  width: min(280px, calc(100vw - 32px));
+}

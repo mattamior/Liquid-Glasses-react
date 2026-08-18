@@ -1,7 +1,9 @@
 "use client";
 
+import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import {
   type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
@@ -13,6 +15,7 @@ import {
   useState,
 } from "react";
 import { HomeScreenScene } from "./HomeScreenScene";
+import { LiquidMenuBackdrop } from "./LiquidMenuBackdrop";
 import {
   APPLE_CLEAR_PANEL_OPTICS,
   APPLE_SELECTION_LENS_OPTICS,
@@ -35,10 +38,16 @@ export interface AppleClearItem {
   glyph?: string;
 }
 
+export type AppleClearVariant = "lab" | "embedded";
+export type AppleClearHost = "standalone" | "nested";
+
 export interface AppleClearKernelConfig {
   title?: string;
+  variant?: AppleClearVariant;
+  host?: AppleClearHost;
   navItems?: readonly AppleClearNavItem[];
   items?: readonly AppleClearItem[];
+  value?: string;
   initialItemId?: string;
   initialTheme?: AppleClearTheme;
   initialOptics?: AppleClearOptics;
@@ -163,11 +172,13 @@ function LensFilter({
 }
 
 export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKernelConfig }) {
+  const variant = config.variant ?? "embedded";
+  const host = config.host ?? "standalone";
   const navItems =
-    config.navItems && config.navItems.length >= 2
+    config.navItems && config.navItems.length >= 1
       ? config.navItems
       : DEFAULT_NAV;
-  const initialIndex = Math.max(0, navItems.findIndex((item) => item.id === config.initialItemId));
+  const initialIndex = Math.max(0, navItems.findIndex((item) => item.id === (config.value ?? config.initialItemId)));
   const stageRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLElement>(null);
   const plateRef = useRef<HTMLSpanElement>(null);
@@ -182,7 +193,17 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
   const shellFilterId = `${instanceId}-shell`;
   const lensFilterId = `${instanceId}-lens`;
 
-  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+  const [uncontrolledIndex, setUncontrolledIndex] = useState(initialIndex);
+  const [pendingIndex, setPendingIndex] = useState<number | null>(null);
+  const controlledIndex = config.value
+    ? navItems.findIndex((item) => item.id === config.value)
+    : -1;
+  const selectedIndex =
+    pendingIndex !== null
+      ? pendingIndex
+      : controlledIndex >= 0
+        ? controlledIndex
+        : uncontrolledIndex;
   const [interaction, setInteraction] = useState<Interaction | null>(null);
   const [lensSpring, setLensSpring] = useState<LensSpring>("rest");
   const pressKind = useRef<"same" | "other" | null>(null);
@@ -236,6 +257,20 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
     interactionRef.current = next;
     setInteraction(next);
   }, []);
+
+  useEffect(() => {
+    if (pendingIndex === null || controlledIndex !== pendingIndex) return;
+    setPendingIndex(null);
+  }, [controlledIndex, pendingIndex]);
+
+  const commitIndex = useCallback(
+    (index: number) => {
+      if (config.value === undefined) setUncontrolledIndex(index);
+      else setPendingIndex(index);
+      config.onRouteCommit?.(navItems[index]);
+    },
+    [config, navItems],
+  );
 
   const clearWork = useCallback(() => {
     timers.current.forEach((id) => window.clearTimeout(id));
@@ -361,10 +396,7 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
         setLensSpring("rest");
         setTransient({ ...current, phase: "fading", y: itemY(targetIndex) });
         const fade = window.setTimeout(() => {
-          if (commit) {
-            setSelectedIndex(targetIndex);
-            config.onRouteCommit?.(navItems[targetIndex]);
-          }
+          if (commit) commitIndex(targetIndex);
           setSweep(null);
           setTransient(null);
         }, FADE_DURATION);
@@ -372,16 +404,19 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
       }, duration);
       timers.current.push(motion);
     },
-    [config, navItems, setTransient],
+    [commitIndex, setTransient],
   );
 
   const startClick = useCallback(
     (index: number) => {
-      if (index === selectedIndex || interactionRef.current) return;
+      if (interactionRef.current) return;
+      if (index === selectedIndex) {
+        if (host === "nested") config.onRouteCommit?.(navItems[index]);
+        return;
+      }
       if (bypass()) {
         setLensSpring("rest");
-        setSelectedIndex(index);
-        config.onRouteCommit?.(navItems[index]);
+        commitIndex(index);
         return;
       }
       clearWork();
@@ -398,8 +433,45 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
         commitAfterFade(index, NAV_DURATION, true);
       });
     },
-    [bypass, clearWork, commitAfterFade, config, navItems, playSweepBetween, selectedIndex, setTransient],
+    [bypass, clearWork, commitAfterFade, commitIndex, config, host, navItems, playSweepBetween, selectedIndex, setTransient],
   );
+
+  const onNavKeyDown = useCallback(
+    (event: ReactKeyboardEvent<HTMLElement>) => {
+      if (host !== "nested") return;
+      const last = navItems.length - 1;
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        if (!interactionRef.current) config.onRouteCommit?.(navItems[selectedIndex]);
+        return;
+      }
+      if (event.key !== "ArrowDown" && event.key !== "ArrowUp" && event.key !== "Home" && event.key !== "End") {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      if (interactionRef.current) return;
+      const nextIndex =
+        event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? last
+            : event.key === "ArrowDown"
+              ? selectedIndex === last
+                ? 0
+                : selectedIndex + 1
+              : selectedIndex === 0
+                ? last
+                : selectedIndex - 1;
+      startClick(nextIndex);
+    },
+    [config, host, navItems, selectedIndex, startClick],
+  );
+
+  useEffect(() => {
+    if (host !== "nested") return;
+    itemRefs.current[activeIndex]?.focus({ preventScroll: true });
+  }, [activeIndex, host]);
 
   const finishDrag = useCallback(
     (pointerId: number, cancelled: boolean, finalY?: number) => {
@@ -551,8 +623,11 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
     [dpr, enhanced, lensGeometry],
   );
 
-  const scene = (copy: "visible" | "replica") =>
-    config.controlledScene ? config.controlledScene({ copy }) : <HomeScreenScene copy={copy} />;
+  const scene = (copy: "visible" | "replica") => {
+    if (config.controlledScene) return config.controlledScene({ copy });
+    if (variant === "lab") return <HomeScreenScene copy={copy} />;
+    return <LiquidMenuBackdrop copy={copy} />;
+  };
 
   const shellWorld = {
     width: shellGeometry.stageWidth,
@@ -578,6 +653,176 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
     filter: lensField ? `url("#${lensFilterId}")` : "none",
   } as CSSProperties;
 
+  const itemButtons = navItems.map((item, index) => {
+    const button = (
+      <button
+        ref={(node) => {
+          itemRefs.current[index] = node;
+        }}
+        className="apple-menu-item"
+        type="button"
+        data-liquid-glass-role="apple-navigation-item"
+        data-selected={selectedIndex === index ? "true" : "false"}
+        aria-current={selectedIndex === index ? "page" : undefined}
+        aria-label={item.label}
+        onPointerDown={(event) => onPointerDown(event, index)}
+        onPointerMove={onPointerMove}
+        onPointerUp={(event) => {
+          finishDrag(event.pointerId, false, event.clientY);
+          if (pressKind.current === "same" && !interactionRef.current) {
+            setLensSpring("rest");
+          }
+          pressKind.current = null;
+        }}
+        onPointerCancel={(event) => {
+          finishDrag(event.pointerId, true);
+          if (!interactionRef.current) setLensSpring("rest");
+          pressKind.current = null;
+        }}
+        onLostPointerCapture={(event) => finishDrag(event.pointerId, true)}
+        onClick={(event: ReactMouseEvent<HTMLButtonElement>) => {
+          if (suppressedClick.current?.target === event.currentTarget && event.detail !== 0) return;
+          startClick(index);
+        }}
+      />
+    );
+    if (host === "nested") {
+      return (
+        <div key={item.id} className="apple-menu-radix-item">
+          {button}
+        </div>
+      );
+    }
+    return (
+      <NavigationMenu.Item key={item.id} className="apple-menu-radix-item">
+        <NavigationMenu.Link asChild active={selectedIndex === index}>
+          {button}
+        </NavigationMenu.Link>
+      </NavigationMenu.Item>
+    );
+  });
+
+  const menuNav = (
+    <nav
+      ref={menuRef}
+      className="apple-clear-menu"
+      data-liquid-glass-role="apple-clear-panel"
+      data-glass-active={interaction ? "true" : "false"}
+      data-glass-phase={interaction?.phase ?? "idle"}
+      data-lens-spring={lensSpring}
+      data-host={host}
+      aria-label={config.title ?? "菜单"}
+      onKeyDown={onNavKeyDown}
+    >
+      <article ref={shellRef} className="apple-clear-shell" data-refraction={shellField ? "enhanced" : "baseline"}>
+        {shellField ? (
+          <svg className="apple-clear-filter" aria-hidden="true">
+            <defs>
+              <LensFilter
+                id={shellFilterId}
+                field={shellField}
+                width={shellGeometry.width}
+                height={shellGeometry.height}
+                overscan={SHELL_OVERSCAN}
+                scale={APPLE_CLEAR_PANEL_OPTICS.fieldScaleCssPx}
+              />
+            </defs>
+          </svg>
+        ) : null}
+        <span className="apple-clear-shell__optical" aria-hidden="true">
+          <span className="apple-clear-shell__overscan" style={{ inset: -SHELL_OVERSCAN }}>
+            <span className="apple-clear-shell__replica" data-ready={shellGeometry.ready ? "true" : "false"} style={shellReplicaStyle}>
+              <span className="apple-clear-shell__world" style={shellWorld}>
+                {scene("replica")}
+              </span>
+            </span>
+          </span>
+          <span className="apple-clear-shell__fill" />
+          <span className="apple-clear-shell__edge" />
+        </span>
+      </article>
+
+      {interaction ? (
+        <>
+          <span className="apple-menu-visual apple-menu-visual--above" aria-hidden="true">
+            {navItems.map((item, index) => (
+              <span key={`above-${item.id}`} className="apple-menu-visual__item" data-selected={index === activeIndex ? "true" : undefined}>
+                <span className="apple-menu-visual__label">{item.label}</span>
+              </span>
+            ))}
+          </span>
+          <span className="apple-menu-visual apple-menu-visual--below" aria-hidden="true">
+            {navItems.map((item, index) => (
+              <span key={`below-${item.id}`} className="apple-menu-visual__item" data-selected={index === activeIndex ? "true" : undefined}>
+                <span className="apple-menu-visual__label">{item.label}</span>
+              </span>
+            ))}
+          </span>
+        </>
+      ) : (
+        <span className="apple-menu-visual apple-menu-visual--idle" aria-hidden="true">
+          {navItems.map((item, index) => (
+            <span key={`idle-${item.id}`} className="apple-menu-visual__item" data-selected={index === selectedIndex ? "true" : undefined}>
+              <span className="apple-menu-visual__label">{item.label}</span>
+            </span>
+          ))}
+        </span>
+      )}
+
+      <span
+        ref={plateRef}
+        className="apple-selection-plate is-ready"
+        data-liquid-glass-role="apple-selection-lens"
+        data-phase={interaction?.phase ?? "idle"}
+        data-entered={interaction ? (interaction.visible ? "true" : "false") : "true"}
+        data-refraction={lensField ? "candidate" : "baseline"}
+        aria-hidden="true"
+      >
+        {lensField ? (
+          <svg className="apple-clear-filter" aria-hidden="true">
+            <defs>
+              <LensFilter
+                id={lensFilterId}
+                field={lensField}
+                width={lensGeometry.width}
+                height={lensGeometry.height}
+                overscan={LENS_OVERSCAN}
+                scale={APPLE_SELECTION_LENS_OPTICS.fieldScaleCssPx}
+              />
+            </defs>
+          </svg>
+        ) : null}
+        <span className="apple-selection-plate__optical">
+          <span className="apple-selection-plate__overscan" data-ready={lensGeometry.ready ? "true" : "false"} style={{ inset: -LENS_OVERSCAN }}>
+            <span className="apple-selection-plate__replica" style={lensReplicaStyle}>
+              <span className="apple-selection-plate__world" style={lensWorld}>
+                {scene("replica")}
+              </span>
+            </span>
+          </span>
+          <span className="apple-selection-plate__fill" />
+          <span className="apple-selection-plate__edge" />
+          <span ref={sweepRef} className="apple-selection-plate__sweep" />
+          {interaction ? (
+            <span className="apple-menu-visual apple-menu-visual--lens">
+              {navItems.map((item) => (
+                <span key={`lens-${item.id}`} className="apple-menu-visual__item">
+                  <span className="apple-menu-visual__label">{item.label}</span>
+                </span>
+              ))}
+            </span>
+          ) : null}
+        </span>
+      </span>
+
+      {host === "nested" ? (
+        <div className="apple-menu-radix-list">{itemButtons}</div>
+      ) : (
+        <NavigationMenu.List className="apple-menu-radix-list">{itemButtons}</NavigationMenu.List>
+      )}
+    </nav>
+  );
+
   return (
     <main
       ref={stageRef}
@@ -590,6 +835,7 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
       } as CSSProperties}
       data-liquid-glass-mode="apple-liquid-glass"
       data-liquid-glass-role="apple-clear-stage"
+      data-variant={variant}
       data-theme={theme}
       data-optics-tier={enhanced && shellField ? "enhanced" : "baseline"}
       data-phase={interaction?.phase ?? "idle"}
@@ -608,150 +854,13 @@ export function LiquidGlassAppleClearKernel({ config }: { config: AppleClearKern
       <div className="apple-clear-cluster">
         <p className="apple-clear-heading">{config.title ?? "菜单"}</p>
         <div className="apple-clear-menu-frame">
-        <nav
-          ref={menuRef}
-          className="apple-clear-menu"
-          data-liquid-glass-role="apple-clear-panel"
-          data-glass-active={interaction ? "true" : "false"}
-          data-glass-phase={interaction?.phase ?? "idle"}
-          data-lens-spring={lensSpring}
-          aria-label={config.title ?? "菜单"}
-        >
-          <article ref={shellRef} className="apple-clear-shell" data-refraction={shellField ? "enhanced" : "baseline"}>
-            {shellField ? (
-              <svg className="apple-clear-filter" aria-hidden="true">
-                <defs>
-                  <LensFilter
-                    id={shellFilterId}
-                    field={shellField}
-                    width={shellGeometry.width}
-                    height={shellGeometry.height}
-                    overscan={SHELL_OVERSCAN}
-                    scale={APPLE_CLEAR_PANEL_OPTICS.fieldScaleCssPx}
-                  />
-                </defs>
-              </svg>
-            ) : null}
-            <span className="apple-clear-shell__optical" aria-hidden="true">
-              <span className="apple-clear-shell__overscan" style={{ inset: -SHELL_OVERSCAN }}>
-                <span className="apple-clear-shell__replica" data-ready={shellGeometry.ready ? "true" : "false"} style={shellReplicaStyle}>
-                  <span className="apple-clear-shell__world" style={shellWorld}>
-                    {scene("replica")}
-                  </span>
-                </span>
-              </span>
-              <span className="apple-clear-shell__fill" />
-              <span className="apple-clear-shell__edge" />
-            </span>
-          </article>
-
-          {interaction ? (
-            <>
-              <span className="apple-menu-visual apple-menu-visual--above" aria-hidden="true">
-                {navItems.map((item, index) => (
-                  <span key={`above-${item.id}`} className="apple-menu-visual__item" data-selected={index === activeIndex ? "true" : undefined}>
-                    <span className="apple-menu-visual__label">{item.label}</span>
-                  </span>
-                ))}
-              </span>
-              <span className="apple-menu-visual apple-menu-visual--below" aria-hidden="true">
-                {navItems.map((item, index) => (
-                  <span key={`below-${item.id}`} className="apple-menu-visual__item" data-selected={index === activeIndex ? "true" : undefined}>
-                    <span className="apple-menu-visual__label">{item.label}</span>
-                  </span>
-                ))}
-              </span>
-            </>
-          ) : (
-            <span className="apple-menu-visual apple-menu-visual--idle" aria-hidden="true">
-              {navItems.map((item, index) => (
-                <span key={`idle-${item.id}`} className="apple-menu-visual__item" data-selected={index === selectedIndex ? "true" : undefined}>
-                  <span className="apple-menu-visual__label">{item.label}</span>
-                </span>
-              ))}
-            </span>
-          )}
-
-          <span
-            ref={plateRef}
-            className="apple-selection-plate is-ready"
-            data-liquid-glass-role="apple-selection-lens"
-            data-phase={interaction?.phase ?? "idle"}
-            data-entered={interaction ? (interaction.visible ? "true" : "false") : "true"}
-            data-refraction={lensField ? "candidate" : "baseline"}
-            aria-hidden="true"
-          >
-            {lensField ? (
-              <svg className="apple-clear-filter" aria-hidden="true">
-                <defs>
-                  <LensFilter
-                    id={lensFilterId}
-                    field={lensField}
-                    width={lensGeometry.width}
-                    height={lensGeometry.height}
-                    overscan={LENS_OVERSCAN}
-                    scale={APPLE_SELECTION_LENS_OPTICS.fieldScaleCssPx}
-                  />
-                </defs>
-              </svg>
-            ) : null}
-            <span className="apple-selection-plate__optical">
-              <span className="apple-selection-plate__overscan" data-ready={lensGeometry.ready ? "true" : "false"} style={{ inset: -LENS_OVERSCAN }}>
-                <span className="apple-selection-plate__replica" style={lensReplicaStyle}>
-                  <span className="apple-selection-plate__world" style={lensWorld}>
-                    {scene("replica")}
-                  </span>
-                </span>
-              </span>
-              <span className="apple-selection-plate__fill" />
-              <span className="apple-selection-plate__edge" />
-              <span ref={sweepRef} className="apple-selection-plate__sweep" />
-              {interaction ? (
-                <span className="apple-menu-visual apple-menu-visual--lens">
-                  {navItems.map((item) => (
-                    <span key={`lens-${item.id}`} className="apple-menu-visual__item">
-                      <span className="apple-menu-visual__label">{item.label}</span>
-                    </span>
-                  ))}
-                </span>
-              ) : null}
-            </span>
-          </span>
-
-          {navItems.map((item, index) => (
-            <button
-              key={item.id}
-              ref={(node) => {
-                itemRefs.current[index] = node;
-              }}
-              className="apple-menu-item"
-              type="button"
-              data-liquid-glass-role="apple-navigation-item"
-              data-selected={selectedIndex === index ? "true" : "false"}
-              aria-current={selectedIndex === index ? "page" : undefined}
-              aria-label={item.label}
-              onPointerDown={(event) => onPointerDown(event, index)}
-              onPointerMove={onPointerMove}
-              onPointerUp={(event) => {
-                finishDrag(event.pointerId, false, event.clientY);
-                if (pressKind.current === "same" && !interactionRef.current) {
-                  setLensSpring("rest");
-                }
-                pressKind.current = null;
-              }}
-              onPointerCancel={(event) => {
-                finishDrag(event.pointerId, true);
-                if (!interactionRef.current) setLensSpring("rest");
-                pressKind.current = null;
-              }}
-              onLostPointerCapture={(event) => finishDrag(event.pointerId, true)}
-              onClick={(event: ReactMouseEvent<HTMLButtonElement>) => {
-                if (suppressedClick.current?.target === event.currentTarget && event.detail !== 0) return;
-                startClick(index);
-              }}
-            />
-          ))}
-        </nav>
+        {host === "standalone" ? (
+          <NavigationMenu.Root asChild orientation="vertical" delayDuration={0}>
+            {menuNav}
+          </NavigationMenu.Root>
+        ) : (
+          menuNav
+        )}
         </div>
         <p className="apple-clear-status" aria-live="polite">{selected.label}</p>
       </div>

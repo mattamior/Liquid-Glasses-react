@@ -37,6 +37,8 @@ adaptive highlights, and navigation lenses.
 [Liquid Glass Skill 严格合规](./docs/decisions/liquid-glass-interface-strict-conformance.zh.md) ·
 [Apple Clear default kernel](./docs/decisions/apple-clear-default-kernel.en.md) ·
 [Apple Clear 默认内核](./docs/decisions/apple-clear-default-kernel.zh.md) ·
+[Liquid Glass Radix menu](./docs/decisions/liquid-glass-radix-menu.en.md) ·
+[液态玻璃 Radix 菜单](./docs/decisions/liquid-glass-radix-menu.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Highlights
@@ -56,7 +58,7 @@ adaptive highlights, and navigation lenses.
   [V2 card-container decision](./docs/decisions/v2-liquid-glass-card-container.en.md) /
   [V2 卡片容器决策](./docs/decisions/v2-liquid-glass-card-container.zh.md). V3 remains
   an independent App-style experiment and does not replace V2.
-- `/apple-clear` is the Apple Clear folder/panel study and the source of the Skill default kernel. The Skill default mode is now `apple-liquid-glass`; `v1-fidelity`, `v2-default`, and `v3-horizontal` are explicit simulation presets. Failed M05 remains an archive.
+- `/apple-clear` is the Apple Clear folder/panel study and the source of the Skill default kernel. `/ui` is the Liquid Glass component catalog (`LiquidMenu`, `LiquidDropdown`, `LiquidContextMenu`, `LiquidSelect`, `LiquidPopover`, `LiquidDialog`, `LiquidMenubar`). `/liquid-menu` redirects to the menu entry. The Skill default mode is now `apple-liquid-glass`; `v1-fidelity`, `v2-default`, and `v3-horizontal` are explicit simulation presets. Failed M05 remains an archive.
 - The reusable Agent Skill still ships schema `2.0` contracts for the three simulation presets across Next.js App Router and Vite/React Router.
 
 ## Quick Start

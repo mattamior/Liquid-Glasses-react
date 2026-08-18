@@ -9,6 +9,16 @@ const assetRoot = path.join(skillRoot, "assets/strict-kernels/apple");
 const pairs = [
   ["app/apple-clear/lens-optics.ts", "lens-optics.ts"],
   ["app/apple-clear/HomeScreenScene.tsx", "HomeScreenScene.tsx"],
+  ["app/apple-clear/LiquidMenuBackdrop.tsx", "LiquidMenuBackdrop.tsx"],
+  ["app/apple-clear/LiquidMenu.tsx", "LiquidMenu.tsx"],
+  ["app/apple-clear/LiquidDropdown.tsx", "LiquidDropdown.tsx"],
+  ["app/apple-clear/liquid-dropdown.css", "liquid-dropdown.css"],
+  ["app/apple-clear/LiquidContextMenu.tsx", "LiquidContextMenu.tsx"],
+  ["app/apple-clear/LiquidSelect.tsx", "LiquidSelect.tsx"],
+  ["app/apple-clear/LiquidPopover.tsx", "LiquidPopover.tsx"],
+  ["app/apple-clear/LiquidDialog.tsx", "LiquidDialog.tsx"],
+  ["app/apple-clear/LiquidMenubar.tsx", "LiquidMenubar.tsx"],
+  ["app/apple-clear/liquid-overlays.css", "liquid-overlays.css"],
   ["app/apple-clear/LiquidGlassAppleClearKernel.tsx", "LiquidGlassAppleClearKernel.tsx"],
   ["app/apple-clear/apple-clear.css", "apple-clear.css"],
 ];
@@ -29,7 +39,18 @@ const css = fs.readFileSync(path.join(assetRoot, "apple-clear.css"), "utf8");
 const optics = fs.readFileSync(path.join(assetRoot, "lens-optics.ts"), "utf8");
 const skill = fs.readFileSync(path.join(skillRoot, "SKILL.md"), "utf8");
 assert.match(page, /data-liquid-glass-mode="apple-liquid-glass"/);
+assert.match(page, /@radix-ui\/react-navigation-menu/);
+assert.match(page, /NavigationMenu\.Root/);
+assert.match(page, /NavigationMenu\.Link/);
+const dropdown = fs.readFileSync(path.join(assetRoot, "LiquidDropdown.tsx"), "utf8");
+assert.match(dropdown, /@radix-ui\/react-dropdown-menu/);
+assert.match(dropdown, /LiquidMenu/);
+assert.match(dropdown, /host="nested"/);
+assert.match(page, /config\.host \?\? "standalone"/);
+assert.match(page, /host === "nested"/);
 assert.match(page, /HomeScreenScene/);
+assert.match(page, /LiquidMenuBackdrop/);
+assert.match(page, /variant === "lab"/);
 assert.match(page, /createClearPanelLensField/);
 assert.match(page, /APPLE_SELECTION_LENS_OPTICS/);
 assert.match(page, /phase: "click"/);

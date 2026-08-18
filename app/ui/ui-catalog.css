@@ -1,0 +1,164 @@
+.ui-studio {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  min-height: 100svh;
+  background: #10141c;
+  color: #eef3fb;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+}
+
+.ui-studio__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px 16px;
+  border-right: 1px solid rgb(255 255 255 / 8%);
+  background: #0c1016;
+}
+
+.ui-studio__nav .apple-clear[data-variant="embedded"] {
+  flex: 1;
+  min-height: 220px;
+}
+
+.ui-studio__nav .apple-clear-cluster {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: 100%;
+  gap: 0;
+}
+
+.ui-studio__nav .apple-clear-menu-frame,
+.ui-studio__nav .apple-clear-menu {
+  width: 100%;
+}
+
+.ui-studio__nav .apple-menu-visual__item {
+  padding: 0 18px;
+}
+
+.ui-studio__nav .apple-menu-visual__label {
+  transform-origin: left center;
+}
+
+.ui-studio__brand {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  color: rgb(255 255 255 / 72%);
+}
+
+.ui-studio__main {
+  display: grid;
+  align-content: start;
+  gap: 22px;
+  padding: 28px 32px 48px;
+}
+
+.ui-studio__header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  letter-spacing: -0.03em;
+}
+
+.ui-studio__header p {
+  margin: 0;
+  max-width: 56ch;
+  color: rgb(255 255 255 / 68%);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ui-studio__preview {
+  position: relative;
+  overflow: hidden;
+  min-height: 520px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 20px;
+  background:
+    radial-gradient(90% 70% at 18% 8%, #8ec5ff 0%, transparent 42%),
+    radial-gradient(80% 60% at 88% 18%, #f0b4ff 0%, transparent 40%),
+    linear-gradient(180deg, #3b7fd4 0%, #1d4e89 48%, #122a4a 100%);
+}
+
+.ui-studio__preview .apple-clear[data-variant="embedded"] {
+  min-height: 520px;
+}
+
+.ui-studio__preview--dropdown {
+  display: grid;
+  place-items: center;
+}
+
+.ui-studio__value {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  z-index: 4;
+  margin: 0;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ui-studio__panel h2 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 52%);
+}
+
+.ui-studio__code {
+  overflow: auto;
+  margin: 0;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #0b0e14;
+  color: #d7e4f7;
+  font: 500 12.5px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: pre;
+}
+
+.ui-studio__props {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ui-studio__props th,
+.ui-studio__props td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+  text-align: left;
+  vertical-align: top;
+}
+
+.ui-studio__props th {
+  color: rgb(255 255 255 / 48%);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ui-studio__props code {
+  color: #9fd0ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+@media (max-width: 840px) {
+  .ui-studio {
+    grid-template-columns: 1fr;
+  }
+
+  .ui-studio__nav {
+    border-right: 0;
+    border-bottom: 1px solid rgb(255 255 255 / 8%);
+  }
+}

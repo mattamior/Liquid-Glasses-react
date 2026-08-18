@@ -59,6 +59,58 @@ test("renders the Apple Clear folder panel", async () => {
   assert.doesNotMatch(html, /v2-ambient-orb/);
 });
 
+test("redirects the LiquidMenu tryout to the UI catalog", async () => {
+  const response = await render("/liquid-menu");
+  assert.equal(response.status, 307);
+  assert.equal(
+    new URL(response.headers.get("location"), "http://localhost/").pathname,
+    "/ui/liquid-menu",
+  );
+});
+
+test("renders the Liquid Glass UI catalog for LiquidMenu", async () => {
+  const response = await render("/ui/liquid-menu");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /<title>Liquid Glass UI/);
+  assert.match(html, /ui-studio/);
+  assert.match(html, /data-liquid-glass-mode="apple-liquid-glass"/);
+  assert.match(html, /data-variant="embedded"/);
+  assert.match(html, /apple-clear-menu/);
+  assert.match(html, /apple-liquid-menu-backdrop/);
+  assert.match(html, /onValueChange/);
+  assert.doesNotMatch(html, /apple-clear-homescreen/);
+  assert.doesNotMatch(html, /v2-ambient-orb/);
+});
+
+test("renders the Liquid Glass UI catalog for LiquidDropdown", async () => {
+  const response = await render("/ui/liquid-dropdown");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /<title>Liquid Glass UI/);
+  assert.match(html, /LiquidDropdown/);
+  assert.match(html, /liquid-dropdown__trigger/);
+  assert.doesNotMatch(html, /apple-clear-homescreen/);
+});
+
+test("renders overlay family catalog pages", async () => {
+  for (const slug of [
+    "liquid-context-menu",
+    "liquid-select",
+    "liquid-popover",
+    "liquid-dialog",
+    "liquid-menubar",
+  ]) {
+    const response = await render(`/ui/${slug}`);
+    assert.equal(response.status, 200, slug);
+    const html = await response.text();
+    assert.match(html, /<title>Liquid Glass UI/);
+    assert.match(html, /ui-studio/);
+  }
+});
+
 test("renders the Liquid Lab V2 navigation demo", async () => {
   const response = await render("/v2");
   assert.equal(response.status, 200);

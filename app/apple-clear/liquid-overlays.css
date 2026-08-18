@@ -1,0 +1,89 @@
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.liquid-overlay-trigger,
+.liquid-select-trigger,
+.liquid-menubar-trigger {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 14px;
+  background: rgb(12 20 36 / 28%);
+  color: #fff;
+  font: 650 14px/1 inherit;
+  cursor: pointer;
+}
+
+.liquid-overlay-trigger[data-state="open"],
+.liquid-select-trigger[data-state="open"],
+.liquid-menubar-trigger[data-state="open"] {
+  background: rgb(255 255 255 / 16%);
+}
+
+.liquid-context-surface {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  width: min(360px, 100%);
+  border: 1px dashed rgb(255 255 255 / 28%);
+  border-radius: 18px;
+  color: rgb(255 255 255 / 82%);
+  font: 650 14px/1.4 inherit;
+  text-align: center;
+}
+
+.liquid-menubar {
+  display: flex;
+  gap: 6px;
+}
+
+.liquid-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgb(6 10 18 / 46%);
+}
+
+.liquid-dialog-content,
+.liquid-overlay-content {
+  z-index: 40;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+}
+
+.liquid-dialog-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 41;
+  transform: translate(-50%, -50%);
+}
+
+.liquid-dialog-content .apple-clear[data-variant="embedded"],
+.liquid-overlay-content .apple-clear[data-variant="embedded"] {
+  min-height: 0;
+  overflow: visible;
+  border-radius: var(--apple-menu-radius);
+}
+
+.liquid-dialog-content .apple-clear-cluster,
+.liquid-overlay-content .apple-clear-cluster {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: max-content;
+}
+
+.liquid-dialog-content .apple-clear-menu,
+.liquid-overlay-content .apple-clear-menu {
+  width: min(280px, calc(100vw - 32px));
+}

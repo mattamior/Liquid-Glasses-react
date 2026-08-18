@@ -21,6 +21,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 [Liquid Glass Skill 三模式](./docs/decisions/liquid-glass-interface-three-modes.zh.md) ·
 [Liquid Glass Skill 严格合规](./docs/decisions/liquid-glass-interface-strict-conformance.zh.md) ·
 [Apple Clear 默认内核](./docs/decisions/apple-clear-default-kernel.zh.md) ·
+[液态玻璃 Radix 菜单](./docs/decisions/liquid-glass-radix-menu.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## 在线体验
@@ -37,6 +38,10 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 | `/v3` | 独立横向导航透镜实验；M04 候选基线已恢复并部署。 |
 | `/v3-05-failed` | M05 失败候选的公开直达归档；`noindex, nofollow`，不进入站内导航。 |
 | `/apple-clear` | Apple Clear 文件夹/面板预览；Skill 默认内核的源实现。 |
+| `/ui` | 液态玻璃组件预览台。 |
+| `/ui/liquid-menu` | 可移植 `LiquidMenu` 的目录预览。 |
+| `/ui/liquid-dropdown` | `LiquidDropdown`（Trigger + Portal）的目录预览。 |
+| `/liquid-menu` | 重定向到 `/ui/liquid-menu`。 |
 | `/brand-preview` | 当前 Liquid Lab 标志的亮暗背景审阅页。 |
 
 Skill 默认身份是 Apple Clear，不再是 V2 后台模板。`/` 仍重定向到 `/v2` 作为本仓库导航实验入口。V3 是独立实验。

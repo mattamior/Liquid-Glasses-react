@@ -3,5 +3,5 @@
 import { LiquidGlassAppleClearKernel } from "./LiquidGlassAppleClearKernel";
 
 export default function AppleClearPage() {
-  return <LiquidGlassAppleClearKernel config={{}} />;
+  return <LiquidGlassAppleClearKernel config={{ variant: "lab" }} />;
 }
