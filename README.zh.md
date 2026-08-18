@@ -22,6 +22,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 [Liquid Glass Skill 严格合规](./docs/decisions/liquid-glass-interface-strict-conformance.zh.md) ·
 [Apple Clear 默认内核](./docs/decisions/apple-clear-default-kernel.zh.md) ·
 [液态玻璃 Radix 菜单](./docs/decisions/liquid-glass-radix-menu.zh.md) ·
+[苹果系统参考截图 2026-08](./docs/decisions/apple-system-references-2026-08.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## 在线体验

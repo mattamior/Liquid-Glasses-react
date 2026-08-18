@@ -39,6 +39,8 @@ adaptive highlights, and navigation lenses.
 [Apple Clear 默认内核](./docs/decisions/apple-clear-default-kernel.zh.md) ·
 [Liquid Glass Radix menu](./docs/decisions/liquid-glass-radix-menu.en.md) ·
 [液态玻璃 Radix 菜单](./docs/decisions/liquid-glass-radix-menu.zh.md) ·
+[Apple system references 2026-08](./docs/decisions/apple-system-references-2026-08.en.md) ·
+[苹果系统参考截图 2026-08](./docs/decisions/apple-system-references-2026-08.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Highlights

@@ -23,6 +23,7 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [Liquid Glass Skill Strict Conformance（Liquid Glass Skill 严格合规）](./docs/decisions/liquid-glass-interface-strict-conformance.en.md) ·
 [Apple Clear default kernel](./docs/decisions/apple-clear-default-kernel.en.md) ·
 [Liquid Glass Radix menu](./docs/decisions/liquid-glass-radix-menu.en.md) ·
+[Apple system references 2026-08](./docs/decisions/apple-system-references-2026-08.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Live Demo
