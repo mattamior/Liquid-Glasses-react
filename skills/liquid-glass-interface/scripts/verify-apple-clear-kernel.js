@@ -50,6 +50,16 @@ const contextMenu = fs.readFileSync(path.join(assetRoot, "LiquidContextMenu.tsx"
 assert.match(contextMenu, /@radix-ui\/react-context-menu/);
 assert.match(contextMenu, /LiquidMenu/);
 assert.match(contextMenu, /host="nested"/);
+const select = fs.readFileSync(path.join(assetRoot, "LiquidSelect.tsx"), "utf8");
+assert.match(select, /@radix-ui\/react-popover/);
+assert.match(select, /LiquidMenu/);
+assert.match(select, /host="nested"/);
+assert.match(select, /placeholder/);
+const popover = fs.readFileSync(path.join(assetRoot, "LiquidPopover.tsx"), "utf8");
+assert.match(popover, /@radix-ui\/react-popover/);
+assert.match(popover, /LiquidMenu/);
+assert.match(popover, /host="nested"/);
+assert.doesNotMatch(popover, /setOpen\(false\)/);
 assert.match(page, /config\.host \?\? "standalone"/);
 assert.match(page, /host === "nested"/);
 assert.match(page, /HomeScreenScene/);

@@ -26,19 +26,26 @@ export function LiquidPopover({
   theme,
   optics,
 }: LiquidPopoverProps) {
+  const [open, setOpen] = useState(false);
   const [uncontrolled, setUncontrolled] = useState(defaultValue ?? items?.[0]?.value ?? "");
   const selected = value ?? uncontrolled;
 
   return (
-    <Popover.Root>
+    <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
-        <button type="button" className="liquid-overlay-trigger">
+        <button type="button" className="liquid-overlay-trigger" aria-expanded={open}>
           {trigger ?? "打开"}
         </button>
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Content className="liquid-overlay-content" sideOffset={10} align="start">
+        <Popover.Content
+          className="liquid-overlay-content"
+          sideOffset={10}
+          align="start"
+          aria-label={title}
+        >
           <LiquidMenu
+            host="nested"
             title={title}
             items={items}
             value={selected}
