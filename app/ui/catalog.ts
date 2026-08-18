@@ -70,15 +70,19 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   {
     slug: "liquid-context-menu",
     title: "LiquidContextMenu",
-    summary: "Right-click host. Same glass panel in a Radix context-menu portal.",
+    summary: "Right-click host. Same glass panel in a Radix portal. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits.",
     usage: `<LiquidContextMenu items={items} value={value} onValueChange={setValue}>
   在此区域右键
 </LiquidContextMenu>`,
     props: [
-      { name: "items", type: "LiquidMenuItem[]", defaultValue: "—", description: "Same entries as LiquidMenu." },
+      { name: "items", type: "LiquidMenuItem[]", defaultValue: "—", description: "Same `{ value, label }` entries as LiquidMenu." },
       { name: "value", type: "string", defaultValue: "uncontrolled", description: "Controlled selected value." },
-      { name: "onValueChange", type: "(value: string) => void", defaultValue: "—", description: "Fires after the travel lens fades." },
+      { name: "defaultValue", type: "string", defaultValue: "first item", description: "Initial value when uncontrolled." },
+      { name: "onValueChange", type: "(value: string) => void", defaultValue: "—", description: "Fires after the travel lens fades. Pointer or Enter then closes." },
       { name: "children", type: "ReactNode", defaultValue: "right-click hint", description: "The surface that accepts the context menu." },
+      { name: "title", type: "string", defaultValue: `"菜单"`, description: "Accessible name of the menu." },
+      { name: "theme", type: `"light" | "dark"`, defaultValue: `"light"`, description: "Clear material theme." },
+      { name: "optics", type: `"enhanced" | "baseline"`, defaultValue: `"enhanced"`, description: "Displacement when supported." },
     ],
   },
   {

@@ -46,6 +46,10 @@ const dropdown = fs.readFileSync(path.join(assetRoot, "LiquidDropdown.tsx"), "ut
 assert.match(dropdown, /@radix-ui\/react-dropdown-menu/);
 assert.match(dropdown, /LiquidMenu/);
 assert.match(dropdown, /host="nested"/);
+const contextMenu = fs.readFileSync(path.join(assetRoot, "LiquidContextMenu.tsx"), "utf8");
+assert.match(contextMenu, /@radix-ui\/react-context-menu/);
+assert.match(contextMenu, /LiquidMenu/);
+assert.match(contextMenu, /host="nested"/);
 assert.match(page, /config\.host \?\? "standalone"/);
 assert.match(page, /host === "nested"/);
 assert.match(page, /HomeScreenScene/);
