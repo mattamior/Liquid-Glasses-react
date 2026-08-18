@@ -7,7 +7,7 @@
 
 可移植交付物是浮动菜单，不是主屏实验室。新工作在 `grok/liquid-glass-radix-menu`。产品安装复制内核并挂载 `LiquidMenu` 或已完成的覆盖层（`LiquidDropdown`、`LiquidContextMenu`、`LiquidSelect`、`LiquidPopover`、`LiquidDialog`、`LiquidMenubar`）。Radix 负责开合、焦点与关闭。光学保持冻结。
 
-本批次只做完 **LiquidMenubar**。覆盖层家族至此做完。
+本批次只改 **LiquidDropdown** 的打开动作。其他覆盖层不动。
 
 菜单正下方必须是模糊或纯色，以保证文字可读。
 
@@ -25,7 +25,7 @@
 - `/ui` 预览台。左侧目录本身就是 `LiquidMenu`。`/liquid-menu` 重定向到 `/ui/liquid-menu`。
 - 覆盖层家族已做完。后续是新表面，不再补未完成的五件套。
 - `LiquidDropdown` 使用内核 `density: "compact"`（36px 行、13/16 字、200px、16/12 圆角）。常驻 `LiquidMenu` 仍是 `panel`（58 / 14↔20 / 280）。
-- Dropdown 打开是内层弹簧弹出（`scale 0.84 → 1`，`--apple-spring`），不是硬切显示。定位仍由 Radix Content 负责。
+- Dropdown 打开是内层三拍液态形变，对标控制中心计算器 →「拷贝上个结果」：按下时触发器挤扁（`scaleX 1.1 / scaleY 0.84`），打开后 120ms 松开并弹回原状；源尺寸小团，过大弹出，再收回 compact。关闭不再重放挤扁。定位仍由 Radix Content 负责。`cssAncestorScale` 不让世界副本吃进动画缩放。
 - Skill 提取与 `app/apple-clear` 保持字节一致。
 
 ## 3. 验证证据
@@ -43,6 +43,7 @@
 | 浏览器 `/ui/liquid-menubar` | 桌面：文件打开 新建/打开/保存；点「打开」→ 旅行 → `file/open` / 已关闭；编辑打开 剪切/复制/粘贴；ArrowDown → `edit/copy` / 保持打开；Enter 关闭；文件→编辑切换菜单；Escape 关闭；点标题关闭。移动 390×844：文件 → 保存 → 旅行 → `file/save` / 已关闭。 |
 | Skill 安装 `test-7` | 空白 Vite React 项目：`/Users/jay/Code/Liquid-Glasses-skill-test/test-7`。14 个内核文件 + adapter 字节一致。`tsc -b` 通过。桌面：LiquidMenu 点「信息」旅行 → `menu: messages`，Enhanced。LiquidDropdown 点「设置」旅行后关闭 / `dropdown: settings`。移动：设置 → `menu: settings`。内核包 SHA-256 `60d21ba6c82f365ab71a4ee375d290e33d1f84e9bfa1358363775dbece0cb23c`。视觉批准待定。 |
 | 紧凑 Dropdown | `/ui/liquid-dropdown`：trigger 40×61 / 14px；打开面板 200×172，行 36，旅行板 46，圆角 16，density=compact。点「信息」旅行后关闭。侧栏仍是行 58 / density=panel。 |
+| Dropdown 形变弹出 | 桌面 1280×800：pointerdown 触发器 `matrix(1.1, 0, 0, 0.84)`；弹出采样 68×31（t0）→ 150×112（t80）→ 过大 227×201（t270）→ 回收 190×158（t420）→ 落稳 200×172（t700）。点「信息」→ 旅行 → trigger `信息` / `onValueChange: messages` / 已关闭；无残留 pop 节点。移动 390×844：同样挤扁；中途 174×140，落稳 200×172；点「照片」→ trigger `照片` / `onValueChange: photos` / 已关闭。控制台无 error。 |
 | 生产部署 | 未执行 |
 
 ## 4. 部署与发布状态
@@ -51,6 +52,7 @@
 
 ## 5. 已知风险、限制与后续工作
 
+- 形变是 compact 面板的 CSS scale，不是从触发器圆角矩形做真正的路径变形。玻璃轮廓插值是后续。
 - 嵌套宿主没有 typeahead。Radix Dropdown 没有 `Item` 子节点，因此不会跟打字跳转。
 - 方向键浏览在旅行淡出后更新 `value`，这样面板留在新行上、菜单仍保持打开。
 - 嵌入态 `backdrop-filter` 采样舞台后的页面；副本仍克隆 backdrop 节点，不是每个字形下的实时像素。

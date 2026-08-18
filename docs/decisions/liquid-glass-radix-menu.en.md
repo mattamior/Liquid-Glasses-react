@@ -7,7 +7,7 @@
 
 The portable deliverable is the floating menu, not the home-screen lab. New work lives on `grok/liquid-glass-radix-menu`. Product mounts copy the kernel and render `LiquidMenu` or one of the finished overlays (`LiquidDropdown`, `LiquidContextMenu`, `LiquidSelect`, `LiquidPopover`, `LiquidDialog`, `LiquidMenubar`). Radix owns open, focus, and dismiss. Optics stay frozen.
 
-This batch finishes **only** `LiquidMenubar`. The overlay family is now complete.
+This batch changes **only** `LiquidDropdown` open motion. Other overlays stay as they are.
 
 The layer immediately behind the menu must be blur or a solid color so labels stay readable.
 
@@ -25,7 +25,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 - `/ui` catalog. Left rail is itself a `LiquidMenu`. `/liquid-menu` redirects to `/ui/liquid-menu`.
 - Overlay family is complete. Further work is new surfaces, not another unfinished 5-pack.
 - `LiquidDropdown` uses kernel `density: "compact"` (36px rows, 13/16 type, 200px, 16/12 radius). Standalone `LiquidMenu` stays `panel` (58 / 14↔20 / 280).
-- Dropdown open is a spring pop on an inner wrap (`scale 0.84 → 1` with `--apple-spring`), not a hard mount. Radix still owns Content placement.
+- Dropdown open is a three-beat liquid morph on the inner wrap, matching Control Center calculator → copy-result chip: press-only trigger squash (`scaleX 1.1 / scaleY 0.84`) that releases 120ms after open so the trigger returns to rest; source-sized blob, oversized overshoot, compact settle. Closing does not replay the squash. Radix still owns Content placement. `cssAncestorScale` keeps the world replica off the animated scale.
 - Skill extract stays byte-equal with `app/apple-clear`.
 
 ## 3. Verification Evidence
@@ -43,6 +43,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 | Browser `/ui/liquid-menubar` | Desktop: 文件 opens 新建/打开/保存; click 打开 → travel → `file/open` / closed; 编辑 opens 剪切/复制/粘贴; ArrowDown → `edit/copy` / stayed open; Enter closed; switch 文件→编辑 swaps menus; Escape closed; click heading dismissed. Mobile 390×844: 文件 → 保存 → travel → `file/save` / closed. |
 | Skill install `test-7` | New blank Vite React app at `/Users/jay/Code/Liquid-Glasses-skill-test/test-7`. 14 kernel files + adapter byte-equal. `tsc -b` passed. Desktop: LiquidMenu 信息 travel → `menu: messages`, Enhanced optics. LiquidDropdown 设置 travel → close / `dropdown: settings`. Mobile: 设置 → `menu: settings`. Kernel bundle SHA-256 `60d21ba6c82f365ab71a4ee375d290e33d1f84e9bfa1358363775dbece0cb23c`. Visual approval pending. |
 | Compact dropdown | `/ui/liquid-dropdown`: trigger 40×61 / 14px; open panel 200×172, row 36, travel plate 46, radius 16, density=compact. Click 信息 travels then closes. Sidebar still row 58 / density=panel. |
+| Dropdown morph pop | Desktop 1280×800: pointerdown trigger `matrix(1.1, 0, 0, 0.84)`; pop samples 68×31 (t0) → 150×112 (t80) → 227×201 overshoot (t270) → 190×158 recover (t420) → 200×172 settle (t700). Click 信息 → travel → trigger `信息` / `onValueChange: messages` / closed; no leftover pop node. Mobile 390×844: same press squash; mid 174×140 then settle 200×172; click 照片 → trigger `照片` / `onValueChange: photos` / closed. Console errors: none. |
 | Production deploy | Not run |
 
 ## 4. Deployment and Release Status
@@ -51,6 +52,7 @@ Repository and Skill-asset change only. No Worker deploy.
 
 ## 5. Known Risks, Limits, and Follow-up
 
+- The morph is a CSS scale of the compact panel, not a true path-morph from the trigger’s rounded rect. Shape interpolation of the glass outline is follow-up.
 - Nested host has no typeahead. Radix Dropdown has no `Item` children, so typeahead stays off.
 - Arrow browse updates `value` after the travel fade so the plate can stay on the new row while the menu stays open.
 - Embedded `backdrop-filter` samples the page behind the stage; the replica still clones the backdrop node, not live pixels under each glyph.

@@ -2,7 +2,7 @@
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import "./liquid-dropdown.css";
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { LiquidMenu, type LiquidMenuItem } from "./LiquidMenu";
 
 export interface LiquidDropdownProps {
@@ -31,6 +31,20 @@ export function LiquidDropdown({
   const selected = value ?? uncontrolled;
   const selectedItem = items?.find((item) => item.value === selected);
   const closeAfterCommit = useRef(false);
+  const pressTimer = useRef<number>(0);
+  const [pressing, setPressing] = useState(false);
+
+  const armPress = () => {
+    window.clearTimeout(pressTimer.current);
+    setPressing(true);
+  };
+
+  const releasePress = (delay = 160) => {
+    window.clearTimeout(pressTimer.current);
+    pressTimer.current = window.setTimeout(() => setPressing(false), delay);
+  };
+
+  useEffect(() => () => window.clearTimeout(pressTimer.current), []);
 
   const commitValue = (next: string) => {
     if (value === undefined) setUncontrolled(next);
@@ -45,12 +59,26 @@ export function LiquidDropdown({
     <DropdownMenu.Root
       open={open}
       onOpenChange={(next) => {
-        if (!next) closeAfterCommit.current = false;
+        if (!next) {
+          closeAfterCommit.current = false;
+          releasePress(0);
+        } else {
+          // Menu owns the morph. Trigger squash is press-only and must not stick.
+          releasePress(120);
+        }
         setOpen(next);
       }}
     >
       <DropdownMenu.Trigger asChild>
-        <button type="button" className="liquid-dropdown__trigger">
+        <button
+          type="button"
+          className="liquid-dropdown__trigger"
+          data-press={pressing ? "" : undefined}
+          onPointerDown={armPress}
+          onPointerUp={() => releasePress(180)}
+          onPointerCancel={() => releasePress(0)}
+          onBlur={() => releasePress(0)}
+        >
           {trigger ?? selectedItem?.label ?? title}
         </button>
       </DropdownMenu.Trigger>
