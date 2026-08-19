@@ -26,14 +26,16 @@
   background: rgb(255 255 255 / 16%);
 }
 
-.liquid-select-trigger {
+.liquid-select-trigger,
+.liquid-popover-trigger {
   transform-origin: center center;
   transition:
     background 180ms ease,
     transform 220ms cubic-bezier(0.22, 1.48, 0.28, 1);
 }
 
-.liquid-select-trigger[data-press] {
+.liquid-select-trigger[data-press],
+.liquid-popover-trigger[data-press] {
   transform: scaleX(1.1) scaleY(0.84);
 }
 
@@ -199,14 +201,37 @@
   animation-name: liquid-context-pop-right;
 }
 
+.liquid-popover-pop {
+  transform-origin: top left;
+  animation: liquid-context-pop 640ms cubic-bezier(0.22, 0.12, 0.28, 1) both;
+}
+
+.liquid-popover-content[data-side="top"] .liquid-popover-pop {
+  transform-origin: bottom left;
+  animation-name: liquid-context-pop-top;
+}
+
+.liquid-popover-content[data-side="left"] .liquid-popover-pop {
+  transform-origin: right center;
+  animation-name: liquid-context-pop-left;
+}
+
+.liquid-popover-content[data-side="right"] .liquid-popover-pop {
+  transform-origin: left center;
+  animation-name: liquid-context-pop-right;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .liquid-context-pop,
-  .liquid-select-pop {
+  .liquid-select-pop,
+  .liquid-popover-pop {
     animation: none;
   }
 
   .liquid-select-trigger,
-  .liquid-select-trigger[data-press] {
+  .liquid-select-trigger[data-press],
+  .liquid-popover-trigger,
+  .liquid-popover-trigger[data-press] {
     transition: none;
     transform: none;
   }
@@ -242,6 +267,7 @@
 }
 
 .liquid-context-content .apple-clear-menu,
-.liquid-select-content .apple-clear-menu {
+.liquid-select-content .apple-clear-menu,
+.liquid-popover-content .apple-clear-menu {
   width: min(var(--apple-menu-width, 200px), calc(100vw - 32px));
 }

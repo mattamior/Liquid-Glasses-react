@@ -7,7 +7,7 @@
 
 可移植交付物是浮动菜单，不是主屏实验室。新工作在 `grok/liquid-glass-radix-menu`。产品安装复制内核并挂载 `LiquidMenu` 或已完成的覆盖层（`LiquidDropdown`、`LiquidContextMenu`、`LiquidSelect`、`LiquidPopover`、`LiquidDialog`、`LiquidMenubar`）。Radix 负责开合、焦点与关闭。光学保持冻结。
 
-本批次给 overlay 预览台加右上角文字探测开关。`LiquidMenu` 不动。
+本批次把 `LiquidPopover` 做成与 Select 同一套紧凑密度、三拍形变、按下挤扁。提交后仍保持打开。移动端验收后续再做。
 
 菜单正下方必须是模糊或纯色，以保证文字可读。
 
@@ -18,7 +18,7 @@
 - `LiquidDropdown` 是第一个做完的覆盖层：Trigger + Portal；指针或重选在旅行淡出后关闭；方向键 / Home / End 浏览并提交但不关闭；Enter / Space 确认并关闭；Escape 与点外侧立即关闭。
 - `LiquidContextMenu` 是第二个做完的覆盖层：右键宿主 + Portal；嵌套宿主键盘与延迟关闭与 `LiquidDropdown` 相同。现为 `density: "compact"`，并使用同一套三拍液态弹出（没有常驻触发器，所以没有挤扁）。
 - `LiquidSelect` 是第三个做完的覆盖层：表单 Trigger + Popover Portal（不用 Radix Select），旅行透镜可以走完；空值显示 placeholder。现为 `density: "compact"`，三拍液态弹出，按下挤扁、打开后弹回。
-- `LiquidPopover` 是第四个做完的覆盖层：点击 Trigger + Portal；提交后保持打开，直到 Escape、点外侧或再点 Trigger。
+- `LiquidPopover` 是第四个做完的覆盖层：点击 Trigger + Portal；提交后保持打开，直到 Escape、点外侧或再点 Trigger。现为 `density: "compact"`，三拍液态弹出，按下挤扁、打开后弹回。
 - `LiquidDialog` 是第五个做完的覆盖层：模态遮罩 + 居中玻璃菜单；指针或 Enter 在旅行淡出后关闭；点遮罩和 Escape 立刻关闭。
 - `LiquidMenubar` 是第六个做完的覆盖层：横向「文件 / 编辑」触发器；每个菜单都是 `host="nested"`；指针或 Enter 在旅行淡出后关闭。不再用 `key` 整棵重挂。
 - 目录侧栏（`CatalogNav`）在提交后锁住 pending 选中项，避免 `router.push` 晚到时选择板弹回再播一遍旅行。侧栏标签 `nowrap`、从左侧缩放，长英文名不换行且左缘对齐。
@@ -49,6 +49,7 @@
 | 嵌套 overlay 遮挡 | `/ui/liquid-context-menu`：在「在此区域右键」上右键。嵌套衬底计算值为 `rgba(14, 18, 30, 0.54)` / `blur(40px) saturate(1.8)`。提示字不能透过面板读出。侧栏 `LiquidMenu` 仍是 `data-host=standalone`。 |
 | Select 紧凑 + 形变 | `/ui/liquid-select` 桌面：弹出 68×31（t80）→ 过大 219×193（t270）→ 落稳 200×172（t700），`data-density=compact`。打开后触发器挤扁松开（`transform: none`）。点「信息」→ 旅行 → trigger `信息` / `onValueChange: messages` / 已关闭。移动 390×844：落稳 200×172；点「照片」→ trigger `照片` / `onValueChange: photos` / 已关闭。 |
 | Overlay 探测底 | `/ui/liquid-select` 桌面 1280×800：默认无 `is-probe`，`::before` 为 `none`，右上角开关 `aria-pressed=false`。打开后以 10px、220×16 图块满铺 `Liquid glass abcd ABCD 1234`（已去掉 `test`）。点「信息」→ 旅行 → trigger `信息` / `onValueChange: messages` / 已关闭。同一开关也在 `/ui/liquid-dropdown`（点「信息」→ `messages` / 已关闭）、`/ui/liquid-context-menu`（右键 →「信息」→ `messages` / 已关闭）、`/ui/liquid-popover`（「信息」→ `messages` / 保持打开）、`/ui/liquid-dialog`（「信息」→ `messages` / 已关闭）、`/ui/liquid-menubar`（文件 →「打开」→ `file/open` / 已关闭）。`/ui/liquid-menu` 没有开关、没有探测字。移动 390×844 `/ui/liquid-select`：单栏目录，打开探测，点「照片」→ trigger `照片` / `onValueChange: photos` / 已关闭。控制台无 error。 |
+| Popover 紧凑 + 形变 | `/ui/liquid-popover` 桌面 1280×800：pointerdown 触发器 `matrix(1.1, 0, 0, 0.84)`；弹出 68×31（t0）→ 104×58（t80）→ 过大 240×217（t270）→ 回收 191×159（t420）→ 落稳 200×172（t700），`data-density=compact`。打开后触发器挤扁松开（`transform: none`）。点「信息」→ 旅行 → `onValueChange: messages` / 保持打开；Escape 关闭。控制台无 error。移动端未验收。 |
 | 生产部署 | 未执行 |
 
 ## 4. 部署与发布状态
@@ -62,3 +63,4 @@
 - 方向键浏览在旅行淡出后更新 `value`，这样面板留在新行上、菜单仍保持打开。
 - 嵌入态 `backdrop-filter` 采样舞台后的页面；副本仍克隆 backdrop 节点，不是每个字形下的实时像素。
 - 覆盖层占位已清完。Tab bar / 控制中心 Regular 在系统截图到位前不做。
+- `LiquidPopover` 本轮只验收桌面；移动端后续再做。

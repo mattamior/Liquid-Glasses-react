@@ -7,7 +7,7 @@
 
 The portable deliverable is the floating menu, not the home-screen lab. New work lives on `grok/liquid-glass-radix-menu`. Product mounts copy the kernel and render `LiquidMenu` or one of the finished overlays (`LiquidDropdown`, `LiquidContextMenu`, `LiquidSelect`, `LiquidPopover`, `LiquidDialog`, `LiquidMenubar`). Radix owns open, focus, and dismiss. Optics stay frozen.
 
-This batch adds a top-right probe-type toggle on overlay catalog previews. `LiquidMenu` is unchanged.
+This batch gives `LiquidPopover` the same compact density, three-beat morph, and press-only trigger squash as Select. Commit still stays open. Mobile verification is deferred.
 
 The layer immediately behind the menu must be blur or a solid color so labels stay readable.
 
@@ -18,7 +18,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 - `LiquidDropdown` is the first finished overlay: trigger + portal; pointer or reselect closes after the travel fade; Arrow/Home/End browse and commit without dismissing; Enter/Space confirm and close; Escape and outside click dismiss immediately.
 - `LiquidContextMenu` is the second finished overlay: right-click surface + portal; same nested-host keyboard and delayed close as `LiquidDropdown`. It now uses `density: "compact"` and the same three-beat liquid pop (no trigger squash; there is no standing trigger).
 - `LiquidSelect` is the third finished overlay: form trigger + Popover portal (not Radix Select) so the travel lens can finish; empty value shows the placeholder. It now uses `density: "compact"`, the three-beat liquid pop, and press-only trigger squash that releases after open.
-- `LiquidPopover` is the fourth finished overlay: click trigger + portal; commit stays open until Escape, outside click, or the trigger.
+- `LiquidPopover` is the fourth finished overlay: click trigger + portal; commit stays open until Escape, outside click, or the trigger. It now uses `density: "compact"`, the three-beat liquid pop, and press-only trigger squash that releases after open.
 - `LiquidDialog` is the fifth finished overlay: modal dim + centered glass menu; pointer or Enter closes after the travel fade; overlay and Escape dismiss immediately.
 - `LiquidMenubar` is the sixth finished overlay: horizontal File/Edit triggers; each menu is `host="nested"`; pointer or Enter closes after the travel fade. No `key` remount.
 - Catalog sidebar (`CatalogNav`) keeps a pending selected index after commit so a late `router.push` cannot spring the plate back and replay travel. Sidebar labels `nowrap` and scale from the left so long English names stay on one row and share a left edge.
@@ -49,6 +49,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 | Nested overlay occlusion | `/ui/liquid-context-menu`: right-click over 「在此区域右键」. Nested backdrop computed `rgba(14, 18, 30, 0.54)` / `blur(40px) saturate(1.8)`. Hint glyphs not readable through the plate. Sidebar `LiquidMenu` still `data-host=standalone`. |
 | Select compact + morph | `/ui/liquid-select` desktop: pop 68×31 (t80) → 219×193 overshoot (t270) → 200×172 settle (t700), `data-density=compact`. Trigger squash releases after open (`transform: none`). Click 信息 → travel → trigger `信息` / `onValueChange: messages` / closed. Mobile 390×844: settle 200×172; click 照片 → trigger `照片` / `onValueChange: photos` / closed. |
 | Overlay probe wash | `/ui/liquid-select` desktop 1280×800: default no `is-probe`, `::before` content `none`, toggle `aria-pressed=false` at top-right. Toggle on: 10px type on a 220×16 tile fills the stage evenly with `Liquid glass abcd ABCD 1234` (`test` removed). Click 信息 → travel → trigger `信息` / `onValueChange: messages` / closed. Same toggle on `/ui/liquid-dropdown` (click 信息 → `messages` / closed), `/ui/liquid-context-menu` (right-click → 信息 → `messages` / closed), `/ui/liquid-popover` (信息 → `messages` / stayed open), `/ui/liquid-dialog` (信息 → `messages` / closed), `/ui/liquid-menubar` (文件 → 打开 → `file/open` / closed). `/ui/liquid-menu` has no toggle and no probe type. Mobile 390×844 `/ui/liquid-select`: single-column catalog, toggle on, click 照片 → trigger `照片` / `onValueChange: photos` / closed. Console errors: none. |
+| Popover compact + morph | `/ui/liquid-popover` desktop 1280×800: pointerdown trigger `matrix(1.1, 0, 0, 0.84)`; pop 68×31 (t0) → 104×58 (t80) → 240×217 overshoot (t270) → 191×159 recover (t420) → 200×172 settle (t700), `data-density=compact`. Trigger squash releases after open (`transform: none`). Click 信息 → travel → `onValueChange: messages` / stayed open; Escape closed. Console errors: none. Mobile not verified. |
 | Production deploy | Not run |
 
 ## 4. Deployment and Release Status
@@ -62,3 +63,4 @@ Repository and Skill-asset change only. No Worker deploy.
 - Arrow browse updates `value` after the travel fade so the plate can stay on the new row while the menu stays open.
 - Embedded `backdrop-filter` samples the page behind the stage; the replica still clones the backdrop node, not live pixels under each glyph.
 - No remaining overlay stub. Tab bar / Control Center Regular stay out of scope until system screenshots.
+- This `LiquidPopover` batch verified desktop only; mobile is later.

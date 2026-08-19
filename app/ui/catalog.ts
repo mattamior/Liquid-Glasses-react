@@ -104,7 +104,7 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   {
     slug: "liquid-popover",
     title: "LiquidPopover",
-    summary: "Click trigger. Arrow keys and pointer commit the travel lens; the panel stays open until Escape, outside click, or the trigger.",
+    summary: "Click trigger. Compact glass panel with the same liquid pop as LiquidDropdown. Arrow keys and pointer commit the travel lens; the panel stays open until Escape, outside click, or the trigger.",
     usage: `<LiquidPopover items={items} value={value} onValueChange={setValue} trigger="打开" />`,
     props: [
       { name: "items", type: "LiquidMenuItem[]", defaultValue: "—", description: "Same `{ value, label }` entries as LiquidMenu." },
