@@ -7,7 +7,7 @@
 
 可移植交付物是浮动菜单，不是主屏实验室。新工作在 `grok/liquid-glass-radix-menu`。产品安装复制内核并挂载 `LiquidMenu` 或已完成的覆盖层（`LiquidDropdown`、`LiquidContextMenu`、`LiquidSelect`、`LiquidPopover`、`LiquidDialog`、`LiquidMenubar`）。Radix 负责开合、焦点与关闭。光学保持冻结。
 
-本批次把 `LiquidPopover` 改成玻璃气泡卡片：只装 `children`，不再内置 `LiquidMenu`。开合、形变、按下挤扁保留。移动端验收后续再做。
+本批次把 `LiquidDialog` 改成居中模态玻璃卡片：只装 `children`，不再内置 `LiquidMenu`。遮罩与 Escape 立刻关闭。移动端验收后续再做。
 
 菜单正下方必须是模糊或纯色，以保证文字可读。
 
@@ -19,7 +19,7 @@
 - `LiquidContextMenu` 是第二个做完的覆盖层：右键宿主 + Portal；嵌套宿主键盘与延迟关闭与 `LiquidDropdown` 相同。现为 `density: "compact"`，并使用同一套三拍液态弹出（没有常驻触发器，所以没有挤扁）。
 - `LiquidSelect` 是第三个做完的覆盖层：表单 Trigger + Popover Portal（不用 Radix Select），旅行透镜可以走完；空值显示 placeholder。现为 `density: "compact"`，三拍液态弹出，按下挤扁、打开后弹回。
 - `LiquidPopover` 是第四个做完的覆盖层：点击 Trigger + Portal 的玻璃气泡卡片。`children` 是任意内容；默认预览是网络状态卡，不是菜单。`LiquidGlassCard` 只画整面折射壳，没有旅行透镜。Escape、点外侧或再点 Trigger 关闭。三拍液态弹出和按下挤扁保留。
-- `LiquidDialog` 是第五个做完的覆盖层：模态遮罩 + 居中玻璃菜单；指针或 Enter 在旅行淡出后关闭；点遮罩和 Escape 立刻关闭。
+- `LiquidDialog` 是第五个做完的覆盖层：模态遮罩 + 居中玻璃卡片。`children` 是任意内容；默认预览是删除确认卡，不是菜单。点遮罩和 Escape 立刻关闭。按下挤扁与居中三拍弹出保留。
 - `LiquidMenubar` 是第六个做完的覆盖层：横向「文件 / 编辑」触发器；每个菜单都是 `host="nested"`；指针或 Enter 在旅行淡出后关闭。不再用 `key` 整棵重挂。
 - 目录侧栏（`CatalogNav`）在提交后锁住 pending 选中项，避免 `router.push` 晚到时选择板弹回再播一遍旅行。侧栏标签 `nowrap`、从左侧缩放，长英文名不换行且左缘对齐。
 - `/ui` 预览台。左侧目录本身就是 `LiquidMenu`。`/liquid-menu` 重定向到 `/ui/liquid-menu`。Overlay 预览共用 `OverlayPreviewStage`：默认只有渐变；右上角「文字底」打开后以 10px、220×16 图块满铺 `Liquid glass abcd ABCD 1234`。`LiquidMenu` 预览仍是整面渐变，没有开关。
@@ -40,7 +40,7 @@
 | 浏览器 `/ui/liquid-context-menu` | 桌面：右键打开 nested host；点「信息」→ 旅行 → `onValueChange: messages` / 已关闭；ArrowDown 信息→设置 保持打开 / `settings`；Enter 关闭；Escape 关闭；点外侧关闭；重选「设置」立刻关闭。移动 390×844 长按打开；pointerdown+click「照片」→ 旅行 → 关闭 / `photos`。`/ui/liquid-dropdown` 仍能打开 nested host。 |
 | 浏览器 `/ui/liquid-select` | 桌面：trigger 显示 `选择…`；点「信息」→ 旅行 → trigger `信息` / `onValueChange: messages` / 已关闭；ArrowDown 信息→设置 保持打开 / trigger `设置`；Enter 关闭；Escape 关闭；点标题关闭；重选「设置」立刻关闭。移动 390×844：pointerdown+click「照片」→ 旅行 → trigger `照片` / 已关闭。 |
 | 浏览器 `/ui/liquid-popover` | 桌面：点「网络」打开玻璃卡，正文为「办公室 Wi-Fi」/「已连接 · 5 GHz」，没有菜单项。点「断开」→ 舞台值 `未连接`，气泡保持打开；再点「连接」→ `已连接`。Escape 关闭。没有 `LiquidMenu` / 旅行透镜。移动端未验收。 |
-| 浏览器 `/ui/liquid-dialog` | 桌面：打开居中模态；点「信息」→ 旅行 → `onValueChange: messages` / 已关闭；ArrowDown 信息→设置 保持打开 / `settings`；Enter 关闭；Escape 关闭；点遮罩关闭；重选「设置」立刻关闭。移动 390×844：pointerdown+click「照片」→ 旅行 → `photos` / 已关闭。 |
+| 浏览器 `/ui/liquid-dialog` | 桌面：点「删除相册」打开居中确认卡，「删除「旅行」？」/ 没有菜单项。点「删除」→ 舞台 `已删除`，对话框关闭。再开后点遮罩或 Escape 立刻关闭。没有 `LiquidMenu` / 旅行透镜。移动端未验收。 |
 | 浏览器 `/ui/liquid-menubar` | 桌面：文件打开 新建/打开/保存；点「打开」→ 旅行 → `file/open` / 已关闭；编辑打开 剪切/复制/粘贴；ArrowDown → `edit/copy` / 保持打开；Enter 关闭；文件→编辑切换菜单；Escape 关闭；点标题关闭。移动 390×844：文件 → 保存 → 旅行 → `file/save` / 已关闭。 |
 | Skill 安装 `test-7` | 空白 Vite React 项目：`/Users/jay/Code/Liquid-Glasses-skill-test/test-7`。14 个内核文件 + adapter 字节一致。`tsc -b` 通过。桌面：LiquidMenu 点「信息」旅行 → `menu: messages`，Enhanced。LiquidDropdown 点「设置」旅行后关闭 / `dropdown: settings`。移动：设置 → `menu: settings`。内核包 SHA-256 `60d21ba6c82f365ab71a4ee375d290e33d1f84e9bfa1358363775dbece0cb23c`。视觉批准待定。 |
 | 紧凑 Dropdown | `/ui/liquid-dropdown`：trigger 40×61 / 14px；打开面板 200×172，行 36，旅行板 46，圆角 16，density=compact。点「信息」旅行后关闭。侧栏仍是行 58 / density=panel。 |
@@ -48,8 +48,9 @@
 | ContextMenu 紧凑 + 形变 | `/ui/liquid-context-menu` 桌面：右键弹出 `liquid-context-pop-right` 36×58（t80）→ 过大 243×201（t270）→ 落稳 200×172（t700），`data-density=compact`。点「信息」→ 旅行 → `onValueChange: messages` / 已关闭。 |
 | 嵌套 overlay 遮挡 | `/ui/liquid-context-menu`：在「在此区域右键」上右键。嵌套衬底计算值为 `rgba(14, 18, 30, 0.54)` / `blur(40px) saturate(1.8)`。提示字不能透过面板读出。侧栏 `LiquidMenu` 仍是 `data-host=standalone`。 |
 | Select 紧凑 + 形变 | `/ui/liquid-select` 桌面：弹出 68×31（t80）→ 过大 219×193（t270）→ 落稳 200×172（t700），`data-density=compact`。打开后触发器挤扁松开（`transform: none`）。点「信息」→ 旅行 → trigger `信息` / `onValueChange: messages` / 已关闭。移动 390×844：落稳 200×172；点「照片」→ trigger `照片` / `onValueChange: photos` / 已关闭。 |
-| Overlay 探测底 | `/ui/liquid-select` 桌面 1280×800：默认无 `is-probe`，`::before` 为 `none`，右上角开关 `aria-pressed=false`。打开后以 10px、220×16 图块满铺 `Liquid glass abcd ABCD 1234`（已去掉 `test`）。点「信息」→ 旅行 → trigger `信息` / `onValueChange: messages` / 已关闭。同一开关也在 `/ui/liquid-dropdown`（点「信息」→ `messages` / 已关闭）、`/ui/liquid-context-menu`（右键 →「信息」→ `messages` / 已关闭）、`/ui/liquid-popover`（打开网络卡，气泡保持打开）、`/ui/liquid-dialog`（「信息」→ `messages` / 已关闭）、`/ui/liquid-menubar`（文件 →「打开」→ `file/open` / 已关闭）。`/ui/liquid-menu` 没有开关、没有探测字。移动 390×844 `/ui/liquid-select`：单栏目录，打开探测，点「照片」→ trigger `照片` / `onValueChange: photos` / 已关闭。控制台无 error。 |
+| Overlay 探测底 | `/ui/liquid-select` 桌面 1280×800：默认无 `is-probe`，`::before` 为 `none`，右上角开关 `aria-pressed=false`。打开后以 10px、220×16 图块满铺 `Liquid glass abcd ABCD 1234`（已去掉 `test`）。点「信息」→ 旅行 → trigger `信息` / `onValueChange: messages` / 已关闭。同一开关也在 `/ui/liquid-dropdown`（点「信息」→ `messages` / 已关闭）、`/ui/liquid-context-menu`（右键 →「信息」→ `messages` / 已关闭）、`/ui/liquid-popover`（打开网络卡，气泡保持打开）、`/ui/liquid-dialog`（打开删除确认卡）、`/ui/liquid-menubar`（文件 →「打开」→ `file/open` / 已关闭）。`/ui/liquid-menu` 没有开关、没有探测字。移动 390×844 `/ui/liquid-select`：单栏目录，打开探测，点「照片」→ trigger `照片` / `onValueChange: photos` / 已关闭。控制台无 error。 |
 | Popover 气泡卡片 | `/ui/liquid-popover` 桌面 1280×800：点「网络」打开 `liquid-glass-card` 260×152，没有 `apple-clear-menu` / 选择板。正文「办公室 Wi-Fi」/「已连接 · 5 GHz」。点「断开」→ 卡片与舞台均为 `未连接`，气泡保持打开。Escape 关闭。控制台无 error。移动端未验收。 |
+| Dialog 模态卡片 | `/ui/liquid-dialog` 桌面 1280×800：点「删除相册」打开居中 `liquid-glass-card` 260×152，遮罩 `rgba(6, 10, 18, 0.46)`，没有 `apple-clear-menu` / 选择板。点「删除」→ 舞台 `已删除`，对话框关闭。再开后 Escape 立刻关闭。控制台无 error。移动端未验收。 |
 | 生产部署 | 未执行 |
 
 ## 4. 部署与发布状态
@@ -63,4 +64,4 @@
 - 方向键浏览在旅行淡出后更新 `value`，这样面板留在新行上、菜单仍保持打开。
 - 嵌入态 `backdrop-filter` 采样舞台后的页面；副本仍克隆 backdrop 节点，不是每个字形下的实时像素。
 - 覆盖层占位已清完。Tab bar / 控制中心 Regular 在系统截图到位前不做。
-- `LiquidPopover` 本轮只验收桌面；移动端后续再做。
+- `LiquidPopover` 与 `LiquidDialog` 本轮只验收桌面；移动端后续再做。

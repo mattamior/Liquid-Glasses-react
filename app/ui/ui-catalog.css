@@ -166,6 +166,21 @@
   cursor: pointer;
 }
 
+.liquid-dialog-demo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.liquid-dialog-demo__actions .liquid-popover-demo__action {
+  margin-top: 0;
+}
+
+.liquid-dialog-demo__danger {
+  background: rgb(180 48 56 / 72%);
+}
+
 .ui-studio__panel h2 {
   margin: 0 0 10px;
   font-size: 13px;

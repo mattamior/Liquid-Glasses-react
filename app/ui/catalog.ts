@@ -123,15 +123,18 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   {
     slug: "liquid-dialog",
     title: "LiquidDialog",
-    summary: "Modal overlay plus centered glass menu. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits. Overlay and Escape dismiss immediately.",
-    usage: `<LiquidDialog items={items} value={value} onValueChange={setValue} trigger="打开对话框" />`,
+    summary: "Modal overlay plus centered glass card for arbitrary children. Overlay and Escape dismiss immediately. Not a menu.",
+    usage: `<LiquidDialog trigger="删除相册" title="删除相册">
+  <h3>删除「旅行」？</h3>
+  <p>照片会移到最近删除。</p>
+</LiquidDialog>`,
     props: [
-      { name: "items", type: "LiquidMenuItem[]", defaultValue: "—", description: "Same `{ value, label }` entries as LiquidMenu." },
-      { name: "value", type: "string", defaultValue: "uncontrolled", description: "Controlled selected value." },
-      { name: "defaultValue", type: "string", defaultValue: "first item", description: "Initial value when uncontrolled." },
-      { name: "onValueChange", type: "(value: string) => void", defaultValue: "—", description: "Fires after the travel lens fades. Pointer or Enter then closes." },
+      { name: "children", type: "ReactNode", defaultValue: "—", description: "Card body. Any content; not a LiquidMenu." },
       { name: "trigger", type: "ReactNode", defaultValue: `"打开对话框"`, description: "Trigger contents." },
-      { name: "title", type: "string", defaultValue: `"菜单"`, description: "Accessible name of the dialog." },
+      { name: "title", type: "string", defaultValue: `"对话框"`, description: "Accessible name of the dialog." },
+      { name: "open", type: "boolean", defaultValue: "uncontrolled", description: "Controlled open state." },
+      { name: "defaultOpen", type: "boolean", defaultValue: "false", description: "Initial open state when uncontrolled." },
+      { name: "onOpenChange", type: "(open: boolean) => void", defaultValue: "—", description: "Fires when the dialog opens or closes." },
       { name: "theme", type: `"light" | "dark"`, defaultValue: `"light"`, description: "Clear material theme." },
       { name: "optics", type: `"enhanced" | "baseline"`, defaultValue: `"enhanced"`, description: "Displacement when supported." },
     ],

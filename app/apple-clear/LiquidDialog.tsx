@@ -1,55 +1,72 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { useRef, useState, type ReactNode } from "react";
-import { LiquidMenu, type LiquidMenuItem } from "./LiquidMenu";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { LiquidGlassCard } from "./LiquidGlassCard";
 import "./liquid-overlays.css";
 
 export interface LiquidDialogProps {
-  items?: readonly LiquidMenuItem[];
-  value?: string;
-  defaultValue?: string;
-  onValueChange?: (value: string) => void;
+  children?: ReactNode;
   title?: string;
   trigger?: ReactNode;
   theme?: "light" | "dark";
   optics?: "enhanced" | "baseline";
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function LiquidDialog({
-  items,
-  value,
-  defaultValue,
-  onValueChange,
-  title = "菜单",
+  children,
+  title = "对话框",
   trigger,
   theme,
   optics,
+  open,
+  defaultOpen = false,
+  onOpenChange,
 }: LiquidDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [uncontrolled, setUncontrolled] = useState(defaultValue ?? items?.[0]?.value ?? "");
-  const selected = value ?? uncontrolled;
-  const closeAfterCommit = useRef(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
+  const resolvedOpen = open ?? uncontrolledOpen;
+  const pressTimer = useRef<number>(0);
+  const [pressing, setPressing] = useState(false);
 
-  const commitValue = (next: string) => {
-    if (value === undefined) setUncontrolled(next);
-    onValueChange?.(next);
-    if (closeAfterCommit.current) {
-      closeAfterCommit.current = false;
-      setOpen(false);
-    }
+  const armPress = () => {
+    window.clearTimeout(pressTimer.current);
+    setPressing(true);
   };
+
+  const releasePress = (delay = 160) => {
+    window.clearTimeout(pressTimer.current);
+    pressTimer.current = window.setTimeout(() => setPressing(false), delay);
+  };
+
+  useEffect(() => () => window.clearTimeout(pressTimer.current), []);
 
   return (
     <Dialog.Root
-      open={open}
+      open={resolvedOpen}
       onOpenChange={(next) => {
-        if (!next) closeAfterCommit.current = false;
-        setOpen(next);
+        if (!next) {
+          releasePress(0);
+        } else {
+          releasePress(120);
+        }
+        if (open === undefined) setUncontrolledOpen(next);
+        onOpenChange?.(next);
       }}
     >
       <Dialog.Trigger asChild>
-        <button type="button" className="liquid-overlay-trigger" aria-expanded={open}>
+        <button
+          type="button"
+          className="liquid-overlay-trigger liquid-dialog-trigger"
+          data-press={pressing ? "" : undefined}
+          aria-expanded={resolvedOpen}
+          onPointerDown={armPress}
+          onPointerUp={() => releasePress(180)}
+          onPointerCancel={() => releasePress(0)}
+          onBlur={() => releasePress(0)}
+        >
           {trigger ?? "打开对话框"}
         </button>
       </Dialog.Trigger>
@@ -59,28 +76,13 @@ export function LiquidDialog({
           className="liquid-dialog-content"
           aria-describedby={undefined}
           aria-label={title}
-          onPointerDown={() => {
-            closeAfterCommit.current = true;
-          }}
-          onKeyDown={(event) => {
-            if (event.key !== "Enter" && event.key !== " ") return;
-            closeAfterCommit.current = true;
-            const phase = event.currentTarget
-              .querySelector("[data-glass-phase]")
-              ?.getAttribute("data-glass-phase");
-            if (!phase || phase === "idle") setOpen(false);
-          }}
         >
           <Dialog.Title className="sr-only">{title}</Dialog.Title>
-          <LiquidMenu
-            host="nested"
-            title={title}
-            items={items}
-            value={selected}
-            theme={theme}
-            optics={optics}
-            onValueChange={commitValue}
-          />
+          <div className="liquid-dialog-pop">
+            <LiquidGlassCard title={title} theme={theme} optics={optics}>
+              {children}
+            </LiquidGlassCard>
+          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
