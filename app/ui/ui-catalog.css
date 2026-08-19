@@ -93,6 +93,40 @@
   place-items: center;
 }
 
+.ui-studio__probe-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 999px;
+  background: rgb(12 20 36 / 46%);
+  color: #fff;
+  font: 650 12px/1 inherit;
+  cursor: pointer;
+}
+
+.ui-studio__probe-toggle[aria-pressed="true"] {
+  background: rgb(255 255 255 / 22%);
+}
+
+.ui-studio__preview.is-probe::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='16'%3E%3Ctext x='4' y='12' textLength='212' lengthAdjust='spacing' fill='rgb(255,255,255)' fill-opacity='0.68' font-family='ui-sans-serif,system-ui,sans-serif' font-size='10' font-weight='650'%3ELiquid glass test abcd ABCD 1234%3C/text%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+.ui-studio__preview--dropdown > :not(.ui-studio__probe-toggle):not(.ui-studio__value) {
+  position: relative;
+  z-index: 1;
+}
+
 .ui-studio__value {
   position: absolute;
   right: 16px;

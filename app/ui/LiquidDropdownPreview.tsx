@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LiquidDropdown } from "../apple-clear/LiquidDropdown";
+import { OverlayPreviewStage } from "./OverlayPreviewStage";
 
 const ITEMS = [
   { value: "home", label: "主页" },
@@ -14,9 +15,9 @@ export function LiquidDropdownPreview() {
   const [value, setValue] = useState("home");
 
   return (
-    <div className="ui-studio__preview ui-studio__preview--dropdown">
+    <OverlayPreviewStage>
       <LiquidDropdown items={ITEMS} value={value} onValueChange={setValue} title="菜单" />
       <p className="ui-studio__value">onValueChange: {value}</p>
-    </div>
+    </OverlayPreviewStage>
   );
 }

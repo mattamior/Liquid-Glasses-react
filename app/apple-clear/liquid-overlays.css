@@ -26,6 +26,17 @@
   background: rgb(255 255 255 / 16%);
 }
 
+.liquid-select-trigger {
+  transform-origin: center center;
+  transition:
+    background 180ms ease,
+    transform 220ms cubic-bezier(0.22, 1.48, 0.28, 1);
+}
+
+.liquid-select-trigger[data-press] {
+  transform: scaleX(1.1) scaleY(0.84);
+}
+
 .liquid-context-surface {
   display: grid;
   place-items: center;
@@ -168,9 +179,36 @@
   }
 }
 
+.liquid-select-pop {
+  transform-origin: top left;
+  animation: liquid-context-pop 640ms cubic-bezier(0.22, 0.12, 0.28, 1) both;
+}
+
+.liquid-select-content[data-side="top"] .liquid-select-pop {
+  transform-origin: bottom left;
+  animation-name: liquid-context-pop-top;
+}
+
+.liquid-select-content[data-side="left"] .liquid-select-pop {
+  transform-origin: right center;
+  animation-name: liquid-context-pop-left;
+}
+
+.liquid-select-content[data-side="right"] .liquid-select-pop {
+  transform-origin: left center;
+  animation-name: liquid-context-pop-right;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .liquid-context-pop {
+  .liquid-context-pop,
+  .liquid-select-pop {
     animation: none;
+  }
+
+  .liquid-select-trigger,
+  .liquid-select-trigger[data-press] {
+    transition: none;
+    transform: none;
   }
 }
 
@@ -203,6 +241,7 @@
   width: min(280px, calc(100vw - 32px));
 }
 
-.liquid-context-content .apple-clear-menu {
+.liquid-context-content .apple-clear-menu,
+.liquid-select-content .apple-clear-menu {
   width: min(var(--apple-menu-width, 200px), calc(100vw - 32px));
 }

@@ -88,7 +88,7 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   {
     slug: "liquid-select",
     title: "LiquidSelect",
-    summary: "Form-like trigger that shows the selected label or placeholder. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits.",
+    summary: "Form-like trigger that shows the selected label or placeholder. Compact glass panel with the same liquid pop as LiquidDropdown. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits.",
     usage: `<LiquidSelect items={items} value={value} onValueChange={setValue} placeholder="选择…" />`,
     props: [
       { name: "items", type: "LiquidMenuItem[]", defaultValue: "—", description: "Same `{ value, label }` entries as LiquidMenu." },

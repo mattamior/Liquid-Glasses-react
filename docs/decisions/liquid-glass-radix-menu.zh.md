@@ -1,13 +1,13 @@
 # 液态玻璃 Radix 菜单决策记录
 
-**日期:** 2026-08-18
+**日期:** 2026-08-19
 **状态:** 已在 `grok/liquid-glass-radix-menu` 落地；视觉批准待定；未部署
 
 ## 1. 范围与决策
 
 可移植交付物是浮动菜单，不是主屏实验室。新工作在 `grok/liquid-glass-radix-menu`。产品安装复制内核并挂载 `LiquidMenu` 或已完成的覆盖层（`LiquidDropdown`、`LiquidContextMenu`、`LiquidSelect`、`LiquidPopover`、`LiquidDialog`、`LiquidMenubar`）。Radix 负责开合、焦点与关闭。光学保持冻结。
 
-本批次加厚嵌套 overlay 衬底（`host="nested"`）。常驻 `LiquidMenu` 不动。
+本批次给 overlay 预览台加右上角文字探测开关。`LiquidMenu` 不动。
 
 菜单正下方必须是模糊或纯色，以保证文字可读。
 
@@ -17,12 +17,12 @@
 - 内核 `host` 为 `standalone`（包 `@radix-ui/react-navigation-menu`）或 `nested`（普通 `nav`，自管方向键 / Home / End / Enter）。覆盖层必须传 `nested`，禁止叠两层 Radix 菜单。
 - `LiquidDropdown` 是第一个做完的覆盖层：Trigger + Portal；指针或重选在旅行淡出后关闭；方向键 / Home / End 浏览并提交但不关闭；Enter / Space 确认并关闭；Escape 与点外侧立即关闭。
 - `LiquidContextMenu` 是第二个做完的覆盖层：右键宿主 + Portal；嵌套宿主键盘与延迟关闭与 `LiquidDropdown` 相同。现为 `density: "compact"`，并使用同一套三拍液态弹出（没有常驻触发器，所以没有挤扁）。
-- `LiquidSelect` 是第三个做完的覆盖层：表单 Trigger + Popover Portal（不用 Radix Select），旅行透镜可以走完；空值显示 placeholder。
+- `LiquidSelect` 是第三个做完的覆盖层：表单 Trigger + Popover Portal（不用 Radix Select），旅行透镜可以走完；空值显示 placeholder。现为 `density: "compact"`，三拍液态弹出，按下挤扁、打开后弹回。
 - `LiquidPopover` 是第四个做完的覆盖层：点击 Trigger + Portal；提交后保持打开，直到 Escape、点外侧或再点 Trigger。
 - `LiquidDialog` 是第五个做完的覆盖层：模态遮罩 + 居中玻璃菜单；指针或 Enter 在旅行淡出后关闭；点遮罩和 Escape 立刻关闭。
 - `LiquidMenubar` 是第六个做完的覆盖层：横向「文件 / 编辑」触发器；每个菜单都是 `host="nested"`；指针或 Enter 在旅行淡出后关闭。不再用 `key` 整棵重挂。
 - 目录侧栏（`CatalogNav`）在提交后锁住 pending 选中项，避免 `router.push` 晚到时选择板弹回再播一遍旅行。侧栏标签 `nowrap`、从左侧缩放，长英文名不换行且左缘对齐。
-- `/ui` 预览台。左侧目录本身就是 `LiquidMenu`。`/liquid-menu` 重定向到 `/ui/liquid-menu`。
+- `/ui` 预览台。左侧目录本身就是 `LiquidMenu`。`/liquid-menu` 重定向到 `/ui/liquid-menu`。Overlay 预览共用 `OverlayPreviewStage`：默认只有渐变；右上角「文字底」打开后以 10px、220×16 图块满铺 `Liquid glass test abcd ABCD 1234`。`LiquidMenu` 预览仍是整面渐变，没有开关。
 - 覆盖层家族已做完。后续是新表面，不再补未完成的五件套。
 - `LiquidDropdown` 使用内核 `density: "compact"`（36px 行、13/16 字、200px、16/12 圆角）。常驻 `LiquidMenu` 仍是 `panel`（58 / 14↔20 / 280）。
 - Dropdown 打开是内层三拍液态形变，对标控制中心计算器 →「拷贝上个结果」：按下时触发器挤扁（`scaleX 1.1 / scaleY 0.84`），打开后 120ms 松开并弹回原状；源尺寸小团，过大弹出，再收回 compact。关闭不再重放挤扁。定位仍由 Radix Content 负责。`cssAncestorScale` 不让世界副本吃进动画缩放。
@@ -47,6 +47,8 @@
 | Dropdown 形变弹出 | 桌面 1280×800：pointerdown 触发器 `matrix(1.1, 0, 0, 0.84)`；弹出采样 68×31（t0）→ 150×112（t80）→ 过大 227×201（t270）→ 回收 190×158（t420）→ 落稳 200×172（t700）。点「信息」→ 旅行 → trigger `信息` / `onValueChange: messages` / 已关闭；无残留 pop 节点。移动 390×844：同样挤扁；中途 174×140，落稳 200×172；点「照片」→ trigger `照片` / `onValueChange: photos` / 已关闭。控制台无 error。 |
 | ContextMenu 紧凑 + 形变 | `/ui/liquid-context-menu` 桌面：右键弹出 `liquid-context-pop-right` 36×58（t80）→ 过大 243×201（t270）→ 落稳 200×172（t700），`data-density=compact`。点「信息」→ 旅行 → `onValueChange: messages` / 已关闭。 |
 | 嵌套 overlay 遮挡 | `/ui/liquid-context-menu`：在「在此区域右键」上右键。嵌套衬底计算值为 `rgba(14, 18, 30, 0.54)` / `blur(40px) saturate(1.8)`。提示字不能透过面板读出。侧栏 `LiquidMenu` 仍是 `data-host=standalone`。 |
+| Select 紧凑 + 形变 | `/ui/liquid-select` 桌面：弹出 68×31（t80）→ 过大 219×193（t270）→ 落稳 200×172（t700），`data-density=compact`。打开后触发器挤扁松开（`transform: none`）。点「信息」→ 旅行 → trigger `信息` / `onValueChange: messages` / 已关闭。移动 390×844：落稳 200×172；点「照片」→ trigger `照片` / `onValueChange: photos` / 已关闭。 |
+| Overlay 探测底 | `/ui/liquid-select` 桌面 1280×800：默认无 `is-probe`，`::before` 为 `none`，右上角开关 `aria-pressed=false`。打开后以 10px、220×16 图块满铺 `Liquid glass test abcd ABCD 1234`。点「信息」→ 旅行 → trigger `信息` / `onValueChange: messages` / 已关闭。同一开关也在 `/ui/liquid-dropdown`（点「信息」→ `messages` / 已关闭）、`/ui/liquid-context-menu`（右键 →「信息」→ `messages` / 已关闭）、`/ui/liquid-popover`（「信息」→ `messages` / 保持打开）、`/ui/liquid-dialog`（「信息」→ `messages` / 已关闭）、`/ui/liquid-menubar`（文件 →「打开」→ `file/open` / 已关闭）。`/ui/liquid-menu` 没有开关、没有探测字。移动 390×844 `/ui/liquid-select`：单栏目录，打开探测，点「照片」→ trigger `照片` / `onValueChange: photos` / 已关闭。控制台无 error。 |
 | 生产部署 | 未执行 |
 
 ## 4. 部署与发布状态

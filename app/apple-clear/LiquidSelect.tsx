@@ -1,7 +1,7 @@
 "use client";
 
 import * as Popover from "@radix-ui/react-popover";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LiquidMenu, type LiquidMenuItem } from "./LiquidMenu";
 import "./liquid-overlays.css";
 
@@ -32,6 +32,20 @@ export function LiquidSelect({
   const selected = value ?? uncontrolled;
   const selectedItem = items?.find((item) => item.value === selected);
   const closeAfterCommit = useRef(false);
+  const pressTimer = useRef<number>(0);
+  const [pressing, setPressing] = useState(false);
+
+  const armPress = () => {
+    window.clearTimeout(pressTimer.current);
+    setPressing(true);
+  };
+
+  const releasePress = (delay = 160) => {
+    window.clearTimeout(pressTimer.current);
+    pressTimer.current = window.setTimeout(() => setPressing(false), delay);
+  };
+
+  useEffect(() => () => window.clearTimeout(pressTimer.current), []);
 
   const commitValue = (next: string) => {
     if (value === undefined) setUncontrolled(next);
@@ -46,7 +60,12 @@ export function LiquidSelect({
     <Popover.Root
       open={open}
       onOpenChange={(next) => {
-        if (!next) closeAfterCommit.current = false;
+        if (!next) {
+          closeAfterCommit.current = false;
+          releasePress(0);
+        } else {
+          releasePress(120);
+        }
         setOpen(next);
       }}
     >
@@ -54,15 +73,20 @@ export function LiquidSelect({
         <button
           type="button"
           className="liquid-select-trigger"
+          data-press={pressing ? "" : undefined}
           aria-haspopup="listbox"
           aria-expanded={open}
+          onPointerDown={armPress}
+          onPointerUp={() => releasePress(180)}
+          onPointerCancel={() => releasePress(0)}
+          onBlur={() => releasePress(0)}
         >
           {selectedItem?.label ?? placeholder}
         </button>
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
-          className="liquid-overlay-content"
+          className="liquid-overlay-content liquid-select-content"
           sideOffset={10}
           align="start"
           aria-label={title}
@@ -78,15 +102,18 @@ export function LiquidSelect({
             if (!phase || phase === "idle") setOpen(false);
           }}
         >
-          <LiquidMenu
-            host="nested"
-            title={title}
-            items={items}
-            value={selected || undefined}
-            theme={theme}
-            optics={optics}
-            onValueChange={commitValue}
-          />
+          <div className="liquid-select-pop">
+            <LiquidMenu
+              host="nested"
+              density="compact"
+              title={title}
+              items={items}
+              value={selected || undefined}
+              theme={theme}
+              optics={optics}
+              onValueChange={commitValue}
+            />
+          </div>
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
