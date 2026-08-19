@@ -302,6 +302,25 @@ body:has(.apple-clear) {
   box-shadow: var(--apple-clear-shadow);
 }
 
+.liquid-glass-card {
+  position: relative;
+  z-index: 3;
+  width: min(var(--apple-menu-width), calc(100vw - 32px));
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--apple-menu-radius);
+}
+
+.liquid-glass-card__body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: var(--apple-menu-pad);
+  color: #fff;
+}
+
 .apple-clear-menu {
   position: relative;
   z-index: 3;

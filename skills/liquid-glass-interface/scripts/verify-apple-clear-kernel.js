@@ -15,6 +15,7 @@ const pairs = [
   ["app/apple-clear/liquid-dropdown.css", "liquid-dropdown.css"],
   ["app/apple-clear/LiquidContextMenu.tsx", "LiquidContextMenu.tsx"],
   ["app/apple-clear/LiquidSelect.tsx", "LiquidSelect.tsx"],
+  ["app/apple-clear/LiquidGlassCard.tsx", "LiquidGlassCard.tsx"],
   ["app/apple-clear/LiquidPopover.tsx", "LiquidPopover.tsx"],
   ["app/apple-clear/LiquidDialog.tsx", "LiquidDialog.tsx"],
   ["app/apple-clear/LiquidMenubar.tsx", "LiquidMenubar.tsx"],
@@ -55,10 +56,16 @@ assert.match(select, /@radix-ui\/react-popover/);
 assert.match(select, /LiquidMenu/);
 assert.match(select, /host="nested"/);
 assert.match(select, /placeholder/);
+const card = fs.readFileSync(path.join(assetRoot, "LiquidGlassCard.tsx"), "utf8");
+assert.match(card, /children/);
+assert.match(card, /apple-clear-shell/);
+assert.doesNotMatch(card, /navItems/);
+assert.doesNotMatch(card, /apple-selection-plate/);
 const popover = fs.readFileSync(path.join(assetRoot, "LiquidPopover.tsx"), "utf8");
 assert.match(popover, /@radix-ui\/react-popover/);
-assert.match(popover, /LiquidMenu/);
-assert.match(popover, /host="nested"/);
+assert.match(popover, /LiquidGlassCard/);
+assert.match(popover, /children/);
+assert.doesNotMatch(popover, /LiquidMenu/);
 assert.doesNotMatch(popover, /setOpen\(false\)/);
 const dialog = fs.readFileSync(path.join(assetRoot, "LiquidDialog.tsx"), "utf8");
 assert.match(dialog, /@radix-ui\/react-dialog/);

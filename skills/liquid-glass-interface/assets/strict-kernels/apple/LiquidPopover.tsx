@@ -2,33 +2,32 @@
 
 import * as Popover from "@radix-ui/react-popover";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { LiquidMenu, type LiquidMenuItem } from "./LiquidMenu";
+import { LiquidGlassCard } from "./LiquidGlassCard";
 import "./liquid-overlays.css";
 
 export interface LiquidPopoverProps {
-  items?: readonly LiquidMenuItem[];
-  value?: string;
-  defaultValue?: string;
-  onValueChange?: (value: string) => void;
+  children?: ReactNode;
   title?: string;
   trigger?: ReactNode;
   theme?: "light" | "dark";
   optics?: "enhanced" | "baseline";
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function LiquidPopover({
-  items,
-  value,
-  defaultValue,
-  onValueChange,
-  title = "菜单",
+  children,
+  title = "卡片",
   trigger,
   theme,
   optics,
+  open,
+  defaultOpen = false,
+  onOpenChange,
 }: LiquidPopoverProps) {
-  const [open, setOpen] = useState(false);
-  const [uncontrolled, setUncontrolled] = useState(defaultValue ?? items?.[0]?.value ?? "");
-  const selected = value ?? uncontrolled;
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
+  const resolvedOpen = open ?? uncontrolledOpen;
   const pressTimer = useRef<number>(0);
   const [pressing, setPressing] = useState(false);
 
@@ -46,15 +45,15 @@ export function LiquidPopover({
 
   return (
     <Popover.Root
-      open={open}
+      open={resolvedOpen}
       onOpenChange={(next) => {
         if (!next) {
           releasePress(0);
         } else {
-          // Menu owns the morph. Trigger squash is press-only and must not stick.
           releasePress(120);
         }
-        setOpen(next);
+        if (open === undefined) setUncontrolledOpen(next);
+        onOpenChange?.(next);
       }}
     >
       <Popover.Trigger asChild>
@@ -62,7 +61,7 @@ export function LiquidPopover({
           type="button"
           className="liquid-overlay-trigger liquid-popover-trigger"
           data-press={pressing ? "" : undefined}
-          aria-expanded={open}
+          aria-expanded={resolvedOpen}
           onPointerDown={armPress}
           onPointerUp={() => releasePress(180)}
           onPointerCancel={() => releasePress(0)}
@@ -79,19 +78,9 @@ export function LiquidPopover({
           aria-label={title}
         >
           <div className="liquid-popover-pop">
-            <LiquidMenu
-              host="nested"
-              density="compact"
-              title={title}
-              items={items}
-              value={selected}
-              theme={theme}
-              optics={optics}
-              onValueChange={(next) => {
-                if (value === undefined) setUncontrolled(next);
-                onValueChange?.(next);
-              }}
-            />
+            <LiquidGlassCard title={title} theme={theme} optics={optics}>
+              {children}
+            </LiquidGlassCard>
           </div>
         </Popover.Content>
       </Popover.Portal>

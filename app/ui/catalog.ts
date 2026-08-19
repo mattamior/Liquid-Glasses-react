@@ -104,15 +104,18 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   {
     slug: "liquid-popover",
     title: "LiquidPopover",
-    summary: "Click trigger. Compact glass panel with the same liquid pop as LiquidDropdown. Arrow keys and pointer commit the travel lens; the panel stays open until Escape, outside click, or the trigger.",
-    usage: `<LiquidPopover items={items} value={value} onValueChange={setValue} trigger="打开" />`,
+    summary: "Click trigger. Glass bubble card for arbitrary children. Stays open until Escape, outside click, or the trigger. Not a menu.",
+    usage: `<LiquidPopover trigger="网络" title="网络">
+  <h3>办公室 Wi-Fi</h3>
+  <p>已连接</p>
+</LiquidPopover>`,
     props: [
-      { name: "items", type: "LiquidMenuItem[]", defaultValue: "—", description: "Same `{ value, label }` entries as LiquidMenu." },
-      { name: "value", type: "string", defaultValue: "uncontrolled", description: "Controlled selected value." },
-      { name: "defaultValue", type: "string", defaultValue: "first item", description: "Initial value when uncontrolled." },
-      { name: "onValueChange", type: "(value: string) => void", defaultValue: "—", description: "Fires after the travel lens fades. Panel stays open." },
+      { name: "children", type: "ReactNode", defaultValue: "—", description: "Card body. Any content; not a LiquidMenu." },
       { name: "trigger", type: "ReactNode", defaultValue: `"打开"`, description: "Trigger contents." },
-      { name: "title", type: "string", defaultValue: `"菜单"`, description: "Accessible name of the panel." },
+      { name: "title", type: "string", defaultValue: `"卡片"`, description: "Accessible name of the card." },
+      { name: "open", type: "boolean", defaultValue: "uncontrolled", description: "Controlled open state." },
+      { name: "defaultOpen", type: "boolean", defaultValue: "false", description: "Initial open state when uncontrolled." },
+      { name: "onOpenChange", type: "(open: boolean) => void", defaultValue: "—", description: "Fires when the bubble opens or closes." },
       { name: "theme", type: `"light" | "dark"`, defaultValue: `"light"`, description: "Clear material theme." },
       { name: "optics", type: `"enhanced" | "baseline"`, defaultValue: `"enhanced"`, description: "Displacement when supported." },
     ],

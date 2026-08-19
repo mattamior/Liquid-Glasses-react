@@ -267,7 +267,10 @@
 }
 
 .liquid-context-content .apple-clear-menu,
-.liquid-select-content .apple-clear-menu,
-.liquid-popover-content .apple-clear-menu {
+.liquid-select-content .apple-clear-menu {
   width: min(var(--apple-menu-width, 200px), calc(100vw - 32px));
+}
+
+.liquid-popover-content .liquid-glass-card {
+  width: min(var(--apple-menu-width, 260px), calc(100vw - 32px));
 }
