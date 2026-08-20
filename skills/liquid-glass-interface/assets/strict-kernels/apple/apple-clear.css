@@ -457,11 +457,19 @@ body:has(.apple-clear) {
 }
 
 .apple-menu-visual--above {
-  clip-path: inset(0 0 calc(100% - (var(--apple-menu-pad) + var(--apple-selection-y))) 0);
+  clip-path: inset(
+    0 0 calc(100% - (var(--apple-menu-pad) + var(--apple-selection-y) + var(--apple-travel-y-nudge, 0px))) 0
+  );
 }
 
 .apple-menu-visual--below {
-  clip-path: inset(calc(var(--apple-menu-pad) + var(--apple-selection-y) + var(--apple-item-height)) 0 0 0);
+  clip-path: inset(
+    calc(
+      var(--apple-menu-pad) + var(--apple-selection-y) + var(--apple-travel-y-nudge, 0px) +
+        var(--apple-selection-height, var(--apple-item-height))
+    )
+      0 0 0
+  );
 }
 
 .apple-menu-visual__item {

@@ -123,6 +123,16 @@ assert.match(
   /apple-menu-visual--lens[\s\S]*?--apple-travel-y-nudge/,
   "Lens labels must subtract travel Y nudge so the active word stays on the item rail.",
 );
+assert.match(
+  css,
+  /apple-menu-visual--above[\s\S]*?--apple-travel-y-nudge/,
+  "Above-rail clip must follow the traveling plate, not the idle row.",
+);
+assert.match(
+  css,
+  /apple-menu-visual--below[\s\S]*?--apple-selection-height/,
+  "Below-rail clip must open at the traveling plate bottom.",
+);
 assert.doesNotMatch(css, /v2-ambient-orb/);
 assert.match(skill, /`apple-liquid-glass`/);
 
