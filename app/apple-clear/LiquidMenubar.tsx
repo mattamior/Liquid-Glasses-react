@@ -1,7 +1,7 @@
 "use client";
 
 import * as Menubar from "@radix-ui/react-menubar";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LiquidMenu, type LiquidMenuItem } from "./LiquidMenu";
 import "./liquid-overlays.css";
 
@@ -52,6 +52,20 @@ export function LiquidMenubar({
   const [openMenu, setOpenMenu] = useState("");
   const [selectedByGroup, setSelectedByGroup] = useState(initialSelection(groups));
   const closeAfterCommit = useRef(false);
+  const pressTimer = useRef<number>(0);
+  const [pressing, setPressing] = useState("");
+
+  const armPress = (group: string) => {
+    window.clearTimeout(pressTimer.current);
+    setPressing(group);
+  };
+
+  const releasePress = (delay = 160) => {
+    window.clearTimeout(pressTimer.current);
+    pressTimer.current = window.setTimeout(() => setPressing(""), delay);
+  };
+
+  useEffect(() => () => window.clearTimeout(pressTimer.current), []);
 
   const commitItem = (group: string, next: string) => {
     setSelectedByGroup((current) => ({ ...current, [group]: next }));
@@ -67,16 +81,30 @@ export function LiquidMenubar({
       className="liquid-menubar"
       value={openMenu}
       onValueChange={(next) => {
-        if (!next) closeAfterCommit.current = false;
+        if (!next) {
+          closeAfterCommit.current = false;
+          releasePress(0);
+        } else {
+          releasePress(120);
+        }
         setOpenMenu(next);
       }}
     >
       {groups.map((group) => (
         <Menubar.Menu key={group.value} value={group.value}>
-          <Menubar.Trigger className="liquid-menubar-trigger">{group.label}</Menubar.Trigger>
+          <Menubar.Trigger
+            className="liquid-menubar-trigger"
+            data-press={pressing === group.value ? "" : undefined}
+            onPointerDown={() => armPress(group.value)}
+            onPointerUp={() => releasePress(180)}
+            onPointerCancel={() => releasePress(0)}
+            onBlur={() => releasePress(0)}
+          >
+            {group.label}
+          </Menubar.Trigger>
           <Menubar.Portal>
             <Menubar.Content
-              className="liquid-overlay-content"
+              className="liquid-overlay-content liquid-menubar-content"
               align="start"
               sideOffset={8}
               aria-label={group.label}
@@ -92,15 +120,18 @@ export function LiquidMenubar({
                 if (!phase || phase === "idle") setOpenMenu("");
               }}
             >
-              <LiquidMenu
-                host="nested"
-                title={group.label}
-                items={group.items}
-                value={selectedByGroup[group.value]}
-                theme={theme}
-                optics={optics}
-                onValueChange={(next) => commitItem(group.value, next)}
-              />
+              <div className="liquid-menubar-pop">
+                <LiquidMenu
+                  host="nested"
+                  density="compact"
+                  title={group.label}
+                  items={group.items}
+                  value={selectedByGroup[group.value]}
+                  theme={theme}
+                  optics={optics}
+                  onValueChange={(next) => commitItem(group.value, next)}
+                />
+              </div>
             </Menubar.Content>
           </Menubar.Portal>
         </Menubar.Menu>

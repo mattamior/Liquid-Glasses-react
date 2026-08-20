@@ -142,7 +142,7 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   {
     slug: "liquid-menubar",
     title: "LiquidMenubar",
-    summary: "Horizontal trigger row. Each trigger opens a glass menu. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits.",
+    summary: "Horizontal trigger row. Each trigger opens a compact glass menu with the same liquid pop as LiquidDropdown. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits.",
     usage: `<LiquidMenubar groups={groups} onValueChange={(group, value) => {}} />`,
     props: [
       { name: "groups", type: "LiquidMenubarGroup[]", defaultValue: "File / Edit demo", description: "`{ value, label, items }` per trigger." },

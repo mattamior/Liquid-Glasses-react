@@ -7,7 +7,7 @@
 
 The portable deliverable is the floating menu, not the home-screen lab. New work lives on `grok/liquid-glass-radix-menu`. Product mounts copy the kernel and render `LiquidMenu` or one of the finished overlays (`LiquidDropdown`, `LiquidContextMenu`, `LiquidSelect`, `LiquidPopover`, `LiquidDialog`, `LiquidMenubar`). Radix owns open, focus, and dismiss. Optics stay frozen.
 
-This batch turns `LiquidDialog` into a centered modal glass card: `children` only, no built-in `LiquidMenu`. Overlay and Escape dismiss immediately. Mobile verification is deferred.
+This batch gives `LiquidMenubar` the same compact density, three-beat morph, and press-only trigger squash as Dropdown. It stays a horizontal menu row, not a card. Mobile verification is deferred.
 
 The layer immediately behind the menu must be blur or a solid color so labels stay readable.
 
@@ -20,7 +20,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 - `LiquidSelect` is the third finished overlay: form trigger + Popover portal (not Radix Select) so the travel lens can finish; empty value shows the placeholder. It now uses `density: "compact"`, the three-beat liquid pop, and press-only trigger squash that releases after open.
 - `LiquidPopover` is the fourth finished overlay: click trigger + portal glass bubble. `children` is arbitrary content; the default preview is a network-status card, not a menu. `LiquidGlassCard` paints the whole-surface refraction shell only — no traveling lens. Escape, outside click, or the trigger closes it. The three-beat liquid pop and press squash remain.
 - `LiquidDialog` is the fifth finished overlay: modal dim + centered glass card. `children` is arbitrary content; the default preview is a delete-confirm card, not a menu. Overlay and Escape dismiss immediately. Press squash and a centered three-beat pop remain.
-- `LiquidMenubar` is the sixth finished overlay: horizontal File/Edit triggers; each menu is `host="nested"`; pointer or Enter closes after the travel fade. No `key` remount.
+- `LiquidMenubar` is the sixth finished overlay: horizontal File/Edit triggers; each menu is `host="nested"`; pointer or Enter closes after the travel fade. It now uses `density: "compact"`, the three-beat liquid pop, and press-only trigger squash that releases after open. No `key` remount.
 - Catalog sidebar (`CatalogNav`) keeps a pending selected index after commit so a late `router.push` cannot spring the plate back and replay travel. Sidebar labels `nowrap` and scale from the left so long English names stay on one row and share a left edge.
 - `/ui` catalog. Left rail is itself a `LiquidMenu`. `/liquid-menu` redirects to `/ui/liquid-menu`. Overlay preview stages share `OverlayPreviewStage`: default wash only; top-right `文字底` toggle tiles 10px `Liquid glass abcd ABCD 1234` on a 220×16 repeat so the stage fills evenly. `LiquidMenu` preview stays a single wash with no toggle.
 - Overlay family is complete. Further work is new surfaces, not another unfinished 5-pack.
@@ -41,7 +41,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 | Browser `/ui/liquid-select` | Desktop: trigger shows `选择…`; click 信息 → travel → trigger `信息` / `onValueChange: messages` / closed; ArrowDown 信息→设置 stays open / trigger `设置`; Enter closes; Escape closes; click heading dismisses; reselect 设置 closes immediately. Mobile 390×844: pointerdown+click 照片 → travel → trigger `照片` / closed. |
 | Browser `/ui/liquid-popover` | Desktop: click 网络 opens a glass card with 「办公室 Wi-Fi」 / 「已连接 · 5 GHz」 and no menu items. Click 断开 → stage value `未连接`, bubble stayed open; click 连接 → `已连接`. Escape closed. No `LiquidMenu` / traveling lens. Mobile not verified. |
 | Browser `/ui/liquid-dialog` | Desktop: click 删除相册 opens a centered confirm card with 「删除「旅行」？」 and no menu items. Click 删除 → stage `已删除`, dialog closed. Reopen then overlay or Escape dismisses immediately. No `LiquidMenu` / traveling lens. Mobile not verified. |
-| Browser `/ui/liquid-menubar` | Desktop: 文件 opens 新建/打开/保存; click 打开 → travel → `file/open` / closed; 编辑 opens 剪切/复制/粘贴; ArrowDown → `edit/copy` / stayed open; Enter closed; switch 文件→编辑 swaps menus; Escape closed; click heading dismissed. Mobile 390×844: 文件 → 保存 → travel → `file/save` / closed. |
+| Browser `/ui/liquid-menubar` | Desktop: 文件 opens 新建/打开/保存; click 打开 → travel → `file/open` / closed; 编辑 opens 剪切/复制/粘贴; ArrowDown → `edit/copy` / stayed open; Enter closed; switch 文件→编辑 swaps menus; Escape closed. Mobile not verified. |
 | Skill install `test-7` | New blank Vite React app at `/Users/jay/Code/Liquid-Glasses-skill-test/test-7`. 14 kernel files + adapter byte-equal. `tsc -b` passed. Desktop: LiquidMenu 信息 travel → `menu: messages`, Enhanced optics. LiquidDropdown 设置 travel → close / `dropdown: settings`. Mobile: 设置 → `menu: settings`. Kernel bundle SHA-256 `60d21ba6c82f365ab71a4ee375d290e33d1f84e9bfa1358363775dbece0cb23c`. Visual approval pending. |
 | Compact dropdown | `/ui/liquid-dropdown`: trigger 40×61 / 14px; open panel 200×172, row 36, travel plate 46, radius 16, density=compact. Click 信息 travels then closes. Sidebar still row 58 / density=panel. |
 | Dropdown morph pop | Desktop 1280×800: pointerdown trigger `matrix(1.1, 0, 0, 0.84)`; pop samples 68×31 (t0) → 150×112 (t80) → 227×201 overshoot (t270) → 190×158 recover (t420) → 200×172 settle (t700). Click 信息 → travel → trigger `信息` / `onValueChange: messages` / closed; no leftover pop node. Mobile 390×844: same press squash; mid 174×140 then settle 200×172; click 照片 → trigger `照片` / `onValueChange: photos` / closed. Console errors: none. |
@@ -51,6 +51,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 | Overlay probe wash | `/ui/liquid-select` desktop 1280×800: default no `is-probe`, `::before` content `none`, toggle `aria-pressed=false` at top-right. Toggle on: 10px type on a 220×16 tile fills the stage evenly with `Liquid glass abcd ABCD 1234` (`test` removed). Click 信息 → travel → trigger `信息` / `onValueChange: messages` / closed. Same toggle on `/ui/liquid-dropdown` (click 信息 → `messages` / closed), `/ui/liquid-context-menu` (right-click → 信息 → `messages` / closed), `/ui/liquid-popover` (network card, bubble stayed open), `/ui/liquid-dialog` (delete-confirm card), `/ui/liquid-menubar` (文件 → 打开 → `file/open` / closed). `/ui/liquid-menu` has no toggle and no probe type. Mobile 390×844 `/ui/liquid-select`: single-column catalog, toggle on, click 照片 → trigger `照片` / `onValueChange: photos` / closed. Console errors: none. |
 | Popover bubble card | `/ui/liquid-popover` desktop 1280×800: click 网络 opens `liquid-glass-card` 260×152 with no `apple-clear-menu` / selection plate. Body 「办公室 Wi-Fi」 / 「已连接 · 5 GHz」. Click 断开 → card and stage both `未连接`, bubble stayed open. Escape closed. Console errors: none. Mobile not verified. |
 | Dialog modal card | `/ui/liquid-dialog` desktop 1280×800: click 删除相册 opens a centered `liquid-glass-card` 260×152, overlay `rgba(6, 10, 18, 0.46)`, no `apple-clear-menu` / selection plate. Click 删除 → stage `已删除`, dialog closed. Reopen then Escape dismisses immediately. Console errors: none. Mobile not verified. |
+| Menubar compact + morph | `/ui/liquid-menubar` desktop 1280×800: pop 68×24 (t0) → 107×48 (t80) → 236×163 overshoot (t270) → 190×122 recover (t420) → 200×132 settle (t700), `data-density=compact`. Click 打开 → travel → `file/open` / closed. Escape closed. Console errors: none. Mobile not verified. |
 | Production deploy | Not run |
 
 ## 4. Deployment and Release Status
@@ -64,4 +65,4 @@ Repository and Skill-asset change only. No Worker deploy.
 - Arrow browse updates `value` after the travel fade so the plate can stay on the new row while the menu stays open.
 - Embedded `backdrop-filter` samples the page behind the stage; the replica still clones the backdrop node, not live pixels under each glyph.
 - No remaining overlay stub. Tab bar / Control Center Regular stay out of scope until system screenshots.
-- `LiquidPopover` and `LiquidDialog` verified desktop only; mobile is later.
+- Overlay batches verified desktop only; mobile is later.
