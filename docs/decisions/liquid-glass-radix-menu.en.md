@@ -1,13 +1,13 @@
 # Liquid Glass Radix Menu Decision Record
 
 **Date:** 2026-08-19
-**Status:** Implemented on `grok/liquid-glass-radix-menu`; visual approval pending; not deployed
+**Status:** Implemented on `grok/liquid-glass-radix-menu` and released to `liquid-lab-optics-demo`; visual approval pending
 
 ## 1. Scope and Decision
 
 The portable deliverable is the floating menu, not the home-screen lab. New work lives on `grok/liquid-glass-radix-menu`. Product mounts copy the kernel and render `LiquidMenu` or one of the finished overlays (`LiquidDropdown`, `LiquidContextMenu`, `LiquidSelect`, `LiquidPopover`, `LiquidDialog`, `LiquidMenubar`). Radix owns open, focus, and dismiss. Optics stay frozen.
 
-This batch turns `LiquidContextMenu` into a right-click action list: Cut / Copy / Paste; click runs the command and closes. No selected-row `LiquidMenu`. Mobile verification is deferred.
+This batch releases the `/ui` catalog to production: Menu, Dropdown, and Select still use `LiquidMenu`; Popover / Dialog are cards; Menubar / ContextMenu are action lists. Mobile verification is deferred.
 
 The layer immediately behind the menu must be blur or a solid color so labels stay readable.
 
@@ -52,11 +52,11 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 | Popover bubble card | `/ui/liquid-popover` desktop 1280×800: click 网络 opens `liquid-glass-card` 260×152 with no `apple-clear-menu` / selection plate. Body 「办公室 Wi-Fi」 / 「已连接 · 5 GHz」. Click 断开 → card and stage both `未连接`, bubble stayed open. Escape closed. Console errors: none. Mobile not verified. |
 | Dialog modal card | `/ui/liquid-dialog` desktop 1280×800: click 删除相册 opens a centered `liquid-glass-card` 260×152, overlay `rgba(6, 10, 18, 0.46)`, no `apple-clear-menu` / selection plate. Click 删除 → stage `已删除`, dialog closed. Reopen then Escape dismisses immediately. Console errors: none. Mobile not verified. |
 | Menubar command bar | `/ui/liquid-menubar` desktop 1280×800: bar at stage 17×17, 111×36. Click 文件 opens `liquid-glass-card` 168×116 with 新建/打开/保存 and no `apple-clear-menu` / selection plate. Click 打开 fires `file/open` and closes immediately. Console errors: none. Mobile not verified. |
-| Production deploy | Not run |
+| Production deploy | Wrangler `4.92.0`. `npm run build` passed. Dry-run: 27 modules, `1742.22 KiB` / gzip `372.80 KiB`, no bindings. Production Worker `liquid-lab-optics-demo` version `c395db38-be40-43f5-b663-3d56591db275`, message `release liquid glass radix menu catalog`. `https://liquid.hkooii.com/ui` → `307` `/ui/liquid-menu`; all seven `/ui/*` routes `200`; workers.dev `/ui` → `307`; `/v2` still `200`. HTML contains Command bar / Right-click host / Glass bubble. Rollback target `50355dc2-6b65-4b7f-9955-83933c3ce75c`. |
 
 ## 4. Deployment and Release Status
 
-Repository and Skill-asset change only. No Worker deploy.
+Released to existing Worker `liquid-lab-optics-demo` via `dist/server/wrangler.json`. Version `c395db38-be40-43f5-b663-3d56591db275`, 100% traffic. Rollback target is previous version `50355dc2-6b65-4b7f-9955-83933c3ce75c`.
 
 ## 5. Known Risks, Limits, and Follow-up
 

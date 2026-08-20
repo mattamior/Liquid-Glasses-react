@@ -60,7 +60,7 @@ adaptive highlights, and navigation lenses.
   [V2 card-container decision](./docs/decisions/v2-liquid-glass-card-container.en.md) /
   [V2 卡片容器决策](./docs/decisions/v2-liquid-glass-card-container.zh.md). V3 remains
   an independent App-style experiment and does not replace V2.
-- `/apple-clear` is the Apple Clear folder/panel study and the source of the Skill default kernel. `/ui` is the Liquid Glass component catalog (`LiquidMenu`, `LiquidDropdown`, `LiquidContextMenu`, `LiquidSelect`, `LiquidPopover`, `LiquidDialog`, `LiquidMenubar`). `/liquid-menu` redirects to the menu entry. The Skill default mode is now `apple-liquid-glass`; `v1-fidelity`, `v2-default`, and `v3-horizontal` are explicit simulation presets. Failed M05 remains an archive.
+- `/apple-clear` is the Apple Clear folder/panel study and the source of the Skill default kernel. `/ui` is the Liquid Glass component catalog (`LiquidMenu`, `LiquidDropdown`, `LiquidContextMenu`, `LiquidSelect`, `LiquidPopover`, `LiquidDialog`, `LiquidMenubar`). `/liquid-menu` redirects to the menu entry. The Skill default mode is now `apple-liquid-glass`; `v1-fidelity`, `v2-default`, and `v3-horizontal` are explicit simulation presets. Failed M05 remains an archive. The catalog is deployed as Worker `liquid-lab-optics-demo` version `c395db38-be40-43f5-b663-3d56591db275`; rollback target `50355dc2-6b65-4b7f-9955-83933c3ce75c`.
 - The reusable Agent Skill still ships schema `2.0` contracts for the three simulation presets across Next.js App Router and Vite/React Router.
 
 ## Quick Start

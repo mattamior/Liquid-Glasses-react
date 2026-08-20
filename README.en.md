@@ -40,14 +40,21 @@ The public version is hosted on Cloudflare Workers:
 | `/v3` | Independent horizontal navigation-lens experiment; the M04 candidate baseline is restored and deployed. |
 | `/v3-05-failed` | Public direct-access archive for the failed M05 candidate; `noindex, nofollow` and absent from site navigation. |
 | `/apple-clear` | Apple Clear folder/panel preview; source of the Skill default kernel. |
-| `/ui` | Liquid Glass component catalog. |
-| `/ui/liquid-menu` | Catalog preview for portable `LiquidMenu`. |
-| `/ui/liquid-dropdown` | Catalog preview for `LiquidDropdown` (trigger + portal). |
+| `/ui` | Liquid Glass component catalog; redirects to `/ui/liquid-menu`. |
+| `/ui/liquid-menu` | Standing `LiquidMenu`. |
+| `/ui/liquid-dropdown` | Trigger + portal menu. |
+| `/ui/liquid-select` | Form select. |
+| `/ui/liquid-popover` | Glass bubble card. |
+| `/ui/liquid-dialog` | Centered modal card. |
+| `/ui/liquid-menubar` | Top command bar. |
+| `/ui/liquid-context-menu` | Right-click action list. |
 | `/liquid-menu` | Redirects to `/ui/liquid-menu`. |
 | `/brand-preview` | Light/dark review surface for the current Liquid Lab logo. |
 
 The Skill default is Apple Clear, not the V2 admin template. `/` still redirects
 to `/v2` as this repository's navigation study. V3 remains a separate experiment.
+The `/ui` catalog is deployed as Worker `liquid-lab-optics-demo` version
+`c395db38-be40-43f5-b663-3d56591db275`; rollback target `50355dc2-6b65-4b7f-9955-83933c3ce75c`.
 
 ## Features
 

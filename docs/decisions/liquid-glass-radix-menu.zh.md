@@ -1,13 +1,13 @@
 # 液态玻璃 Radix 菜单决策记录
 
 **日期:** 2026-08-19
-**状态:** 已在 `grok/liquid-glass-radix-menu` 落地；视觉批准待定；未部署
+**状态:** 已在 `grok/liquid-glass-radix-menu` 落地并发布到 `liquid-lab-optics-demo`；视觉批准待定
 
 ## 1. 范围与决策
 
 可移植交付物是浮动菜单，不是主屏实验室。新工作在 `grok/liquid-glass-radix-menu`。产品安装复制内核并挂载 `LiquidMenu` 或已完成的覆盖层（`LiquidDropdown`、`LiquidContextMenu`、`LiquidSelect`、`LiquidPopover`、`LiquidDialog`、`LiquidMenubar`）。Radix 负责开合、焦点与关闭。光学保持冻结。
 
-本批次把 `LiquidContextMenu` 改成右键动作列表：剪切 / 复制 / 粘贴，点一下执行并关闭。不再用带选中板的 `LiquidMenu`。移动端验收后续再做。
+本批次发布 `/ui` 目录到生产：菜单、下拉、选择仍走 `LiquidMenu`；Popover / Dialog 是卡片；Menubar / ContextMenu 是动作列表。移动端验收后续再做。
 
 菜单正下方必须是模糊或纯色，以保证文字可读。
 
@@ -52,11 +52,11 @@
 | Popover 气泡卡片 | `/ui/liquid-popover` 桌面 1280×800：点「网络」打开 `liquid-glass-card` 260×152，没有 `apple-clear-menu` / 选择板。正文「办公室 Wi-Fi」/「已连接 · 5 GHz」。点「断开」→ 卡片与舞台均为 `未连接`，气泡保持打开。Escape 关闭。控制台无 error。移动端未验收。 |
 | Dialog 模态卡片 | `/ui/liquid-dialog` 桌面 1280×800：点「删除相册」打开居中 `liquid-glass-card` 260×152，遮罩 `rgba(6, 10, 18, 0.46)`，没有 `apple-clear-menu` / 选择板。点「删除」→ 舞台 `已删除`，对话框关闭。再开后 Escape 立刻关闭。控制台无 error。移动端未验收。 |
 | Menubar 命令条 | `/ui/liquid-menubar` 桌面 1280×800：命令条贴舞台左上 17×17，尺寸 111×36。点「文件」打开 `liquid-glass-card` 168×116，动作 新建/打开/保存，没有 `apple-clear-menu` / 选择板。点「打开」立刻 `file/open` / 已关闭。控制台无 error。移动端未验收。 |
-| 生产部署 | 未执行 |
+| 生产部署 | Wrangler `4.92.0`。`npm run build` 通过。dry-run：27 modules、`1742.22 KiB` / gzip `372.80 KiB`，无 bindings。正式发布 Worker `liquid-lab-optics-demo` 版本 `c395db38-be40-43f5-b663-3d56591db275`，消息 `release liquid glass radix menu catalog`。`https://liquid.hkooii.com/ui` → `307` `/ui/liquid-menu`；七条 `/ui/*` 均为 `200`；workers.dev `/ui` → `307`；`/v2` 仍为 `200`。HTML 含 Command bar / Right-click host / Glass bubble。回滚目标 `50355dc2-6b65-4b7f-9955-83933c3ce75c`。 |
 
 ## 4. 部署与发布状态
 
-仅仓库与 Skill 资产变更。没有 Worker 部署。
+已用 `dist/server/wrangler.json` 发布既有 Worker `liquid-lab-optics-demo`。版本 `c395db38-be40-43f5-b663-3d56591db275`，100% 流量。回滚目标为上一版 `50355dc2-6b65-4b7f-9955-83933c3ce75c`。
 
 ## 5. 已知风险、限制与后续工作
 

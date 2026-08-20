@@ -39,13 +39,18 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 | `/v3` | 独立横向导航透镜实验；M04 候选基线已恢复并部署。 |
 | `/v3-05-failed` | M05 失败候选的公开直达归档；`noindex, nofollow`，不进入站内导航。 |
 | `/apple-clear` | Apple Clear 文件夹/面板预览；Skill 默认内核的源实现。 |
-| `/ui` | 液态玻璃组件预览台。 |
-| `/ui/liquid-menu` | 可移植 `LiquidMenu` 的目录预览。 |
-| `/ui/liquid-dropdown` | `LiquidDropdown`（Trigger + Portal）的目录预览。 |
+| `/ui` | 液态玻璃组件预览台；重定向到 `/ui/liquid-menu`。 |
+| `/ui/liquid-menu` | 常驻 `LiquidMenu`。 |
+| `/ui/liquid-dropdown` | Trigger + Portal 菜单。 |
+| `/ui/liquid-select` | 表单选择。 |
+| `/ui/liquid-popover` | 玻璃气泡卡片。 |
+| `/ui/liquid-dialog` | 居中模态卡片。 |
+| `/ui/liquid-menubar` | 顶栏命令条。 |
+| `/ui/liquid-context-menu` | 右键动作列表。 |
 | `/liquid-menu` | 重定向到 `/ui/liquid-menu`。 |
 | `/brand-preview` | 当前 Liquid Lab 标志的亮暗背景审阅页。 |
 
-Skill 默认身份是 Apple Clear，不再是 V2 后台模板。`/` 仍重定向到 `/v2` 作为本仓库导航实验入口。V3 是独立实验。
+Skill 默认身份是 Apple Clear，不再是 V2 后台模板。`/` 仍重定向到 `/v2` 作为本仓库导航实验入口。V3 是独立实验。`/ui` 目录已发布为 Worker `liquid-lab-optics-demo` 版本 `c395db38-be40-43f5-b663-3d56591db275`；回滚目标 `50355dc2-6b65-4b7f-9955-83933c3ce75c`。
 
 ## 功能特性
 
