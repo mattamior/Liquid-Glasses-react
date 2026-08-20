@@ -7,7 +7,7 @@
 
 可移植交付物是浮动菜单，不是主屏实验室。新工作在 `grok/liquid-glass-radix-menu`。产品安装复制内核并挂载 `LiquidMenu` 或已完成的覆盖层（`LiquidDropdown`、`LiquidContextMenu`、`LiquidSelect`、`LiquidPopover`、`LiquidDialog`、`LiquidMenubar`）。Radix 负责开合、焦点与关闭。光学保持冻结。
 
-本批次只改 `/ui` 目录标签和页标题：去掉重复的 `Liquid` 前缀。导出、路由、Usage 仍是 `LiquidMenu` 等。移动端验收后续再做。
+本批次给 `/ui` 预览台加亮暗切换。外壳、侧栏和预览组件共用 `theme`。内核光学不变。移动端验收后续再做。
 
 菜单正下方必须是模糊或纯色，以保证文字可读。
 
@@ -22,7 +22,7 @@
 - `LiquidDialog` 是第五个做完的覆盖层：模态遮罩 + 居中玻璃卡片。`children` 是任意内容；默认预览是删除确认卡，不是菜单。点遮罩和 Escape 立刻关闭。按下挤扁与居中三拍弹出保留。
 - `LiquidMenubar` 是第六个做完的覆盖层：顶栏命令条。薄「文件 / 编辑」标题打开玻璃动作列表；点「打开」立刻 `onValueChange("file","open")` 并关闭。没有常驻选中、没有旅行透镜。弹出形变保留。
 - 目录侧栏（`CatalogNav`）在提交后锁住 pending 选中项，避免 `router.push` 晚到时选择板弹回再播一遍旅行。侧栏标签 `nowrap`、从左侧缩放，长英文名不换行且左缘对齐。
-- `/ui` 预览台。左侧目录本身就是 `LiquidMenu`，标签为 Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar。`/liquid-menu` 重定向到 `/ui/liquid-menu`。Overlay 预览共用 `OverlayPreviewStage`：默认只有渐变；右上角「文字底」打开后以 10px、220×16 图块满铺 `Liquid glass abcd ABCD 1234`。`LiquidMenu` 预览仍是整面渐变，没有开关。
+- `/ui` 预览台。左侧目录本身就是 `LiquidMenu`，标签为 Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar。品牌行有亮暗开关，写入 `liquid-glass:ui-theme`。侧栏与七个预览都吃这个 `theme`。内核光学与折射场不变。`/liquid-menu` 重定向到 `/ui/liquid-menu`。Overlay 预览共用 `OverlayPreviewStage`：默认只有渐变；右上角「文字底」打开后以 10px、220×16 图块满铺 `Liquid glass abcd ABCD 1234`。`LiquidMenu` 预览仍是整面渐变，没有开关。
 - 覆盖层家族已做完。后续是新表面，不再补未完成的五件套。
 - `LiquidDropdown` 使用内核 `density: "compact"`（36px 行、13/16 字、200px、16/12 圆角）。常驻 `LiquidMenu` 仍是 `panel`（58 / 14↔20 / 280）。
 - Dropdown 打开是内层三拍液态形变，对标控制中心计算器 →「拷贝上个结果」：按下时触发器挤扁（`scaleX 1.1 / scaleY 0.84`），打开后 120ms 松开并弹回原状；源尺寸小团，过大弹出，再收回 compact。关闭不再重放挤扁。定位仍由 Radix Content 负责。`cssAncestorScale` 不让世界副本吃进动画缩放。
@@ -54,6 +54,7 @@
 | Menubar 命令条 | `/ui/liquid-menubar` 桌面 1280×800：命令条贴舞台左上 17×17，尺寸 111×36。点「文件」打开 `liquid-glass-card` 168×116，动作 新建/打开/保存，没有 `apple-clear-menu` / 选择板。点「打开」立刻 `file/open` / 已关闭。控制台无 error。移动端未验收。 |
 | 生产部署 | Wrangler `4.92.0`。`npm run build` 通过。dry-run：27 modules、`1742.22 KiB` / gzip `372.80 KiB`，无 bindings。正式发布 Worker `liquid-lab-optics-demo` 版本 `c395db38-be40-43f5-b663-3d56591db275`，消息 `release liquid glass radix menu catalog`。`https://liquid.hkooii.com/ui` → `307` `/ui/liquid-menu`；七条 `/ui/*` 均为 `200`；workers.dev `/ui` → `307`；`/v2` 仍为 `200`。HTML 含 Command bar / Right-click host / Glass bubble。回滚目标 `50355dc2-6b65-4b7f-9955-83933c3ce75c`。 |
 | 目录短名 | `/ui/liquid-context-menu` 桌面：侧栏与页标题为 Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar。路由仍是 `/ui/liquid-*`。Usage 仍写 `<LiquidContextMenu />`。Context Menu 单行、未换行。 |
+| `/ui` 亮暗切换 | `/ui/liquid-menu` 桌面：默认 `data-theme=dark`，开关 `aria-pressed=true` 文案「亮色」。点「亮色」后 `data-theme=light`，开关文案「暗色」，侧栏字色为深色，舞台仍是渐变。切到 Dropdown / Context Menu 后仍为 light。刷新后仍为 light。再点「暗色」回到 dark。控制台无 error。 |
 
 ## 4. 部署与发布状态
 

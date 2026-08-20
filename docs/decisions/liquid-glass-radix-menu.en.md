@@ -7,7 +7,7 @@
 
 The portable deliverable is the floating menu, not the home-screen lab. New work lives on `grok/liquid-glass-radix-menu`. Product mounts copy the kernel and render `LiquidMenu` or one of the finished overlays (`LiquidDropdown`, `LiquidContextMenu`, `LiquidSelect`, `LiquidPopover`, `LiquidDialog`, `LiquidMenubar`). Radix owns open, focus, and dismiss. Optics stay frozen.
 
-This batch only shortens `/ui` catalog labels and page titles by dropping the repeated `Liquid` prefix. Exports, routes, and Usage stay `LiquidMenu` and the rest. Mobile verification is deferred.
+This batch adds a light/dark toggle to the `/ui` catalog. Chrome, sidebar, and previews share `theme`. Kernel optics stay frozen. Mobile verification is deferred.
 
 The layer immediately behind the menu must be blur or a solid color so labels stay readable.
 
@@ -22,7 +22,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 - `LiquidDialog` is the fifth finished overlay: modal dim + centered glass card. `children` is arbitrary content; the default preview is a delete-confirm card, not a menu. Overlay and Escape dismiss immediately. Press squash and a centered three-beat pop remain.
 - `LiquidMenubar` is the sixth finished overlay: a top command bar. Thin File/Edit titles open a glass action list; choosing 打开 fires `onValueChange("file","open")` and closes immediately. No standing selection, no traveling lens. The morph pop remains.
 - Catalog sidebar (`CatalogNav`) keeps a pending selected index after commit so a late `router.push` cannot spring the plate back and replay travel. Sidebar labels `nowrap` and scale from the left so long English names stay on one row and share a left edge.
-- `/ui` catalog. Left rail is itself a `LiquidMenu`, labeled Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar. `/liquid-menu` redirects to `/ui/liquid-menu`. Overlay preview stages share `OverlayPreviewStage`: default wash only; top-right `文字底` toggle tiles 10px `Liquid glass abcd ABCD 1234` on a 220×16 repeat so the stage fills evenly. `LiquidMenu` preview stays a single wash with no toggle.
+- `/ui` catalog. Left rail is itself a `LiquidMenu`, labeled Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar. The brand row has a light/dark toggle stored as `liquid-glass:ui-theme`. Sidebar and all seven previews take that `theme`. Kernel optics and refraction fields stay frozen. `/liquid-menu` redirects to `/ui/liquid-menu`. Overlay preview stages share `OverlayPreviewStage`: default wash only; top-right `文字底` toggle tiles 10px `Liquid glass abcd ABCD 1234` on a 220×16 repeat so the stage fills evenly. `LiquidMenu` preview stays a single wash with no toggle.
 - Overlay family is complete. Further work is new surfaces, not another unfinished 5-pack.
 - `LiquidDropdown` uses kernel `density: "compact"` (36px rows, 13/16 type, 200px, 16/12 radius). Standalone `LiquidMenu` stays `panel` (58 / 14↔20 / 280).
 - Dropdown open is a three-beat liquid morph on the inner wrap, matching Control Center calculator → copy-result chip: press-only trigger squash (`scaleX 1.1 / scaleY 0.84`) that releases 120ms after open so the trigger returns to rest; source-sized blob, oversized overshoot, compact settle. Closing does not replay the squash. Radix still owns Content placement. `cssAncestorScale` keeps the world replica off the animated scale.
@@ -54,6 +54,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 | Menubar command bar | `/ui/liquid-menubar` desktop 1280×800: bar at stage 17×17, 111×36. Click 文件 opens `liquid-glass-card` 168×116 with 新建/打开/保存 and no `apple-clear-menu` / selection plate. Click 打开 fires `file/open` and closes immediately. Console errors: none. Mobile not verified. |
 | Production deploy | Wrangler `4.92.0`. `npm run build` passed. Dry-run: 27 modules, `1742.22 KiB` / gzip `372.80 KiB`, no bindings. Production Worker `liquid-lab-optics-demo` version `c395db38-be40-43f5-b663-3d56591db275`, message `release liquid glass radix menu catalog`. `https://liquid.hkooii.com/ui` → `307` `/ui/liquid-menu`; all seven `/ui/*` routes `200`; workers.dev `/ui` → `307`; `/v2` still `200`. HTML contains Command bar / Right-click host / Glass bubble. Rollback target `50355dc2-6b65-4b7f-9955-83933c3ce75c`. |
 | Catalog short labels | `/ui/liquid-context-menu` desktop: rail and page title are Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar. Routes stay `/ui/liquid-*`. Usage still shows `<LiquidContextMenu />`. Context Menu stays on one line. |
+| `/ui` light/dark toggle | `/ui/liquid-menu` desktop: default `data-theme=dark`, toggle `aria-pressed=true` labeled 亮色. Click 亮色 → `data-theme=light`, toggle labeled 暗色, rail type is dark, stage stays a wash. Dropdown / Context Menu stay light. Reload stays light. Click 暗色 returns to dark. Console errors: none. |
 
 ## 4. Deployment and Release Status
 

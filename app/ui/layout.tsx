@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "../apple-clear/apple-clear.css";
 import "./ui-catalog.css";
-import { CatalogNav } from "./CatalogNav";
+import { UiStudioShell } from "./UiStudioShell";
 
 export const metadata: Metadata = {
   title: "Liquid Glass UI",
@@ -13,13 +13,5 @@ export default function UiCatalogLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <div className="ui-studio">
-      <aside className="ui-studio__nav">
-        <p className="ui-studio__brand">Liquid Glass</p>
-        <CatalogNav />
-      </aside>
-      {children}
-    </div>
-  );
+  return <UiStudioShell>{children}</UiStudioShell>;
 }

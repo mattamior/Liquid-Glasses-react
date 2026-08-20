@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LiquidMenu } from "../apple-clear/LiquidMenu";
+import { useUiTheme } from "./UiTheme";
 
 const ITEMS = [
   { value: "home", label: "主页" },
@@ -11,11 +12,12 @@ const ITEMS = [
 ] as const;
 
 export function LiquidMenuPreview() {
+  const { theme } = useUiTheme();
   const [value, setValue] = useState("home");
 
   return (
     <div className="ui-studio__preview">
-      <LiquidMenu title="菜单" items={ITEMS} value={value} onValueChange={setValue} />
+      <LiquidMenu key={theme} theme={theme} title="菜单" items={ITEMS} value={value} onValueChange={setValue} />
       <p className="ui-studio__value">onValueChange: {value}</p>
     </div>
   );

@@ -43,12 +43,30 @@
   transform-origin: left center;
 }
 
+.ui-studio__brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .ui-studio__brand {
   margin: 0;
   font-size: 13px;
   font-weight: 750;
   letter-spacing: 0.04em;
   color: rgb(255 255 255 / 72%);
+}
+
+.ui-studio__theme-toggle {
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 999px;
+  background: rgb(12 20 36 / 28%);
+  color: #fff;
+  font: 650 12px/1 inherit;
+  cursor: pointer;
 }
 
 .ui-studio__main {
@@ -244,5 +262,75 @@
   .ui-studio__nav {
     border-right: 0;
     border-bottom: 1px solid rgb(255 255 255 / 8%);
+  }
+}
+
+.ui-studio[data-theme="light"] {
+  background: #eef2f8;
+  color: #132033;
+}
+
+.ui-studio[data-theme="light"] .ui-studio__nav {
+  border-right-color: rgb(18 32 56 / 10%);
+  background: #f6f8fc;
+}
+
+.ui-studio[data-theme="light"] .ui-studio__brand {
+  color: rgb(19 32 51 / 72%);
+}
+
+.ui-studio[data-theme="light"] .ui-studio__theme-toggle {
+  border-color: rgb(18 32 56 / 16%);
+  background: rgb(255 255 255 / 72%);
+  color: #132033;
+}
+
+.ui-studio[data-theme="light"] .ui-studio__header p {
+  color: rgb(19 32 51 / 68%);
+}
+
+.ui-studio[data-theme="light"] .ui-studio__preview {
+  border-color: rgb(18 32 56 / 10%);
+  background:
+    radial-gradient(90% 70% at 18% 8%, #c8e4ff 0%, transparent 42%),
+    radial-gradient(80% 60% at 88% 18%, #f4d4ff 0%, transparent 40%),
+    linear-gradient(180deg, #9ec8f0 0%, #6a9fd4 48%, #4a7bb8 100%);
+}
+
+.ui-studio[data-theme="light"] .ui-studio__panel h2 {
+  color: rgb(19 32 51 / 52%);
+}
+
+.ui-studio[data-theme="light"] .ui-studio__code {
+  background: #fff;
+  color: #243044;
+}
+
+.ui-studio[data-theme="light"] .ui-studio__props th,
+.ui-studio[data-theme="light"] .ui-studio__props td {
+  border-bottom-color: rgb(18 32 56 / 8%);
+}
+
+.ui-studio[data-theme="light"] .ui-studio__props th {
+  color: rgb(19 32 51 / 48%);
+}
+
+.ui-studio[data-theme="light"] .ui-studio__props code {
+  color: #215a96;
+}
+
+.ui-studio[data-theme="light"] .ui-studio__nav .apple-menu-visual,
+.ui-studio[data-theme="light"] .ui-studio__nav .apple-menu-visual__item {
+  color: rgb(19 32 51 / 78%);
+}
+
+.ui-studio[data-theme="light"] .ui-studio__nav .apple-menu-visual__item[data-selected="true"] .apple-menu-visual__label,
+.ui-studio[data-theme="light"] .ui-studio__nav .apple-menu-visual--lens .apple-menu-visual__label {
+  color: #132033;
+}
+
+@media (max-width: 840px) {
+  .ui-studio[data-theme="light"] .ui-studio__nav {
+    border-bottom-color: rgb(18 32 56 / 10%);
   }
 }
