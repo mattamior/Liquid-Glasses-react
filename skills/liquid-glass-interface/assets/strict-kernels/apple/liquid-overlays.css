@@ -8,8 +8,7 @@
 }
 
 .liquid-overlay-trigger,
-.liquid-select-trigger,
-.liquid-menubar-trigger {
+.liquid-select-trigger {
   min-height: 40px;
   padding: 0 16px;
   border: 1px solid rgb(255 255 255 / 28%);
@@ -21,8 +20,7 @@
 }
 
 .liquid-overlay-trigger[data-state="open"],
-.liquid-select-trigger[data-state="open"],
-.liquid-menubar-trigger[data-state="open"] {
+.liquid-select-trigger[data-state="open"] {
   background: rgb(255 255 255 / 16%);
 }
 
@@ -57,7 +55,50 @@
 
 .liquid-menubar {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 2px;
+  width: max-content;
+  padding: 3px;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 12px;
+  background: rgb(12 20 36 / 36%);
+}
+
+.liquid-menubar-trigger {
+  min-height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  font: 650 13px/1 inherit;
+  cursor: pointer;
+}
+
+.liquid-menubar-trigger[data-state="open"] {
+  background: rgb(255 255 255 / 16%);
+}
+
+.liquid-menubar-action {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  font: 650 13px/1 inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.liquid-menubar-action[data-highlighted],
+.liquid-menubar-action:hover,
+.liquid-menubar-action:focus-visible {
+  background: rgb(255 255 255 / 14%);
+  outline: none;
 }
 
 .liquid-dialog-overlay {
@@ -324,9 +365,17 @@
 }
 
 .liquid-context-content .apple-clear-menu,
-.liquid-select-content .apple-clear-menu,
-.liquid-menubar-content .apple-clear-menu {
+.liquid-select-content .apple-clear-menu {
   width: min(var(--apple-menu-width, 200px), calc(100vw - 32px));
+}
+
+.liquid-menubar-content .liquid-glass-card {
+  width: min(168px, calc(100vw - 32px));
+}
+
+.liquid-menubar-content .liquid-glass-card__body {
+  gap: 2px;
+  padding: 8px;
 }
 
 .liquid-popover-content .liquid-glass-card,

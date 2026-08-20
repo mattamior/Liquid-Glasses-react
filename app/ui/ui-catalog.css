@@ -122,9 +122,16 @@
   background-repeat: repeat;
 }
 
-.ui-studio__preview--dropdown > :not(.ui-studio__probe-toggle):not(.ui-studio__value) {
+.ui-studio__preview--dropdown > :not(.ui-studio__probe-toggle):not(.ui-studio__value):not(.liquid-menubar) {
   position: relative;
   z-index: 1;
+}
+
+.ui-studio__preview--dropdown > .liquid-menubar {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
 }
 
 .ui-studio__value {
