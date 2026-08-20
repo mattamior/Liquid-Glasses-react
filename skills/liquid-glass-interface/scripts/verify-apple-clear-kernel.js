@@ -133,6 +133,11 @@ assert.match(
   /apple-menu-visual--below[\s\S]*?--apple-selection-height/,
   "Below-rail clip must open at the traveling plate bottom.",
 );
+assert.match(
+  css,
+  /--apple-lens-clip-overshoot/,
+  "Rail clips must cover stretchY overflow so large lens type cannot stack on small rail type.",
+);
 assert.doesNotMatch(css, /v2-ambient-orb/);
 assert.match(skill, /`apple-liquid-glass`/);
 

@@ -7,7 +7,7 @@
 
 可移植交付物是浮动菜单，不是主屏实验室。新工作在 `grok/liquid-glass-radix-menu`。产品安装复制内核并挂载 `LiquidMenu` 或已完成的覆盖层（`LiquidDropdown`、`LiquidContextMenu`、`LiquidSelect`、`LiquidPopover`、`LiquidDialog`、`LiquidMenubar`）。Radix 负责开合、焦点与关闭。光学保持冻结。
 
-本批次修旅行透镜边缘叠字：above/below 裁切跟着旅行板，不再按 idle 行开洞。移动端验收后续再做。
+本批次把旅行字洞再扩一截，盖住 `scaleY(1.16)` 探出的大字。停在两行中间时不得再叠字。移动端验收后续再做。
 
 菜单正下方必须是模糊或纯色，以保证文字可读。
 
@@ -55,7 +55,7 @@
 | 生产部署 | Wrangler `4.92.0`。`npm run build` 通过。dry-run：27 modules、`1742.22 KiB` / gzip `372.80 KiB`，无 bindings。正式发布 Worker `liquid-lab-optics-demo` 版本 `c395db38-be40-43f5-b663-3d56591db275`，消息 `release liquid glass radix menu catalog`。`https://liquid.hkooii.com/ui` → `307` `/ui/liquid-menu`；七条 `/ui/*` 均为 `200`；workers.dev `/ui` → `307`；`/v2` 仍为 `200`。HTML 含 Command bar / Right-click host / Glass bubble。回滚目标 `50355dc2-6b65-4b7f-9955-83933c3ce75c`。 |
 | 目录短名 | `/ui/liquid-context-menu` 桌面：侧栏与页标题为 Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar。路由仍是 `/ui/liquid-*`。Usage 仍写 `<LiquidContextMenu />`。Context Menu 单行、未换行。 |
 | `/ui` 亮暗切换 | `/ui/liquid-menu` 桌面：默认 `data-theme=dark`，开关 `aria-pressed=true` 文案「亮色」。点「亮色」后 `data-theme=light`，开关文案「暗色」，侧栏字色为深色，舞台仍是渐变。切到 Dropdown / Context Menu 后仍为 light。刷新后仍为 light。再点「暗色」回到 dark。控制台无 error。 |
-| 旅行板叠字 | `/ui/liquid-menu` 桌面：从「主页」拖到「照片」中途，above 裁切含 `--apple-travel-y-nudge`，below 裁切含 `--apple-selection-height`。透镜大字与轨道小字不再在板缘叠出「Dialog Dialog」式重影。落稳后单行「照片」。控制台无 error。 |
+| 旅行板叠字 | `/ui/liquid-menu` 桌面：旅行中途 `stretchY=1.16`、板高 74、nudge −8。above/below 裁切再扩 `--apple-lens-clip-overshoot`（约 6px）。停在两行中间时板缘不再叠大小字。落稳单行。控制台无 error。 |
 
 ## 4. 部署与发布状态
 

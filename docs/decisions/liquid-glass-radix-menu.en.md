@@ -7,7 +7,7 @@
 
 The portable deliverable is the floating menu, not the home-screen lab. New work lives on `grok/liquid-glass-radix-menu`. Product mounts copy the kernel and render `LiquidMenu` or one of the finished overlays (`LiquidDropdown`, `LiquidContextMenu`, `LiquidSelect`, `LiquidPopover`, `LiquidDialog`, `LiquidMenubar`). Radix owns open, focus, and dismiss. Optics stay frozen.
 
-This batch fixes stacked type at the traveling-lens rim: above/below clips follow the plate, not the idle row. Mobile verification is deferred.
+This batch widens the travel label hole to cover `scaleY(1.16)` overflow. Holding the plate between two rows must not stack type. Mobile verification is deferred.
 
 The layer immediately behind the menu must be blur or a solid color so labels stay readable.
 
@@ -55,7 +55,7 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 | Production deploy | Wrangler `4.92.0`. `npm run build` passed. Dry-run: 27 modules, `1742.22 KiB` / gzip `372.80 KiB`, no bindings. Production Worker `liquid-lab-optics-demo` version `c395db38-be40-43f5-b663-3d56591db275`, message `release liquid glass radix menu catalog`. `https://liquid.hkooii.com/ui` → `307` `/ui/liquid-menu`; all seven `/ui/*` routes `200`; workers.dev `/ui` → `307`; `/v2` still `200`. HTML contains Command bar / Right-click host / Glass bubble. Rollback target `50355dc2-6b65-4b7f-9955-83933c3ce75c`. |
 | Catalog short labels | `/ui/liquid-context-menu` desktop: rail and page title are Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar. Routes stay `/ui/liquid-*`. Usage still shows `<LiquidContextMenu />`. Context Menu stays on one line. |
 | `/ui` light/dark toggle | `/ui/liquid-menu` desktop: default `data-theme=dark`, toggle `aria-pressed=true` labeled 亮色. Click 亮色 → `data-theme=light`, toggle labeled 暗色, rail type is dark, stage stays a wash. Dropdown / Context Menu stay light. Reload stays light. Click 暗色 returns to dark. Console errors: none. |
-| Travel-plate stacked type | `/ui/liquid-menu` desktop: mid-drag 主页→照片, above clip includes `--apple-travel-y-nudge`, below clip includes `--apple-selection-height`. Large lens type and small rail type no longer stack at the plate rim. Settled row is a single 照片. Console errors: none. |
+| Travel-plate stacked type | `/ui/liquid-menu` desktop: mid-travel `stretchY=1.16`, plate 74, nudge −8. Above/below clips add `--apple-lens-clip-overshoot` (~6px). Holding between rows no longer stacks large/small type at the rim. Settled row is a single label. Console errors: none. |
 
 ## 4. Deployment and Release Status
 

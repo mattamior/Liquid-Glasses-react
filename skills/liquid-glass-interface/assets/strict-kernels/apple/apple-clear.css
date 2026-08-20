@@ -444,6 +444,9 @@ body:has(.apple-clear) {
 }
 
 .apple-menu-visual {
+  --apple-lens-clip-overshoot: calc(
+    var(--apple-selection-height, var(--apple-item-height)) * (var(--apple-lens-scale-y, 1) - 1) / 2
+  );
   position: absolute;
   inset: 0 8px auto 8px;
   z-index: 2;
@@ -458,7 +461,15 @@ body:has(.apple-clear) {
 
 .apple-menu-visual--above {
   clip-path: inset(
-    0 0 calc(100% - (var(--apple-menu-pad) + var(--apple-selection-y) + var(--apple-travel-y-nudge, 0px))) 0
+    0 0
+      calc(
+        100% -
+          (
+            var(--apple-menu-pad) + var(--apple-selection-y) + var(--apple-travel-y-nudge, 0px) -
+              var(--apple-lens-clip-overshoot)
+          )
+      )
+      0
   );
 }
 
@@ -466,7 +477,7 @@ body:has(.apple-clear) {
   clip-path: inset(
     calc(
       var(--apple-menu-pad) + var(--apple-selection-y) + var(--apple-travel-y-nudge, 0px) +
-        var(--apple-selection-height, var(--apple-item-height))
+        var(--apple-selection-height, var(--apple-item-height)) + var(--apple-lens-clip-overshoot)
     )
       0 0 0
   );
