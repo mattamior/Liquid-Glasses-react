@@ -1,14 +1,17 @@
 "use client";
 
 import * as ContextMenu from "@radix-ui/react-context-menu";
-import { useRef, useState, type ReactNode } from "react";
-import { LiquidMenu, type LiquidMenuItem } from "./LiquidMenu";
+import { useState, type ReactNode } from "react";
+import { LiquidGlassCard } from "./LiquidGlassCard";
 import "./liquid-overlays.css";
 
+export interface LiquidContextMenuAction {
+  value: string;
+  label: string;
+}
+
 export interface LiquidContextMenuProps {
-  items?: readonly LiquidMenuItem[];
-  value?: string;
-  defaultValue?: string;
+  items?: readonly LiquidContextMenuAction[];
   onValueChange?: (value: string) => void;
   title?: string;
   children?: ReactNode;
@@ -16,69 +19,45 @@ export interface LiquidContextMenuProps {
   optics?: "enhanced" | "baseline";
 }
 
+const DEFAULT_ACTIONS: readonly LiquidContextMenuAction[] = [
+  { value: "cut", label: "剪切" },
+  { value: "copy", label: "复制" },
+  { value: "paste", label: "粘贴" },
+];
+
 export function LiquidContextMenu({
-  items,
-  value,
-  defaultValue,
+  items = DEFAULT_ACTIONS,
   onValueChange,
-  title = "菜单",
+  title = "操作",
   children,
   theme,
   optics,
 }: LiquidContextMenuProps) {
   const [open, setOpen] = useState(false);
-  const [uncontrolled, setUncontrolled] = useState(defaultValue ?? items?.[0]?.value ?? "");
-  const selected = value ?? uncontrolled;
-  const closeAfterCommit = useRef(false);
-
-  const commitValue = (next: string) => {
-    if (value === undefined) setUncontrolled(next);
-    onValueChange?.(next);
-    if (closeAfterCommit.current) {
-      closeAfterCommit.current = false;
-      setOpen(false);
-    }
-  };
 
   return (
-    <ContextMenu.Root
-      open={open}
-      onOpenChange={(next) => {
-        if (!next) closeAfterCommit.current = false;
-        setOpen(next);
-      }}
-    >
+    <ContextMenu.Root open={open} onOpenChange={setOpen}>
       <ContextMenu.Trigger asChild>
-        <div className="liquid-context-surface">{children ?? "Right-click here"}</div>
+        <div className="liquid-context-surface">{children ?? "在此区域右键"}</div>
       </ContextMenu.Trigger>
       <ContextMenu.Portal>
         <ContextMenu.Content
           className="liquid-overlay-content liquid-context-content"
           alignOffset={-4}
           aria-label={title}
-          onPointerDown={() => {
-            closeAfterCommit.current = true;
-          }}
-          onKeyDown={(event) => {
-            if (event.key !== "Enter" && event.key !== " ") return;
-            closeAfterCommit.current = true;
-            const phase = event.currentTarget
-              .querySelector("[data-glass-phase]")
-              ?.getAttribute("data-glass-phase");
-            if (!phase || phase === "idle") setOpen(false);
-          }}
         >
           <div className="liquid-context-pop">
-            <LiquidMenu
-              host="nested"
-              density="compact"
-              title={title}
-              items={items}
-              value={selected}
-              theme={theme}
-              optics={optics}
-              onValueChange={commitValue}
-            />
+            <LiquidGlassCard title={title} theme={theme} optics={optics}>
+              {items.map((item) => (
+                <ContextMenu.Item
+                  key={item.value}
+                  className="liquid-menubar-action"
+                  onSelect={() => onValueChange?.(item.value)}
+                >
+                  {item.label}
+                </ContextMenu.Item>
+              ))}
+            </LiquidGlassCard>
           </div>
         </ContextMenu.Content>
       </ContextMenu.Portal>

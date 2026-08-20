@@ -70,17 +70,15 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   {
     slug: "liquid-context-menu",
     title: "LiquidContextMenu",
-    summary: "Right-click host. Compact glass panel with the same liquid pop as LiquidDropdown. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits.",
-    usage: `<LiquidContextMenu items={items} value={value} onValueChange={setValue}>
+    summary: "Right-click host. Action list in a glass card. Click runs the command and closes. No selected row, no traveling lens.",
+    usage: `<LiquidContextMenu onValueChange={setValue}>
   在此区域右键
 </LiquidContextMenu>`,
     props: [
-      { name: "items", type: "LiquidMenuItem[]", defaultValue: "—", description: "Same `{ value, label }` entries as LiquidMenu." },
-      { name: "value", type: "string", defaultValue: "uncontrolled", description: "Controlled selected value." },
-      { name: "defaultValue", type: "string", defaultValue: "first item", description: "Initial value when uncontrolled." },
-      { name: "onValueChange", type: "(value: string) => void", defaultValue: "—", description: "Fires after the travel lens fades. Pointer or Enter then closes." },
-      { name: "children", type: "ReactNode", defaultValue: "right-click hint", description: "The surface that accepts the context menu." },
-      { name: "title", type: "string", defaultValue: `"菜单"`, description: "Accessible name of the menu." },
+      { name: "items", type: "LiquidContextMenuAction[]", defaultValue: "Cut / Copy / Paste", description: "`{ value, label }` actions. Click runs one and closes." },
+      { name: "onValueChange", type: "(value: string) => void", defaultValue: "—", description: "Fires when an action is chosen. The menu then closes." },
+      { name: "children", type: "ReactNode", defaultValue: `"在此区域右键"`, description: "The surface that accepts the context menu." },
+      { name: "title", type: "string", defaultValue: `"操作"`, description: "Accessible name of the menu." },
       { name: "theme", type: `"light" | "dark"`, defaultValue: `"light"`, description: "Clear material theme." },
       { name: "optics", type: `"enhanced" | "baseline"`, defaultValue: `"enhanced"`, description: "Displacement when supported." },
     ],
