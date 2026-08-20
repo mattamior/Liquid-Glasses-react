@@ -16,7 +16,7 @@ export interface UiCatalogEntry {
 export const UI_CATALOG: readonly UiCatalogEntry[] = [
   {
     slug: "liquid-menu",
-    title: "LiquidMenu",
+    title: "Menu",
     summary: "Floating vertical menu. Copy the kernel. Put blur or a solid color immediately behind it.",
     usage: `import { LiquidMenu } from "../apple-clear/LiquidMenu";
 
@@ -43,7 +43,7 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   },
   {
     slug: "liquid-dropdown",
-    title: "LiquidDropdown",
+    title: "Dropdown",
     summary: "Trigger plus compact glass menu in a Radix portal. Density is smaller than the folder panel. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits.",
     usage: `import { LiquidDropdown } from "../apple-clear/LiquidDropdown";
 
@@ -69,7 +69,7 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   },
   {
     slug: "liquid-context-menu",
-    title: "LiquidContextMenu",
+    title: "Context Menu",
     summary: "Right-click host. Action list in a glass card. Click runs the command and closes. No selected row, no traveling lens.",
     usage: `<LiquidContextMenu onValueChange={setValue}>
   在此区域右键
@@ -85,7 +85,7 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   },
   {
     slug: "liquid-select",
-    title: "LiquidSelect",
+    title: "Select",
     summary: "Form-like trigger that shows the selected label or placeholder. Compact glass panel with the same liquid pop as LiquidDropdown. Arrow keys browse without dismissing. Pointer, Enter, or reselect closes after the travel lens commits.",
     usage: `<LiquidSelect items={items} value={value} onValueChange={setValue} placeholder="选择…" />`,
     props: [
@@ -101,7 +101,7 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   },
   {
     slug: "liquid-popover",
-    title: "LiquidPopover",
+    title: "Popover",
     summary: "Click trigger. Glass bubble card for arbitrary children. Stays open until Escape, outside click, or the trigger. Not a menu.",
     usage: `<LiquidPopover trigger="网络" title="网络">
   <h3>办公室 Wi-Fi</h3>
@@ -120,7 +120,7 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   },
   {
     slug: "liquid-dialog",
-    title: "LiquidDialog",
+    title: "Dialog",
     summary: "Modal overlay plus centered glass card for arbitrary children. Overlay and Escape dismiss immediately. Not a menu.",
     usage: `<LiquidDialog trigger="删除相册" title="删除相册">
   <h3>删除「旅行」？</h3>
@@ -139,7 +139,7 @@ export const UI_CATALOG: readonly UiCatalogEntry[] = [
   },
   {
     slug: "liquid-menubar",
-    title: "LiquidMenubar",
+    title: "Menubar",
     summary: "Command bar. Thin File / Edit titles open an action list. Click runs the command and closes. No selected row, no traveling lens.",
     usage: `<LiquidMenubar groups={groups} onValueChange={(group, value) => {}} />`,
     props: [
