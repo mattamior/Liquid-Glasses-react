@@ -1,23 +1,15 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { uiChrome } from "./copy";
+import { useUiLocale } from "./UiLocale";
 
 const STORAGE_KEY = "liquid-glass:ui-stage-scene";
 
-interface PreviewScene {
-  id: "sky" | "dusk" | "meadow" | "graphite";
-  label: string;
-}
+const SCENE_IDS = ["sky", "dusk", "meadow", "graphite"] as const;
 
-const SCENES: readonly PreviewScene[] = [
-  { id: "sky", label: "天空" },
-  { id: "dusk", label: "黄昏" },
-  { id: "meadow", label: "草地" },
-  { id: "graphite", label: "石墨" },
-];
-
-function isScene(value: string): value is PreviewScene["id"] {
-  return SCENES.some((scene) => scene.id === value);
+function isScene(value: string): value is (typeof SCENE_IDS)[number] {
+  return SCENE_IDS.some((id) => id === value);
 }
 
 interface PreviewStageProps {
@@ -27,7 +19,9 @@ interface PreviewStageProps {
 }
 
 export function PreviewStage({ children, overlay = false, probe = false }: PreviewStageProps) {
-  const [scene, setScene] = useState<PreviewScene["id"]>("sky");
+  const { locale } = useUiLocale();
+  const chrome = uiChrome(locale);
+  const [scene, setScene] = useState<(typeof SCENE_IDS)[number]>("sky");
   const [showProbe, setShowProbe] = useState(false);
 
   useEffect(() => {
@@ -39,7 +33,7 @@ export function PreviewStage({ children, overlay = false, probe = false }: Previ
     }
   }, []);
 
-  const commitScene = (next: PreviewScene["id"]) => {
+  const commitScene = (next: (typeof SCENE_IDS)[number]) => {
     setScene(next);
     try {
       window.localStorage.setItem(STORAGE_KEY, next);
@@ -59,16 +53,16 @@ export function PreviewStage({ children, overlay = false, probe = false }: Previ
   return (
     <div className={className} data-scene={scene}>
       <div className="ui-studio__stage-chrome">
-        <div className="ui-studio__scene-picker" role="group" aria-label="预览背景">
-          {SCENES.map((item) => (
+        <div className="ui-studio__scene-picker" role="group" aria-label={chrome.sceneGroup}>
+          {SCENE_IDS.map((id) => (
             <button
-              key={item.id}
+              key={id}
               type="button"
               className="ui-studio__scene-swatch"
-              data-scene={item.id}
-              aria-label={item.label}
-              aria-pressed={scene === item.id}
-              onClick={() => commitScene(item.id)}
+              data-scene={id}
+              aria-label={chrome.scenes[id]}
+              aria-pressed={scene === id}
+              onClick={() => commitScene(id)}
             />
           ))}
         </div>
@@ -79,7 +73,7 @@ export function PreviewStage({ children, overlay = false, probe = false }: Previ
             aria-pressed={showProbe}
             onClick={() => setShowProbe((on) => !on)}
           >
-            文字底
+            {chrome.probe}
           </button>
         ) : null}
       </div>

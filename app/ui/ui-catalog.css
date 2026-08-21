@@ -90,10 +90,36 @@
   padding: 28px 32px 48px;
 }
 
-.ui-studio__header h1 {
+.ui-studio__header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   margin: 0 0 8px;
+}
+
+.ui-studio__header h1 {
+  margin: 0;
   font-size: 28px;
   letter-spacing: -0.03em;
+}
+
+.ui-studio__header-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ui-studio__locale-toggle {
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 999px;
+  background: rgb(12 20 36 / 28%);
+  color: #fff;
+  font: 650 12px/1 inherit;
+  cursor: pointer;
 }
 
 .ui-studio__header p {
@@ -108,7 +134,7 @@
   position: relative;
   overflow: hidden;
   min-height: 520px;
-  border: 1px solid rgb(255 255 255 / 10%);
+  border: 0;
   border-radius: 20px;
 }
 
@@ -408,7 +434,8 @@
   color: rgb(19 32 51 / 72%);
 }
 
-.ui-studio[data-theme="light"] .ui-studio__theme-toggle {
+.ui-studio[data-theme="light"] .ui-studio__theme-toggle,
+.ui-studio[data-theme="light"] .ui-studio__locale-toggle {
   border-color: rgb(18 32 56 / 16%);
   background: rgb(255 255 255 / 72%);
   color: #132033;
@@ -419,7 +446,7 @@
 }
 
 .ui-studio[data-theme="light"] .ui-studio__preview {
-  border-color: rgb(255 255 255 / 58%);
+  border: 0;
 }
 
 .ui-studio[data-theme="light"] .ui-studio__panel h2 {

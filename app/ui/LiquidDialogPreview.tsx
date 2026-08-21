@@ -2,31 +2,35 @@
 
 import { useState } from "react";
 import { LiquidDialog } from "../apple-clear/LiquidDialog";
+import { PREVIEW_COPY, previewText } from "./copy";
 import { OverlayPreviewStage, StageWash } from "./OverlayPreviewStage";
+import { useUiLocale } from "./UiLocale";
 import { useUiTheme } from "./UiTheme";
 
 export function LiquidDialogPreview() {
   const { theme } = useUiTheme();
+  const { locale } = useUiLocale();
   const [open, setOpen] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const copy = PREVIEW_COPY.dialog;
 
   return (
     <OverlayPreviewStage>
       <LiquidDialog
-        key={theme}
+        key={`${theme}-${locale}`}
         theme={theme}
         scene={StageWash}
-        trigger="删除相册"
-        title="删除相册"
+        trigger={previewText(locale, copy.trigger)}
+        title={previewText(locale, copy.title)}
         open={open}
         onOpenChange={setOpen}
       >
-        <p className="liquid-popover-demo__kicker">确认</p>
-        <h3 className="liquid-popover-demo__title">删除「旅行」？</h3>
-        <p className="liquid-popover-demo__copy">照片会移到最近删除，30 天后清除。</p>
+        <p className="liquid-popover-demo__kicker">{previewText(locale, copy.kicker)}</p>
+        <h3 className="liquid-popover-demo__title">{previewText(locale, copy.heading)}</h3>
+        <p className="liquid-popover-demo__copy">{previewText(locale, copy.copy)}</p>
         <div className="liquid-dialog-demo__actions">
           <button type="button" className="liquid-popover-demo__action" onClick={() => setOpen(false)}>
-            取消
+            {previewText(locale, copy.cancel)}
           </button>
           <button
             type="button"
@@ -36,11 +40,11 @@ export function LiquidDialogPreview() {
               setOpen(false);
             }}
           >
-            删除
+            {previewText(locale, copy.remove)}
           </button>
         </div>
       </LiquidDialog>
-      <p className="ui-studio__value">{deleted ? "已删除" : "未删除"}</p>
+      <p className="ui-studio__value">{previewText(locale, deleted ? copy.deleted : copy.kept)}</p>
     </OverlayPreviewStage>
   );
 }
