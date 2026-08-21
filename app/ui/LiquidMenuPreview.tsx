@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LiquidMenu } from "../apple-clear/LiquidMenu";
+import { PreviewStage } from "./OverlayPreviewStage";
 import { useUiTheme } from "./UiTheme";
 
 const ITEMS = [
@@ -16,9 +17,9 @@ export function LiquidMenuPreview() {
   const [value, setValue] = useState("home");
 
   return (
-    <div className="ui-studio__preview">
+    <PreviewStage overlay probe>
       <LiquidMenu key={theme} theme={theme} title="菜单" items={ITEMS} value={value} onValueChange={setValue} />
       <p className="ui-studio__value">onValueChange: {value}</p>
-    </div>
+    </PreviewStage>
   );
 }

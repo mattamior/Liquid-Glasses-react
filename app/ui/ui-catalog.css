@@ -40,6 +40,8 @@
 }
 
 .ui-studio__nav .apple-menu-visual__label {
+  overflow: visible;
+  line-height: 1.25;
   transform-origin: left center;
 }
 
@@ -59,14 +61,26 @@
 }
 
 .ui-studio__theme-toggle {
-  min-height: 28px;
-  padding: 0 10px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
   border: 1px solid rgb(255 255 255 / 28%);
   border-radius: 999px;
   background: rgb(12 20 36 / 28%);
   color: #fff;
-  font: 650 12px/1 inherit;
   cursor: pointer;
+}
+
+.ui-studio__theme-toggle svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .ui-studio__main {
@@ -96,14 +110,73 @@
   min-height: 520px;
   border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 20px;
+}
+
+.ui-studio__preview[data-scene="sky"] {
   background:
     radial-gradient(90% 70% at 18% 8%, #8ec5ff 0%, transparent 42%),
     radial-gradient(80% 60% at 88% 18%, #f0b4ff 0%, transparent 40%),
     linear-gradient(180deg, #3b7fd4 0%, #1d4e89 48%, #122a4a 100%);
 }
 
+.ui-studio__preview[data-scene="dusk"] {
+  background:
+    radial-gradient(90% 70% at 18% 8%, #ffb4e0 0%, transparent 42%),
+    radial-gradient(80% 60% at 88% 18%, #c9a4ff 0%, transparent 40%),
+    linear-gradient(180deg, #7a4aa8 0%, #4a2068 48%, #1a0c28 100%);
+}
+
+.ui-studio__preview[data-scene="meadow"] {
+  background:
+    radial-gradient(90% 70% at 18% 8%, #b8f0c8 0%, transparent 42%),
+    radial-gradient(80% 60% at 88% 18%, #8ee8ff 0%, transparent 40%),
+    linear-gradient(180deg, #3cb88a 0%, #1e7a62 48%, #0d3d38 100%);
+}
+
+.ui-studio__preview[data-scene="graphite"] {
+  background:
+    radial-gradient(90% 70% at 18% 8%, #6a7a94 0%, transparent 42%),
+    radial-gradient(80% 60% at 88% 18%, #8a6a9a 0%, transparent 40%),
+    linear-gradient(180deg, #3a4250 0%, #1c2028 48%, #0c0e12 100%);
+}
+
+.ui-studio__stage-wash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.ui-studio__stage-wash[data-scene="sky"] {
+  background:
+    radial-gradient(90% 70% at 18% 8%, #8ec5ff 0%, transparent 42%),
+    radial-gradient(80% 60% at 88% 18%, #f0b4ff 0%, transparent 40%),
+    linear-gradient(180deg, #3b7fd4 0%, #1d4e89 48%, #122a4a 100%);
+}
+
+.ui-studio__stage-wash[data-scene="dusk"] {
+  background:
+    radial-gradient(90% 70% at 18% 8%, #ffb4e0 0%, transparent 42%),
+    radial-gradient(80% 60% at 88% 18%, #c9a4ff 0%, transparent 40%),
+    linear-gradient(180deg, #7a4aa8 0%, #4a2068 48%, #1a0c28 100%);
+}
+
+.ui-studio__stage-wash[data-scene="meadow"] {
+  background:
+    radial-gradient(90% 70% at 18% 8%, #b8f0c8 0%, transparent 42%),
+    radial-gradient(80% 60% at 88% 18%, #8ee8ff 0%, transparent 40%),
+    linear-gradient(180deg, #3cb88a 0%, #1e7a62 48%, #0d3d38 100%);
+}
+
+.ui-studio__stage-wash[data-scene="graphite"] {
+  background:
+    radial-gradient(90% 70% at 18% 8%, #6a7a94 0%, transparent 42%),
+    radial-gradient(80% 60% at 88% 18%, #8a6a9a 0%, transparent 40%),
+    linear-gradient(180deg, #3a4250 0%, #1c2028 48%, #0c0e12 100%);
+}
+
 .ui-studio__preview .apple-clear[data-variant="embedded"] {
-  min-height: 520px;
+  min-height: 0;
 }
 
 .ui-studio__preview--dropdown {
@@ -111,11 +184,67 @@
   place-items: center;
 }
 
-.ui-studio__probe-toggle {
+.ui-studio__preview--dropdown .apple-clear-cluster {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: max-content;
+}
+
+.ui-studio__stage-chrome {
   position: absolute;
   top: 12px;
   right: 12px;
   z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ui-studio__scene-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 999px;
+  background: rgb(12 20 36 / 46%);
+}
+
+.ui-studio__scene-swatch {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 46%);
+  border-radius: 999px;
+  background-image: none;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.ui-studio__scene-swatch[data-scene="sky"] {
+  background-color: #3b7fd4;
+}
+
+.ui-studio__scene-swatch[data-scene="dusk"] {
+  background-color: #7a4aa8;
+}
+
+.ui-studio__scene-swatch[data-scene="meadow"] {
+  background-color: #3cb88a;
+}
+
+.ui-studio__scene-swatch[data-scene="graphite"] {
+  background-color: #3a4250;
+}
+
+.ui-studio__scene-swatch[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.ui-studio__probe-toggle {
   min-height: 28px;
   padding: 0 10px;
   border: 1px solid rgb(255 255 255 / 28%);
@@ -140,7 +269,7 @@
   background-repeat: repeat;
 }
 
-.ui-studio__preview--dropdown > :not(.ui-studio__probe-toggle):not(.ui-studio__value):not(.liquid-menubar) {
+.ui-studio__preview--dropdown > :not(.ui-studio__stage-chrome):not(.ui-studio__value):not(.liquid-menubar) {
   position: relative;
   z-index: 1;
 }
@@ -290,11 +419,7 @@
 }
 
 .ui-studio[data-theme="light"] .ui-studio__preview {
-  border-color: rgb(18 32 56 / 10%);
-  background:
-    radial-gradient(90% 70% at 18% 8%, #c8e4ff 0%, transparent 42%),
-    radial-gradient(80% 60% at 88% 18%, #f4d4ff 0%, transparent 40%),
-    linear-gradient(180deg, #9ec8f0 0%, #6a9fd4 48%, #4a7bb8 100%);
+  border-color: rgb(255 255 255 / 58%);
 }
 
 .ui-studio[data-theme="light"] .ui-studio__panel h2 {
@@ -319,6 +444,10 @@
   color: #215a96;
 }
 
+.ui-studio[data-theme="light"] .ui-studio__nav .apple-menu-visual {
+  z-index: 5;
+}
+
 .ui-studio[data-theme="light"] .ui-studio__nav .apple-menu-visual,
 .ui-studio[data-theme="light"] .ui-studio__nav .apple-menu-visual__item {
   color: rgb(19 32 51 / 78%);
@@ -327,6 +456,26 @@
 .ui-studio[data-theme="light"] .ui-studio__nav .apple-menu-visual__item[data-selected="true"] .apple-menu-visual__label,
 .ui-studio[data-theme="light"] .ui-studio__nav .apple-menu-visual--lens .apple-menu-visual__label {
   color: #132033;
+}
+
+.ui-studio[data-theme="light"] .ui-studio__nav .apple-selection-plate__optical {
+  background: rgb(255 255 255 / 28%);
+  box-shadow:
+    0 6px 16px rgb(18 32 56 / 8%),
+    inset 0 1px 0 rgb(255 255 255 / 78%),
+    inset 0 0 0 1px rgb(255 255 255 / 62%),
+    inset 0 -1px 0 rgb(49 72 121 / 10%);
+}
+
+.ui-studio[data-theme="light"] .ui-studio__scene-picker,
+.ui-studio[data-theme="light"] .ui-studio__probe-toggle {
+  border-color: rgb(255 255 255 / 42%);
+  background: rgb(255 255 255 / 22%);
+  color: #fff;
+}
+
+.ui-studio[data-theme="light"] .ui-studio__probe-toggle[aria-pressed="true"] {
+  background: rgb(255 255 255 / 32%);
 }
 
 @media (max-width: 840px) {

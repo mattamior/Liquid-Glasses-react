@@ -2,7 +2,7 @@
 
 import * as Popover from "@radix-ui/react-popover";
 import { useEffect, useRef, useState } from "react";
-import { LiquidMenu, type LiquidMenuItem } from "./LiquidMenu";
+import { LiquidMenu, type LiquidMenuItem, type LiquidMenuProps } from "./LiquidMenu";
 import "./liquid-overlays.css";
 
 export interface LiquidSelectProps {
@@ -14,6 +14,7 @@ export interface LiquidSelectProps {
   placeholder?: string;
   theme?: "light" | "dark";
   optics?: "enhanced" | "baseline";
+  scene?: LiquidMenuProps["scene"];
 }
 
 /** Form-like trigger. Popover, not Radix Select, so the travel lens can finish. */
@@ -26,6 +27,7 @@ export function LiquidSelect({
   placeholder = "选择…",
   theme,
   optics,
+  scene,
 }: LiquidSelectProps) {
   const [open, setOpen] = useState(false);
   const [uncontrolled, setUncontrolled] = useState(defaultValue ?? "");
@@ -73,6 +75,7 @@ export function LiquidSelect({
         <button
           type="button"
           className="liquid-select-trigger"
+          data-theme={theme}
           data-press={pressing ? "" : undefined}
           aria-haspopup="listbox"
           aria-expanded={open}
@@ -111,6 +114,7 @@ export function LiquidSelect({
               value={selected || undefined}
               theme={theme}
               optics={optics}
+              scene={scene}
               onValueChange={commitValue}
             />
           </div>

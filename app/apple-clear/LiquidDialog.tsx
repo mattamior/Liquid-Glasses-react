@@ -2,7 +2,7 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { LiquidGlassCard } from "./LiquidGlassCard";
+import { LiquidGlassCard, type LiquidGlassCardProps } from "./LiquidGlassCard";
 import "./liquid-overlays.css";
 
 export interface LiquidDialogProps {
@@ -11,6 +11,7 @@ export interface LiquidDialogProps {
   trigger?: ReactNode;
   theme?: "light" | "dark";
   optics?: "enhanced" | "baseline";
+  scene?: LiquidGlassCardProps["scene"];
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -22,6 +23,7 @@ export function LiquidDialog({
   trigger,
   theme,
   optics,
+  scene,
   open,
   defaultOpen = false,
   onOpenChange,
@@ -60,6 +62,7 @@ export function LiquidDialog({
         <button
           type="button"
           className="liquid-overlay-trigger liquid-dialog-trigger"
+          data-theme={theme}
           data-press={pressing ? "" : undefined}
           aria-expanded={resolvedOpen}
           onPointerDown={armPress}
@@ -71,7 +74,7 @@ export function LiquidDialog({
         </button>
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className="liquid-dialog-overlay" />
+        <Dialog.Overlay className="liquid-dialog-overlay" data-theme={theme} />
         <Dialog.Content
           className="liquid-dialog-content"
           aria-describedby={undefined}
@@ -79,7 +82,7 @@ export function LiquidDialog({
         >
           <Dialog.Title className="sr-only">{title}</Dialog.Title>
           <div className="liquid-dialog-pop">
-            <LiquidGlassCard title={title} theme={theme} optics={optics}>
+            <LiquidGlassCard title={title} theme={theme} optics={optics} scene={scene}>
               {children}
             </LiquidGlassCard>
           </div>

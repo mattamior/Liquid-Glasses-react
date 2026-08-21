@@ -2,7 +2,7 @@
 
 import * as Popover from "@radix-ui/react-popover";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { LiquidGlassCard } from "./LiquidGlassCard";
+import { LiquidGlassCard, type LiquidGlassCardProps } from "./LiquidGlassCard";
 import "./liquid-overlays.css";
 
 export interface LiquidPopoverProps {
@@ -11,6 +11,7 @@ export interface LiquidPopoverProps {
   trigger?: ReactNode;
   theme?: "light" | "dark";
   optics?: "enhanced" | "baseline";
+  scene?: LiquidGlassCardProps["scene"];
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -22,6 +23,7 @@ export function LiquidPopover({
   trigger,
   theme,
   optics,
+  scene,
   open,
   defaultOpen = false,
   onOpenChange,
@@ -60,6 +62,7 @@ export function LiquidPopover({
         <button
           type="button"
           className="liquid-overlay-trigger liquid-popover-trigger"
+          data-theme={theme}
           data-press={pressing ? "" : undefined}
           aria-expanded={resolvedOpen}
           onPointerDown={armPress}
@@ -78,7 +81,7 @@ export function LiquidPopover({
           aria-label={title}
         >
           <div className="liquid-popover-pop">
-            <LiquidGlassCard title={title} theme={theme} optics={optics}>
+            <LiquidGlassCard title={title} theme={theme} optics={optics} scene={scene}>
               {children}
             </LiquidGlassCard>
           </div>

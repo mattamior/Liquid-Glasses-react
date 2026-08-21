@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { LiquidPopover } from "../apple-clear/LiquidPopover";
-import { OverlayPreviewStage } from "./OverlayPreviewStage";
+import { OverlayPreviewStage, StageWash } from "./OverlayPreviewStage";
 import { useUiTheme } from "./UiTheme";
 
 export function LiquidPopoverPreview() {
@@ -11,7 +11,7 @@ export function LiquidPopoverPreview() {
 
   return (
     <OverlayPreviewStage>
-      <LiquidPopover key={theme} theme={theme} trigger="网络" title="网络">
+      <LiquidPopover key={theme} theme={theme} trigger="网络" title="网络" scene={StageWash}>
         <p className="liquid-popover-demo__kicker">状态</p>
         <h3 className="liquid-popover-demo__title">办公室 Wi-Fi</h3>
         <p className="liquid-popover-demo__copy">{connected ? "已连接 · 5 GHz" : "未连接"}</p>

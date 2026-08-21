@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { LiquidContextMenu } from "../apple-clear/LiquidContextMenu";
-import { OverlayPreviewStage } from "./OverlayPreviewStage";
+import { OverlayPreviewStage, StageWash } from "./OverlayPreviewStage";
 import { useUiTheme } from "./UiTheme";
 
 export function LiquidContextMenuPreview() {
@@ -11,7 +11,7 @@ export function LiquidContextMenuPreview() {
 
   return (
     <OverlayPreviewStage>
-      <LiquidContextMenu key={theme} theme={theme} onValueChange={setValue}>
+      <LiquidContextMenu key={theme} theme={theme} onValueChange={setValue} scene={StageWash}>
         在此区域右键
       </LiquidContextMenu>
       <p className="ui-studio__value">onValueChange: {value}</p>

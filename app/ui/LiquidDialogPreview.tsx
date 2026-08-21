@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { LiquidDialog } from "../apple-clear/LiquidDialog";
-import { OverlayPreviewStage } from "./OverlayPreviewStage";
+import { OverlayPreviewStage, StageWash } from "./OverlayPreviewStage";
 import { useUiTheme } from "./UiTheme";
 
 export function LiquidDialogPreview() {
@@ -15,6 +15,7 @@ export function LiquidDialogPreview() {
       <LiquidDialog
         key={theme}
         theme={theme}
+        scene={StageWash}
         trigger="删除相册"
         title="删除相册"
         open={open}

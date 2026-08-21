@@ -2,7 +2,7 @@
 
 import * as ContextMenu from "@radix-ui/react-context-menu";
 import { useState, type ReactNode } from "react";
-import { LiquidGlassCard } from "./LiquidGlassCard";
+import { LiquidGlassCard, type LiquidGlassCardProps } from "./LiquidGlassCard";
 import "./liquid-overlays.css";
 
 export interface LiquidContextMenuAction {
@@ -17,6 +17,7 @@ export interface LiquidContextMenuProps {
   children?: ReactNode;
   theme?: "light" | "dark";
   optics?: "enhanced" | "baseline";
+  scene?: LiquidGlassCardProps["scene"];
 }
 
 const DEFAULT_ACTIONS: readonly LiquidContextMenuAction[] = [
@@ -32,13 +33,16 @@ export function LiquidContextMenu({
   children,
   theme,
   optics,
+  scene,
 }: LiquidContextMenuProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <ContextMenu.Root open={open} onOpenChange={setOpen}>
       <ContextMenu.Trigger asChild>
-        <div className="liquid-context-surface">{children ?? "在此区域右键"}</div>
+        <div className="liquid-context-surface" data-theme={theme}>
+          {children ?? "在此区域右键"}
+        </div>
       </ContextMenu.Trigger>
       <ContextMenu.Portal>
         <ContextMenu.Content
@@ -47,7 +51,7 @@ export function LiquidContextMenu({
           aria-label={title}
         >
           <div className="liquid-context-pop">
-            <LiquidGlassCard title={title} theme={theme} optics={optics}>
+            <LiquidGlassCard title={title} theme={theme} optics={optics} scene={scene}>
               {items.map((item) => (
                 <ContextMenu.Item
                   key={item.value}

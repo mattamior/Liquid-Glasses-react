@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { LiquidDropdown } from "../apple-clear/LiquidDropdown";
-import { OverlayPreviewStage } from "./OverlayPreviewStage";
+import { OverlayPreviewStage, StageWash } from "./OverlayPreviewStage";
 import { useUiTheme } from "./UiTheme";
 
 const ITEMS = [
@@ -18,7 +18,7 @@ export function LiquidDropdownPreview() {
 
   return (
     <OverlayPreviewStage>
-      <LiquidDropdown key={theme} theme={theme} items={ITEMS} value={value} onValueChange={setValue} title="菜单" />
+      <LiquidDropdown key={theme} theme={theme} items={ITEMS} value={value} onValueChange={setValue} title="菜单" scene={StageWash} />
       <p className="ui-studio__value">onValueChange: {value}</p>
     </OverlayPreviewStage>
   );

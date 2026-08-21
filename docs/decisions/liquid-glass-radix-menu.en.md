@@ -1,13 +1,13 @@
 # Liquid Glass Radix Menu Decision Record
 
-**Date:** 2026-08-19
-**Status:** Implemented on `grok/liquid-glass-radix-menu` and released to `liquid-lab-optics-demo`; visual approval pending
+**Date:** 2026-08-20
+**Status:** Implemented on `grok/liquid-glass-radix-menu` and released to `liquid-lab-optics-demo`; this batch’s light-mode contrast fix is not released; visual approval pending
 
 ## 1. Scope and Decision
 
 The portable deliverable is the floating menu, not the home-screen lab. New work lives on `grok/liquid-glass-radix-menu`. Product mounts copy the kernel and render `LiquidMenu` or one of the finished overlays (`LiquidDropdown`, `LiquidContextMenu`, `LiquidSelect`, `LiquidPopover`, `LiquidDialog`, `LiquidMenubar`). Radix owns open, focus, and dismiss. Optics stay frozen.
 
-This batch widens the travel label hole to cover `scaleY(1.16)` overflow. Holding the plate between two rows must not stack type. Mobile verification is deferred.
+This batch fixes `/ui` light mode without turning overlays into old frosted white cards. The rail selection plate gets a light lens; nested overlays in light use a thin frost and white type — not navy, and not a solid white card with dark type. Optics stay frozen. Mobile verification is deferred.
 
 The layer immediately behind the menu must be blur or a solid color so labels stay readable.
 
@@ -22,11 +22,13 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 - `LiquidDialog` is the fifth finished overlay: modal dim + centered glass card. `children` is arbitrary content; the default preview is a delete-confirm card, not a menu. Overlay and Escape dismiss immediately. Press squash and a centered three-beat pop remain.
 - `LiquidMenubar` is the sixth finished overlay: a top command bar. Thin File/Edit titles open a glass action list; choosing 打开 fires `onValueChange("file","open")` and closes immediately. No standing selection, no traveling lens. The morph pop remains.
 - Catalog sidebar (`CatalogNav`) keeps a pending selected index after commit so a late `router.push` cannot spring the plate back and replay travel. Sidebar labels `nowrap` and scale from the left so long English names stay on one row and share a left edge.
-- `/ui` catalog. Left rail is itself a `LiquidMenu`, labeled Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar. The brand row has a light/dark toggle stored as `liquid-glass:ui-theme`. Sidebar and all seven previews take that `theme`. Kernel optics and refraction fields stay frozen. `/liquid-menu` redirects to `/ui/liquid-menu`. Overlay preview stages share `OverlayPreviewStage`: default wash only; top-right `文字底` toggle tiles 10px `Liquid glass abcd ABCD 1234` on a 220×16 repeat so the stage fills evenly. `LiquidMenu` preview stays a single wash with no toggle.
+- `/ui` catalog. Left rail is itself a `LiquidMenu`, labeled Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar. The brand row has a light/dark icon toggle (moon in light / sun in dark) stored as `liquid-glass:ui-theme`. Sidebar and all seven previews take that `theme`. Kernel optics and refraction fields stay frozen. `/liquid-menu` redirects to `/ui/liquid-menu`. All seven previews share a stage scene: sky / dusk / meadow / graphite. Swatches sit left of top-right `文字底` and store as `liquid-glass:ui-stage-scene`. `LiquidMenu` preview is centered like overlays and has `文字底`. Swatches are flat fills, not vertical gradients. Overlay `文字底` tiles 10px `Liquid glass abcd ABCD 1234` on a 220×16 repeat.
 - Overlay family is complete. Further work is new surfaces, not another unfinished 5-pack.
 - `LiquidDropdown` uses kernel `density: "compact"` (36px rows, 13/16 type, 200px, 16/12 radius). Standalone `LiquidMenu` stays `panel` (58 / 14↔20 / 280).
 - Dropdown open is a three-beat liquid morph on the inner wrap, matching Control Center calculator → copy-result chip: press-only trigger squash (`scaleX 1.1 / scaleY 0.84`) that releases 120ms after open so the trigger returns to rest; source-sized blob, oversized overshoot, compact settle. Closing does not replay the squash. Radix still owns Content placement. `cssAncestorScale` keeps the world replica off the animated scale.
-- Nested overlay underlay (`data-host="nested"`) is `rgb(14 18 30 / 54%)` + `blur(40px)` in dark (light: `rgb(28 48 78 / 52%)`) so page type behind portals is just unreadable. Standalone panel underlay stays `16%` + `blur(22px)`. Refraction is unchanged.
+- Nested overlay underlay (`data-host="nested"`) uses the same fill as the standalone panel: `rgb(255 255 255 / 16%)` in light, `rgb(12 16 28 / 28%)` in dark, `blur(40px)`. No fixed navy. Standalone panel underlay stays `16%` + `blur(22px)`. Refraction is unchanged.
+- Overlay triggers, the menubar, the context surface, and the dialog dim take `data-theme`. Light is pale glass and white type; dark stays the original translucent navy with white type.
+- `/ui` light rail selection plate is `rgb(255 255 255 / 28%)` glass, not a solid white chip. Light rail labels sit above the plate so the frost does not wash the dark type. Light stage border is `rgb(255 255 255 / 58%)` so the pale sky no longer draws a dark top edge. Standalone `LiquidMenu` preview in light keeps white type on the wash and the `4%` white plate.
 - Skill extract stays byte-equal with `app/apple-clear`.
 
 ## 3. Verification Evidence
@@ -56,10 +58,12 @@ The layer immediately behind the menu must be blur or a solid color so labels st
 | Catalog short labels | `/ui/liquid-context-menu` desktop: rail and page title are Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar. Routes stay `/ui/liquid-*`. Usage still shows `<LiquidContextMenu />`. Context Menu stays on one line. |
 | `/ui` light/dark toggle | `/ui/liquid-menu` desktop: default `data-theme=dark`, toggle `aria-pressed=true` labeled 亮色. Click 亮色 → `data-theme=light`, toggle labeled 暗色, rail type is dark, stage stays a wash. Dropdown / Context Menu stay light. Reload stays light. Click 暗色 returns to dark. Console errors: none. |
 | Travel-plate stacked type | `/ui/liquid-menu` desktop: mid-travel `stretchY=1.16`, plate 74, nudge −8. Above/below clips add `--apple-lens-clip-overshoot` (~6px). Holding between rows no longer stacks large/small type at the rim. Settled row is a single label. Console errors: none. |
+| `/ui` light contrast | Desktop 1280×800. Light rail plate `rgba(255,255,255,0.28)` lens, type `#132033`. `/ui/liquid-dropdown` and `/ui/liquid-context-menu` open nested underlay `rgba(90,150,210,0.44)` / `blur(40px)`, white row type, trigger / card actions stay white type on pale glass — not a solid white card. Standalone `/ui/liquid-menu` preview stays white type with plate `0.04` white. Dark again: nested underlay `rgba(14,18,30,0.54)`. Console errors: none. This batch is not released. |
+| `/ui` stage scenes | Desktop 1280×800 `/ui/liquid-menubar`: four swatches sit left of `文字底`. Default `data-scene=sky`. Click dusk → `dusk`, meadow → `meadow`, graphite → `graphite`. Dropdown stays graphite. Reload stays graphite. Click sky → `sky`. `文字底` still toggles. `/ui/liquid-menu` is centered, has `文字底`, and no corner gaps. Swatches are flat fills. Open Dropdown glass follows the stage: meadow reads green, dusk reads purple. Console errors: none. |
 
 ## 4. Deployment and Release Status
 
-Released to existing Worker `liquid-lab-optics-demo` via `dist/server/wrangler.json`. Version `c395db38-be40-43f5-b663-3d56591db275`, 100% traffic. Rollback target is previous version `50355dc2-6b65-4b7f-9955-83933c3ce75c`.
+Released to existing Worker `liquid-lab-optics-demo` via `dist/server/wrangler.json`. Version `c395db38-be40-43f5-b663-3d56591db275`, 100% traffic. Rollback target is previous version `50355dc2-6b65-4b7f-9955-83933c3ce75c`. This batch’s light-mode contrast fix is local on `grok/liquid-glass-radix-menu` and is not released.
 
 ## 5. Known Risks, Limits, and Follow-up
 

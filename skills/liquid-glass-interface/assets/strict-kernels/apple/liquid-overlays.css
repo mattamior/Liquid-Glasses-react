@@ -24,6 +24,18 @@
   background: rgb(255 255 255 / 16%);
 }
 
+.liquid-overlay-trigger[data-theme="light"],
+.liquid-select-trigger[data-theme="light"] {
+  border-color: rgb(255 255 255 / 42%);
+  background: rgb(255 255 255 / 22%);
+  color: #fff;
+}
+
+.liquid-overlay-trigger[data-theme="light"][data-state="open"],
+.liquid-select-trigger[data-theme="light"][data-state="open"] {
+  background: rgb(255 255 255 / 32%);
+}
+
 .liquid-select-trigger,
 .liquid-popover-trigger,
 .liquid-dialog-trigger,
@@ -53,6 +65,11 @@
   text-align: center;
 }
 
+.liquid-context-surface[data-theme="light"] {
+  border-color: rgb(255 255 255 / 42%);
+  color: rgb(255 255 255 / 88%);
+}
+
 .liquid-menubar {
   display: flex;
   align-items: center;
@@ -77,6 +94,19 @@
 
 .liquid-menubar-trigger[data-state="open"] {
   background: rgb(255 255 255 / 16%);
+}
+
+.liquid-menubar[data-theme="light"] {
+  border-color: rgb(255 255 255 / 38%);
+  background: rgb(255 255 255 / 22%);
+}
+
+.liquid-menubar[data-theme="light"] .liquid-menubar-trigger {
+  color: #fff;
+}
+
+.liquid-menubar[data-theme="light"] .liquid-menubar-trigger[data-state="open"] {
+  background: rgb(255 255 255 / 22%);
 }
 
 .liquid-menubar-action {
@@ -106,6 +136,10 @@
   inset: 0;
   z-index: 30;
   background: rgb(6 10 18 / 46%);
+}
+
+.liquid-dialog-overlay[data-theme="light"] {
+  background: rgb(18 32 56 / 22%);
 }
 
 .liquid-dialog-content,

@@ -2,7 +2,7 @@
 
 import * as Menubar from "@radix-ui/react-menubar";
 import { useEffect, useRef, useState } from "react";
-import { LiquidGlassCard } from "./LiquidGlassCard";
+import { LiquidGlassCard, type LiquidGlassCardProps } from "./LiquidGlassCard";
 import "./liquid-overlays.css";
 
 export interface LiquidMenubarAction {
@@ -21,6 +21,7 @@ export interface LiquidMenubarProps {
   onValueChange?: (group: string, value: string) => void;
   theme?: "light" | "dark";
   optics?: "enhanced" | "baseline";
+  scene?: LiquidGlassCardProps["scene"];
 }
 
 const DEFAULT_GROUPS: readonly LiquidMenubarGroup[] = [
@@ -49,6 +50,7 @@ export function LiquidMenubar({
   onValueChange,
   theme,
   optics,
+  scene,
 }: LiquidMenubarProps) {
   const [openMenu, setOpenMenu] = useState("");
   const pressTimer = useRef<number>(0);
@@ -69,6 +71,7 @@ export function LiquidMenubar({
   return (
     <Menubar.Root
       className="liquid-menubar"
+      data-theme={theme}
       value={openMenu}
       onValueChange={(next) => {
         if (!next) {
@@ -99,7 +102,7 @@ export function LiquidMenubar({
               aria-label={group.label}
             >
               <div className="liquid-menubar-pop">
-                <LiquidGlassCard title={group.label} theme={theme} optics={optics}>
+                <LiquidGlassCard title={group.label} theme={theme} optics={optics} scene={scene}>
                   {group.items.map((item) => (
                     <Menubar.Item
                       key={item.value}

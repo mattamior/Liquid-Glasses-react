@@ -3,7 +3,7 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import "./liquid-dropdown.css";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { LiquidMenu, type LiquidMenuItem } from "./LiquidMenu";
+import { LiquidMenu, type LiquidMenuItem, type LiquidMenuProps } from "./LiquidMenu";
 
 export interface LiquidDropdownProps {
   items?: readonly LiquidMenuItem[];
@@ -14,6 +14,7 @@ export interface LiquidDropdownProps {
   trigger?: ReactNode;
   theme?: "light" | "dark";
   optics?: "enhanced" | "baseline";
+  scene?: LiquidMenuProps["scene"];
 }
 
 export function LiquidDropdown({
@@ -25,6 +26,7 @@ export function LiquidDropdown({
   trigger,
   theme,
   optics,
+  scene,
 }: LiquidDropdownProps) {
   const [open, setOpen] = useState(false);
   const [uncontrolled, setUncontrolled] = useState(defaultValue ?? items?.[0]?.value ?? "");
@@ -73,6 +75,7 @@ export function LiquidDropdown({
         <button
           type="button"
           className="liquid-dropdown__trigger"
+          data-theme={theme}
           data-press={pressing ? "" : undefined}
           onPointerDown={armPress}
           onPointerUp={() => releasePress(180)}
@@ -109,6 +112,7 @@ export function LiquidDropdown({
               value={selected}
               theme={theme}
               optics={optics}
+              scene={scene}
               onValueChange={commitValue}
             />
           </div>

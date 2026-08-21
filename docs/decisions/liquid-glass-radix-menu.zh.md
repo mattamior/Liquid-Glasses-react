@@ -1,13 +1,13 @@
 # 液态玻璃 Radix 菜单决策记录
 
-**日期:** 2026-08-19
-**状态:** 已在 `grok/liquid-glass-radix-menu` 落地并发布到 `liquid-lab-optics-demo`；视觉批准待定
+**日期:** 2026-08-20
+**状态:** 已在 `grok/liquid-glass-radix-menu` 落地并发布到 `liquid-lab-optics-demo`；本批次亮色对比度修正尚未发布；视觉批准待定
 
 ## 1. 范围与决策
 
 可移植交付物是浮动菜单，不是主屏实验室。新工作在 `grok/liquid-glass-radix-menu`。产品安装复制内核并挂载 `LiquidMenu` 或已完成的覆盖层（`LiquidDropdown`、`LiquidContextMenu`、`LiquidSelect`、`LiquidPopover`、`LiquidDialog`、`LiquidMenubar`）。Radix 负责开合、焦点与关闭。光学保持冻结。
 
-本批次把旅行字洞再扩一截，盖住 `scaleY(1.16)` 探出的大字。停在两行中间时不得再叠字。移动端验收后续再做。
+本批次修 `/ui` 亮色，但仍是液态玻璃，不是旧 frosted 白卡片。侧栏选中板加一层浅透镜对比；嵌套 overlay 亮色用浅霜 + 白字，不再套海军蓝，也不改成实心白底深字。光学仍冻结。移动端验收后续再做。
 
 菜单正下方必须是模糊或纯色，以保证文字可读。
 
@@ -22,11 +22,13 @@
 - `LiquidDialog` 是第五个做完的覆盖层：模态遮罩 + 居中玻璃卡片。`children` 是任意内容；默认预览是删除确认卡，不是菜单。点遮罩和 Escape 立刻关闭。按下挤扁与居中三拍弹出保留。
 - `LiquidMenubar` 是第六个做完的覆盖层：顶栏命令条。薄「文件 / 编辑」标题打开玻璃动作列表；点「打开」立刻 `onValueChange("file","open")` 并关闭。没有常驻选中、没有旅行透镜。弹出形变保留。
 - 目录侧栏（`CatalogNav`）在提交后锁住 pending 选中项，避免 `router.push` 晚到时选择板弹回再播一遍旅行。侧栏标签 `nowrap`、从左侧缩放，长英文名不换行且左缘对齐。
-- `/ui` 预览台。左侧目录本身就是 `LiquidMenu`，标签为 Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar。品牌行有亮暗开关，写入 `liquid-glass:ui-theme`。侧栏与七个预览都吃这个 `theme`。内核光学与折射场不变。`/liquid-menu` 重定向到 `/ui/liquid-menu`。Overlay 预览共用 `OverlayPreviewStage`：默认只有渐变；右上角「文字底」打开后以 10px、220×16 图块满铺 `Liquid glass abcd ABCD 1234`。`LiquidMenu` 预览仍是整面渐变，没有开关。
+- `/ui` 预览台。左侧目录本身就是 `LiquidMenu`，标签为 Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar。品牌行有亮暗图标开关（亮色月亮 / 暗色太阳），写入 `liquid-glass:ui-theme`。侧栏与七个预览都吃这个 `theme`。内核光学与折射场不变。`/liquid-menu` 重定向到 `/ui/liquid-menu`。七个预览共用舞台背景：天空 / 黄昏 / 草地 / 石墨，色块在右上角「文字底」左侧，写入 `liquid-glass:ui-stage-scene`。`LiquidMenu` 预览与 overlay 一样居中，并有「文字底」。色块是平涂圆，没有纵向渐变。Overlay 预览「文字底」打开后以 10px、220×16 图块满铺 `Liquid glass abcd ABCD 1234`。
 - 覆盖层家族已做完。后续是新表面，不再补未完成的五件套。
 - `LiquidDropdown` 使用内核 `density: "compact"`（36px 行、13/16 字、200px、16/12 圆角）。常驻 `LiquidMenu` 仍是 `panel`（58 / 14↔20 / 280）。
 - Dropdown 打开是内层三拍液态形变，对标控制中心计算器 →「拷贝上个结果」：按下时触发器挤扁（`scaleX 1.1 / scaleY 0.84`），打开后 120ms 松开并弹回原状；源尺寸小团，过大弹出，再收回 compact。关闭不再重放挤扁。定位仍由 Radix Content 负责。`cssAncestorScale` 不让世界副本吃进动画缩放。
-- 嵌套 overlay 衬底（`data-host="nested"`）暗色为 `rgb(14 18 30 / 54%)` + `blur(40px)`（亮色 `rgb(28 48 78 / 52%)`），刚好挡住门户后的页面字。常驻面板仍是 `16%` + `blur(22px)`。折射不变。
+- 嵌套 overlay 衬底（`data-host="nested"`）与常驻面板同一套填色：亮色 `rgb(255 255 255 / 16%)`，暗色 `rgb(12 16 28 / 28%)`，模糊 `40px`。不再用固定海军蓝。常驻面板仍是 `16%` + `blur(22px)`。折射不变。
+- Overlay 触发器、Menubar、Context 表面、Dialog 遮罩带 `data-theme`。亮色是浅玻璃 + 白字；暗色仍是原来的半透明深底白字。
+- `/ui` 亮色侧栏选中板为 `rgb(255 255 255 / 28%)` 透镜，不是实心白条。亮色侧栏字在选中板之上，避免浅霜把深色字冲淡。亮色舞台描边改为 `rgb(255 255 255 / 58%)`，浅色天空上不再画出一条深色顶边。独立 `LiquidMenu` 预览亮色仍是白字配彩壁纸，选中板仍是 `4%` 白。
 - Skill 提取与 `app/apple-clear` 保持字节一致。
 
 ## 3. 验证证据
@@ -56,10 +58,12 @@
 | 目录短名 | `/ui/liquid-context-menu` 桌面：侧栏与页标题为 Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar。路由仍是 `/ui/liquid-*`。Usage 仍写 `<LiquidContextMenu />`。Context Menu 单行、未换行。 |
 | `/ui` 亮暗切换 | `/ui/liquid-menu` 桌面：默认 `data-theme=dark`，开关 `aria-pressed=true` 文案「亮色」。点「亮色」后 `data-theme=light`，开关文案「暗色」，侧栏字色为深色，舞台仍是渐变。切到 Dropdown / Context Menu 后仍为 light。刷新后仍为 light。再点「暗色」回到 dark。控制台无 error。 |
 | 旅行板叠字 | `/ui/liquid-menu` 桌面：旅行中途 `stretchY=1.16`、板高 74、nudge −8。above/below 裁切再扩 `--apple-lens-clip-overshoot`（约 6px）。停在两行中间时板缘不再叠大小字。落稳单行。控制台无 error。 |
+| `/ui` 亮色对比度 | 桌面 1280×800。亮色侧栏选中板 `rgba(255,255,255,0.28)` 透镜，字 `#132033`。`/ui/liquid-dropdown` 与 `/ui/liquid-context-menu` 打开后嵌套衬底 `rgba(90,150,210,0.44)` / `blur(40px)`，行字白，trigger / 卡片动作仍是白字浅玻璃，不是实心白卡片。独立 `/ui/liquid-menu` 预览仍是白字、选中板 `0.04` 白。切回暗色：嵌套衬底 `rgba(14,18,30,0.54)`。控制台无 error。本批次未发布。 |
+| `/ui` 舞台背景 | 桌面 1280×800 `/ui/liquid-menubar`：右上角四个色块在「文字底」左侧。默认 `data-scene=sky`。点黄昏 → `dusk`，草地 → `meadow`，石墨 → `graphite`。切到 Dropdown 仍为 graphite。刷新后仍为 graphite。点回天空 → `sky`。「文字底」仍可开关。`/ui/liquid-menu` 居中、有「文字底」，舞台四角无缺口。色块为平涂圆。Dropdown 打开后玻璃跟舞台：草地透绿，黄昏透紫。控制台无 error。 |
 
 ## 4. 部署与发布状态
 
-已用 `dist/server/wrangler.json` 发布既有 Worker `liquid-lab-optics-demo`。版本 `c395db38-be40-43f5-b663-3d56591db275`，100% 流量。回滚目标为上一版 `50355dc2-6b65-4b7f-9955-83933c3ce75c`。
+已用 `dist/server/wrangler.json` 发布既有 Worker `liquid-lab-optics-demo`。版本 `c395db38-be40-43f5-b663-3d56591db275`，100% 流量。回滚目标为上一版 `50355dc2-6b65-4b7f-9955-83933c3ce75c`。本批次亮色对比度修正只在本地 `grok/liquid-glass-radix-menu`，尚未发布。
 
 ## 5. 已知风险、限制与后续工作
 

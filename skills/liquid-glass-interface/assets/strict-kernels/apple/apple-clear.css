@@ -81,20 +81,20 @@ body:has(.apple-clear) {
   }
 }
 
-/* Nested overlays sit on unknown page type. Just enough to hide glyphs. */
+/* Nested overlays sit on unknown page type. Same fill as standalone, stronger blur. */
 .apple-clear[data-host="nested"] .apple-liquid-menu-backdrop {
-  background: rgb(20 34 58 / 70%);
+  background: rgb(255 255 255 / 22%);
 }
 
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .apple-clear[data-host="nested"] .apple-liquid-menu-backdrop {
-    background: rgb(28 48 78 / 52%);
+    background: rgb(255 255 255 / 16%);
     -webkit-backdrop-filter: blur(40px) saturate(180%);
     backdrop-filter: blur(40px) saturate(180%);
   }
 
   .apple-clear[data-host="nested"][data-theme="dark"] .apple-liquid-menu-backdrop {
-    background: rgb(14 18 30 / 54%);
+    background: rgb(12 16 28 / 28%);
   }
 }
 
