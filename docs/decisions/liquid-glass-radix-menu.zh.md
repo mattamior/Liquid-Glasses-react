@@ -22,7 +22,7 @@
 - `LiquidDialog` 是第五个做完的覆盖层：模态遮罩 + 居中玻璃卡片。`children` 是任意内容；默认预览是删除确认卡，不是菜单。点遮罩和 Escape 立刻关闭。按下挤扁与居中三拍弹出保留。
 - `LiquidMenubar` 是第六个做完的覆盖层：顶栏命令条。薄「文件 / 编辑」标题打开玻璃动作列表；点「打开」立刻 `onValueChange("file","open")` 并关闭。没有常驻选中、没有旅行透镜。弹出形变保留。
 - 目录侧栏（`CatalogNav`）在提交后锁住 pending 选中项，避免 `router.push` 晚到时选择板弹回再播一遍旅行。侧栏标签 `nowrap`、从左侧缩放，长英文名不换行且左缘对齐。
-- `/ui` 预览台。左侧目录本身就是 `LiquidMenu`。标题行右侧有语言开关（中文 / EN）和亮暗图标开关，分别写入 `liquid-glass:ui-locale` 与 `liquid-glass:ui-theme`。英文全英文。中文时栏框（品牌、侧栏、标题、Usage / Props）中英双语，舞台红框文案只显示中文。侧栏与七个预览都吃 `theme`。内核光学与折射场不变。`/liquid-menu` 重定向到 `/ui/liquid-menu`。七个预览共用舞台背景：天空 / 黄昏 / 草地 / 石墨，色块在右上角「文字底」左侧，写入 `liquid-glass:ui-stage-scene`。`LiquidMenu` 预览与 overlay 一样居中，并有「文字底」。色块是平涂圆，没有纵向渐变。Overlay 预览「文字底」打开后以 10px、220×16 图块满铺 `Liquid glass abcd ABCD 1234`。
+- `/ui` 预览台。左侧目录本身就是 `LiquidMenu`。标题行右侧是两个 32px 图标按钮：A/文语言图标切语言、日月切亮暗，分别写入 `liquid-glass:ui-locale` 与 `liquid-glass:ui-theme`。图标 18px。悬停用原生 `title`：英文页 `Switch to Chinese` / `Switch to dark`；中文页 `切换为英文` / `切换亮色`。英文全英文。中文时栏框（品牌、侧栏、标题、Usage / Props）中英双语，舞台红框文案只显示中文。侧栏与七个预览都吃 `theme`。内核光学与折射场不变。`/liquid-menu` 重定向到 `/ui/liquid-menu`。七个预览共用舞台背景：天空 / 黄昏 / 草地 / 石墨，色块在右上角「文字底」左侧，写入 `liquid-glass:ui-stage-scene`。`LiquidMenu` 预览与 overlay 一样居中，并有「文字底」。色块是平涂圆，没有纵向渐变。Overlay 预览「文字底」打开后以 10px、220×16 图块满铺 `Liquid glass abcd ABCD 1234`。
 - 覆盖层家族已做完。后续是新表面，不再补未完成的五件套。
 - `LiquidDropdown` 使用内核 `density: "compact"`（36px 行、13/16 字、200px、16/12 圆角）。常驻 `LiquidMenu` 仍是 `panel`（58 / 14↔20 / 280）。
 - Dropdown 打开是内层三拍液态形变，对标控制中心计算器 →「拷贝上个结果」：按下时触发器挤扁（`scaleX 1.1 / scaleY 0.84`），打开后 120ms 松开并弹回原状；源尺寸小团，过大弹出，再收回 compact。关闭不再重放挤扁。定位仍由 Radix Content 负责。`cssAncestorScale` 不让世界副本吃进动画缩放。
@@ -60,7 +60,9 @@
 | 旅行板叠字 | `/ui/liquid-menu` 桌面：旅行中途 `stretchY=1.16`、板高 74、nudge −8。above/below 裁切再扩 `--apple-lens-clip-overshoot`（约 6px）。停在两行中间时板缘不再叠大小字。落稳单行。控制台无 error。 |
 | `/ui` 亮色对比度 | 桌面 1280×800。亮色侧栏选中板 `rgba(255,255,255,0.28)` 透镜，字 `#132033`。`/ui/liquid-dropdown` 与 `/ui/liquid-context-menu` 打开后嵌套衬底 `rgba(90,150,210,0.44)` / `blur(40px)`，行字白，trigger / 卡片动作仍是白字浅玻璃，不是实心白卡片。独立 `/ui/liquid-menu` 预览仍是白字、选中板 `0.04` 白。切回暗色：嵌套衬底 `rgba(14,18,30,0.54)`。控制台无 error。本批次未发布。 |
 | `/ui` 舞台背景 | 桌面 1280×800 `/ui/liquid-menubar`：右上角四个色块在「文字底」左侧。默认 `data-scene=sky`。点黄昏 → `dusk`，草地 → `meadow`，石墨 → `graphite`。切到 Dropdown 仍为 graphite。刷新后仍为 graphite。点回天空 → `sky`。「文字底」仍可开关。`/ui/liquid-menu` 居中、有「文字底」，舞台四角无缺口。色块为平涂圆。Dropdown 打开后玻璃跟舞台：草地透绿，黄昏透紫。控制台无 error。 |
-| `/ui` 语言与主题位置 | 桌面 1280×800 `/ui/liquid-dialog`：语言与主题开关在标题行右侧，侧栏品牌行不再有太阳/月亮。默认中文：标题 `Dialog 对话框`，简介中文，触发器「删除相册」。点 EN：标题 `Dialog`，简介英文，触发器 `Delete album`，侧栏无中文。刷新仍为 EN。点回 中文。主题开关仍切亮暗。控制台无 error。 |
+| `/ui` 语言与主题位置 | 桌面 1280×800 `/ui/liquid-dialog`：语言与主题开关在标题行右侧，侧栏品牌行不再有太阳/月亮。默认中文：标题 `Dialog 对话框`，简介中文，触发器「删除相册」。点语言图标：标题 `Dialog`，简介英文，触发器 `Delete album`，侧栏无中文。刷新仍为 EN。再点语言图标回到中文。主题开关仍切亮暗。控制台无 error。 |
+| `/ui` 标题摘要宽度 | `.ui-studio__header p` 的 `max-width` 从 `56ch` 调到 `90ch`。桌面 1280×800 `/ui/liquid-context-menu` 英文摘要单行放下。同页中文、以及 Dropdown / Select 长摘要共用该上限。本批次未发布。 |
+| `/ui` 标题图标按钮 | 桌面 1280×800 `/ui/liquid-context-menu`：语言与主题都是 32×32 图标按钮，描边图标 18px。语言是 A/文，不是地球。英文页语言按钮 `title`/`aria-label` 为 `Switch to Chinese`，主题为 `Switch to dark`。点语言后舞台与栏框切到中文，提示变为 `切换为英文`。点主题切暗色。无「EN / 中文」文字胶囊。控制台无 error。本批次未发布。 |
 
 ## 4. 部署与发布状态
 

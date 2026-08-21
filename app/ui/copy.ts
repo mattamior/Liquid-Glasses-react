@@ -304,9 +304,8 @@ export function uiChrome(locale: UiLocale) {
     },
     themeToLight: locale === "en" ? "Switch to light" : "切换亮色",
     themeToDark: locale === "en" ? "Switch to dark" : "切换暗色",
-    localeToEn: "EN",
-    localeToZh: "中文",
-    localeLabel: locale === "en" ? "Switch language" : "切换语言",
+    localeToEn: locale === "en" ? "Switch to English" : "切换为英文",
+    localeToZh: locale === "en" ? "Switch to Chinese" : "切换为中文",
   };
 }
 

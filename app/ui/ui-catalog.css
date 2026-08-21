@@ -60,11 +60,12 @@
   color: rgb(255 255 255 / 72%);
 }
 
-.ui-studio__theme-toggle {
+.ui-studio__theme-toggle,
+.ui-studio__locale-toggle {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 1px solid rgb(255 255 255 / 28%);
   border-radius: 999px;
@@ -73,9 +74,10 @@
   cursor: pointer;
 }
 
-.ui-studio__theme-toggle svg {
-  width: 14px;
-  height: 14px;
+.ui-studio__theme-toggle svg,
+.ui-studio__locale-toggle svg {
+  width: 18px;
+  height: 18px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.7;
@@ -111,20 +113,9 @@
   flex-shrink: 0;
 }
 
-.ui-studio__locale-toggle {
-  min-height: 28px;
-  padding: 0 10px;
-  border: 1px solid rgb(255 255 255 / 28%);
-  border-radius: 999px;
-  background: rgb(12 20 36 / 28%);
-  color: #fff;
-  font: 650 12px/1 inherit;
-  cursor: pointer;
-}
-
 .ui-studio__header p {
   margin: 0;
-  max-width: 56ch;
+  max-width: 90ch;
   color: rgb(255 255 255 / 68%);
   font-size: 14px;
   line-height: 1.5;

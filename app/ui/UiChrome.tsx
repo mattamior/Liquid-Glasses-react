@@ -5,6 +5,17 @@ import { getUiCatalogCopy, uiChrome } from "./copy";
 import { useUiLocale } from "./UiLocale";
 import { useUiTheme } from "./UiTheme";
 
+function LocaleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <g transform="translate(12 12) scale(0.86) translate(-12 -12)">
+        <path d="M2 5h12M7 2v1M5 8l6 6M4 14l6-6 2-3" />
+        <path d="m22 22-5-10-5 10M14 18h6" />
+      </g>
+    </svg>
+  );
+}
+
 function ThemeIcon({ next }: { next: "light" | "dark" }) {
   if (next === "light") {
     return (
@@ -28,22 +39,26 @@ export function UiHeaderTools() {
   const copy = uiChrome(locale);
   const nextTheme = theme === "dark" ? "light" : "dark";
   const nextLocale = locale === "zh" ? "en" : "zh";
+  const localeHint = nextLocale === "en" ? copy.localeToEn : copy.localeToZh;
+  const themeHint = nextTheme === "light" ? copy.themeToLight : copy.themeToDark;
 
   return (
     <div className="ui-studio__header-tools">
       <button
         type="button"
         className="ui-studio__locale-toggle"
-        aria-label={copy.localeLabel}
+        title={localeHint}
+        aria-label={localeHint}
         onClick={() => setLocale(nextLocale)}
       >
-        {nextLocale === "en" ? copy.localeToEn : copy.localeToZh}
+        <LocaleIcon />
       </button>
       <button
         type="button"
         className="ui-studio__theme-toggle"
         aria-pressed={theme === "dark"}
-        aria-label={nextTheme === "light" ? copy.themeToLight : copy.themeToDark}
+        title={themeHint}
+        aria-label={themeHint}
         onClick={() => setTheme(nextTheme)}
       >
         <ThemeIcon next={nextTheme} />
