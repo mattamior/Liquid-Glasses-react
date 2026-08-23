@@ -54,7 +54,7 @@ The public version is hosted on Cloudflare Workers:
 The Skill default is Apple Clear, not the V2 admin template. `/` still redirects
 to `/v2` as this repository's navigation study. V3 remains a separate experiment.
 The `/ui` catalog is deployed as Worker `liquid-lab-optics-demo` version
-`c395db38-be40-43f5-b663-3d56591db275`; rollback target `50355dc2-6b65-4b7f-9955-83933c3ce75c`.
+`ced4b0d6-f829-4be6-aae8-64869fb453c1`; rollback target `c395db38-be40-43f5-b663-3d56591db275`.
 
 ## Features
 

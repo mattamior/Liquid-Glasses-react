@@ -1,7 +1,7 @@
 # 液态玻璃 Radix 菜单决策记录
 
 **日期:** 2026-08-20
-**状态:** 已在 `grok/liquid-glass-radix-menu` 落地并发布到 `liquid-lab-optics-demo`；本批次亮色对比度修正尚未发布；视觉批准待定
+**状态:** 已在 `grok/liquid-glass-radix-menu` 落地并发布到 `liquid-lab-optics-demo`，版本 `ced4b0d6-f829-4be6-aae8-64869fb453c1`；视觉批准待定
 
 ## 1. 范围与决策
 
@@ -55,23 +55,24 @@
 | Dialog 模态卡片 | `/ui/liquid-dialog` 桌面 1280×800：点「删除相册」打开居中 `liquid-glass-card` 260×152，遮罩 `rgba(6, 10, 18, 0.46)`，没有 `apple-clear-menu` / 选择板。点「删除」→ 舞台 `已删除`，对话框关闭。再开后 Escape 立刻关闭。控制台无 error。移动端未验收。 |
 | Menubar 命令条 | `/ui/liquid-menubar` 桌面 1280×800：命令条贴舞台左上 17×17，尺寸 111×36。点「文件」打开 `liquid-glass-card` 168×116，动作 新建/打开/保存，没有 `apple-clear-menu` / 选择板。点「打开」立刻 `file/open` / 已关闭。控制台无 error。移动端未验收。 |
 | 生产部署 | Wrangler `4.92.0`。`npm run build` 通过。dry-run：27 modules、`1742.22 KiB` / gzip `372.80 KiB`，无 bindings。正式发布 Worker `liquid-lab-optics-demo` 版本 `c395db38-be40-43f5-b663-3d56591db275`，消息 `release liquid glass radix menu catalog`。`https://liquid.hkooii.com/ui` → `307` `/ui/liquid-menu`；七条 `/ui/*` 均为 `200`；workers.dev `/ui` → `307`；`/v2` 仍为 `200`。HTML 含 Command bar / Right-click host / Glass bubble。回滚目标 `50355dc2-6b65-4b7f-9955-83933c3ce75c`。 |
+| 生产部署（亮色目录） | Wrangler `4.92.0`。`npm run build` 通过。dry-run：30 modules、`1752.55 KiB` / gzip `376.17 KiB`，无 bindings。正式发布 Worker `liquid-lab-optics-demo` 版本 `ced4b0d6-f829-4be6-aae8-64869fb453c1`，100% 流量，消息 `release catalog light stage and overlay type`。`https://liquid.hkooii.com/ui` → `307` `/ui/liquid-menu`；七条 `/ui/*` 均为 `200`；workers.dev `/ui` → `307`，`/ui/liquid-menu` `200`；`/v2` 仍为 `200`。生产 CSS 含 overlay 亮色字 `#132033`、标签 `transform-origin: 0`（左）、亮色草地 `--ui-stage-top: #8ee8b8`。回滚目标 `c395db38-be40-43f5-b663-3d56591db275`。 |
 | 目录短名 | `/ui/liquid-context-menu` 桌面：侧栏与页标题为 Menu / Dropdown / Context Menu / Select / Popover / Dialog / Menubar。路由仍是 `/ui/liquid-*`。Usage 仍写 `<LiquidContextMenu />`。Context Menu 单行、未换行。 |
 | `/ui` 亮暗切换 | `/ui/liquid-menu` 桌面：默认 `data-theme=dark`，开关 `aria-pressed=true` 文案「亮色」。点「亮色」后 `data-theme=light`，开关文案「暗色」，侧栏字色为深色，舞台仍是渐变。切到 Dropdown / Context Menu 后仍为 light。刷新后仍为 light。再点「暗色」回到 dark。控制台无 error。 |
 | 旅行板叠字 | `/ui/liquid-menu` 桌面：旅行中途 `stretchY=1.16`、板高 74、nudge −8。above/below 裁切再扩 `--apple-lens-clip-overshoot`（约 6px）。停在两行中间时板缘不再叠大小字。落稳单行。控制台无 error。 |
-| `/ui` 亮色对比度 | 桌面 1280×800。亮色侧栏选中板 `rgba(255,255,255,0.28)` 透镜，字 `#132033`。`/ui/liquid-dropdown` 与 `/ui/liquid-context-menu` 打开后嵌套衬底 `rgba(90,150,210,0.44)` / `blur(40px)`，行字白，trigger / 卡片动作仍是白字浅玻璃，不是实心白卡片。独立 `/ui/liquid-menu` 预览仍是白字、选中板 `0.04` 白。切回暗色：嵌套衬底 `rgba(14,18,30,0.54)`。控制台无 error。本批次未发布。 |
+| `/ui` 亮色对比度 | 桌面 1280×800。亮色侧栏选中板 `rgba(255,255,255,0.28)` 透镜，字 `#132033`。`/ui/liquid-dropdown` 与 `/ui/liquid-context-menu` 打开后嵌套衬底 `rgba(90,150,210,0.44)` / `blur(40px)`，行字白，trigger / 卡片动作仍是白字浅玻璃，不是实心白卡片。独立 `/ui/liquid-menu` 预览仍是白字、选中板 `0.04` 白。切回暗色：嵌套衬底 `rgba(14,18,30,0.54)`。控制台无 error。已发布为 `ced4b0d6-f829-4be6-aae8-64869fb453c1`。 |
 | `/ui` 舞台背景 | 桌面 1280×800 `/ui/liquid-menubar`：右上角四个色块在「文字底」左侧。默认 `data-scene=sky`。点黄昏 → `dusk`，草地 → `meadow`，石墨 → `graphite`。切到 Dropdown 仍为 graphite。刷新后仍为 graphite。点回天空 → `sky`。「文字底」仍可开关。`/ui/liquid-menu` 居中、有「文字底」，舞台四角无缺口。色块为平涂圆。Dropdown 打开后玻璃跟舞台：草地透绿，黄昏透紫。控制台无 error。 |
-| `/ui` 舞台跟主题 | 桌面 1280×800。`/ui/liquid-menu` 亮色石墨：`--ui-stage-top/#a8b0bc`、`#8890a0`、`#6a7280`。点暗色 → `#3a4250` / `#1c2028` / `#0c0e12`。再点亮色恢复浅灰。亮色天空 `#9ecfff/#6eb0ef/#4a90d8`，黄昏 `#e0b0f0/#c888dc/#a068c0`，草地 `#8ee8b8/#5cd09a/#3cb88a`。打开「文字底」为 `rgb(19,32,51)` 深字，可读。刷新后仍为 light + meadow。`/ui/liquid-dropdown` 打开后门户 `StageWash` `data-theme=light` 与舞台同色；切暗色后舞台与再打开的副本均为 `#3cb88a/#0d3d38`。色块仍是暗色代表色。控制台无 error。本批次未发布。 |
-| `/ui` 亮色舞台选中板 | 桌面 1280×800 `/ui/liquid-menu` 亮色。天空 / 黄昏 / 草地：舞台选中板 `apple-selection-plate__optical` 为 `rgba(255,255,255,0.28)`，idle 填色 `0.18`，描边 `1px` 白。Home 板缘可见，不贴底。点 Photos 旅行后落稳 `photos`，板仍是 `0.28`。切暗色恢复 `0.04` / `0.03` / `0.5px` 白描边。内核光学未改。控制台无 error。本批次未发布。 |
-| `/ui` 亮色舞台深字 | 桌面 1280×800 `/ui/liquid-menu` 亮色草地：菜单选中字 `#132033`，未选中 `rgb(19 32 51 / 78%)`，「Glyphs」与舞台值同为 `#132033`。点 Messages 旅行后落稳仍是深字。切暗色：选中白、未选中 `78%` 白、「Glyphs」白。控制台无 error。本批次未发布。 |
-| `/ui` 菜单标签左缘 | 桌面 1280×800 `/ui/liquid-menu`。未选项标签 `transform-origin: left center`。亮色草地：Home / Photos / Messages / Settings 左缘均为 `672.5px`；选中 `#132033`，未选中 `rgb(19 32 51 / 78%)`。暗色草地：四条左缘仍是 `672.5px`；选中白，未选中 `78%` 白。控制台无 error。本批次未发布。 |
-| `/ui` overlay 亮色深字 | 桌面 1280×800 亮色草地。字色挂在 overlay / `apple-clear[data-theme=light]` 节点上，Radix Portal 离开 `.ui-studio` 后仍吃得到。`/ui/liquid-dropdown` 触发器 `#132033`；打开后嵌套标签左缘同为 `769.5px`，字色相同。`/ui/liquid-select` 触发器 `Select…` 为 `rgb(19,32,51)`；打开后 Home / Photos / Messages / Settings 左缘 `762.5px`，选中 `#132033`，未选中同色 `78%`。`/ui/liquid-popover` Network 触发器与卡片正文 `#132033`。`/ui/liquid-dialog` Cancel `#132033`；Delete 仍是红底白字。`/ui/liquid-context-menu` Cut / Copy / Paste `#132033`。`/ui/liquid-menubar` File / Edit / New / Open / Save `#132033`。暗色 `/ui/liquid-menubar`：File 触发器与 New / Open / Save 恢复 `rgb(255,255,255)`。控制台无 error。本批次未发布。 |
+| `/ui` 舞台跟主题 | 桌面 1280×800。`/ui/liquid-menu` 亮色石墨：`--ui-stage-top/#a8b0bc`、`#8890a0`、`#6a7280`。点暗色 → `#3a4250` / `#1c2028` / `#0c0e12`。再点亮色恢复浅灰。亮色天空 `#9ecfff/#6eb0ef/#4a90d8`，黄昏 `#e0b0f0/#c888dc/#a068c0`，草地 `#8ee8b8/#5cd09a/#3cb88a`。打开「文字底」为 `rgb(19,32,51)` 深字，可读。刷新后仍为 light + meadow。`/ui/liquid-dropdown` 打开后门户 `StageWash` `data-theme=light` 与舞台同色；切暗色后舞台与再打开的副本均为 `#3cb88a/#0d3d38`。色块仍是暗色代表色。控制台无 error。已发布为 `ced4b0d6-f829-4be6-aae8-64869fb453c1`。 |
+| `/ui` 亮色舞台选中板 | 桌面 1280×800 `/ui/liquid-menu` 亮色。天空 / 黄昏 / 草地：舞台选中板 `apple-selection-plate__optical` 为 `rgba(255,255,255,0.28)`，idle 填色 `0.18`，描边 `1px` 白。Home 板缘可见，不贴底。点 Photos 旅行后落稳 `photos`，板仍是 `0.28`。切暗色恢复 `0.04` / `0.03` / `0.5px` 白描边。内核光学未改。控制台无 error。已发布为 `ced4b0d6-f829-4be6-aae8-64869fb453c1`。 |
+| `/ui` 亮色舞台深字 | 桌面 1280×800 `/ui/liquid-menu` 亮色草地：菜单选中字 `#132033`，未选中 `rgb(19 32 51 / 78%)`，「Glyphs」与舞台值同为 `#132033`。点 Messages 旅行后落稳仍是深字。切暗色：选中白、未选中 `78%` 白、「Glyphs」白。控制台无 error。已发布为 `ced4b0d6-f829-4be6-aae8-64869fb453c1`。 |
+| `/ui` 菜单标签左缘 | 桌面 1280×800 `/ui/liquid-menu`。未选项标签 `transform-origin: left center`。亮色草地：Home / Photos / Messages / Settings 左缘均为 `672.5px`；选中 `#132033`，未选中 `rgb(19 32 51 / 78%)`。暗色草地：四条左缘仍是 `672.5px`；选中白，未选中 `78%` 白。控制台无 error。已发布为 `ced4b0d6-f829-4be6-aae8-64869fb453c1`。 |
+| `/ui` overlay 亮色深字 | 桌面 1280×800 亮色草地。字色挂在 overlay / `apple-clear[data-theme=light]` 节点上，Radix Portal 离开 `.ui-studio` 后仍吃得到。`/ui/liquid-dropdown` 触发器 `#132033`；打开后嵌套标签左缘同为 `769.5px`，字色相同。`/ui/liquid-select` 触发器 `Select…` 为 `rgb(19,32,51)`；打开后 Home / Photos / Messages / Settings 左缘 `762.5px`，选中 `#132033`，未选中同色 `78%`。`/ui/liquid-popover` Network 触发器与卡片正文 `#132033`。`/ui/liquid-dialog` Cancel `#132033`；Delete 仍是红底白字。`/ui/liquid-context-menu` Cut / Copy / Paste `#132033`。`/ui/liquid-menubar` File / Edit / New / Open / Save `#132033`。暗色 `/ui/liquid-menubar`：File 触发器与 New / Open / Save 恢复 `rgb(255,255,255)`。控制台无 error。已发布为 `ced4b0d6-f829-4be6-aae8-64869fb453c1`。 |
 | `/ui` 语言与主题位置 | 桌面 1280×800 `/ui/liquid-dialog`：语言与主题开关在标题行右侧，侧栏品牌行不再有太阳/月亮。默认中文：标题 `Dialog 对话框`，简介中文，触发器「删除相册」。点语言图标：标题 `Dialog`，简介英文，触发器 `Delete album`，侧栏无中文。刷新仍为 EN。再点语言图标回到中文。主题开关仍切亮暗。控制台无 error。 |
-| `/ui` 标题摘要宽度 | `.ui-studio__header p` 的 `max-width` 从 `56ch` 调到 `90ch`。桌面 1280×800 `/ui/liquid-context-menu` 英文摘要单行放下。同页中文、以及 Dropdown / Select 长摘要共用该上限。本批次未发布。 |
-| `/ui` 标题图标按钮 | 桌面 1280×800 `/ui/liquid-context-menu`：语言与主题都是 32×32 图标按钮，描边图标 18px。语言是 A/文，不是地球。英文页语言按钮 `title`/`aria-label` 为 `Switch to Chinese`，主题为 `Switch to dark`。点语言后舞台与栏框切到中文，提示变为 `切换为英文`。点主题切暗色。无「EN / 中文」文字胶囊。控制台无 error。本批次未发布。 |
+| `/ui` 标题摘要宽度 | `.ui-studio__header p` 的 `max-width` 从 `56ch` 调到 `90ch`。桌面 1280×800 `/ui/liquid-context-menu` 英文摘要单行放下。同页中文、以及 Dropdown / Select 长摘要共用该上限。已发布为 `ced4b0d6-f829-4be6-aae8-64869fb453c1`。 |
+| `/ui` 标题图标按钮 | 桌面 1280×800 `/ui/liquid-context-menu`：语言与主题都是 32×32 图标按钮，描边图标 18px。语言是 A/文，不是地球。英文页语言按钮 `title`/`aria-label` 为 `Switch to Chinese`，主题为 `Switch to dark`。点语言后舞台与栏框切到中文，提示变为 `切换为英文`。点主题切暗色。无「EN / 中文」文字胶囊。控制台无 error。已发布为 `ced4b0d6-f829-4be6-aae8-64869fb453c1`。 |
 
 ## 4. 部署与发布状态
 
-已用 `dist/server/wrangler.json` 发布既有 Worker `liquid-lab-optics-demo`。版本 `c395db38-be40-43f5-b663-3d56591db275`，100% 流量。回滚目标为上一版 `50355dc2-6b65-4b7f-9955-83933c3ce75c`。本批次亮色对比度修正只在本地 `grok/liquid-glass-radix-menu`，尚未发布。
+已用 `dist/server/wrangler.json` 与 `--keep-vars` 发布既有 Worker `liquid-lab-optics-demo`。当前版本 `ced4b0d6-f829-4be6-aae8-64869fb453c1`，100% 流量，消息 `release catalog light stage and overlay type`。回滚目标为上一版 `c395db38-be40-43f5-b663-3d56591db275`。
 
 ## 5. 已知风险、限制与后续工作
 

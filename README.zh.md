@@ -50,7 +50,7 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 | `/liquid-menu` | 重定向到 `/ui/liquid-menu`。 |
 | `/brand-preview` | 当前 Liquid Lab 标志的亮暗背景审阅页。 |
 
-Skill 默认身份是 Apple Clear，不再是 V2 后台模板。`/` 仍重定向到 `/v2` 作为本仓库导航实验入口。V3 是独立实验。`/ui` 目录已发布为 Worker `liquid-lab-optics-demo` 版本 `c395db38-be40-43f5-b663-3d56591db275`；回滚目标 `50355dc2-6b65-4b7f-9955-83933c3ce75c`。
+Skill 默认身份是 Apple Clear，不再是 V2 后台模板。`/` 仍重定向到 `/v2` 作为本仓库导航实验入口。V3 是独立实验。`/ui` 目录已发布为 Worker `liquid-lab-optics-demo` 版本 `ced4b0d6-f829-4be6-aae8-64869fb453c1`；回滚目标 `c395db38-be40-43f5-b663-3d56591db275`。
 
 ## 功能特性
 
