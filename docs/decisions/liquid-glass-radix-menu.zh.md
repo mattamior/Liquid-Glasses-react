@@ -7,7 +7,7 @@
 
 可移植交付物是浮动菜单，不是主屏实验室。新工作在 `grok/liquid-glass-radix-menu`。产品安装复制内核并挂载 `LiquidMenu` 或已完成的覆盖层（`LiquidDropdown`、`LiquidContextMenu`、`LiquidSelect`、`LiquidPopover`、`LiquidDialog`、`LiquidMenubar`）。Radix 负责开合、焦点与关闭。光学保持冻结。
 
-本批次修 `/ui` 亮色，但仍是液态玻璃，不是旧 frosted 白卡片。侧栏选中板加一层浅透镜对比；嵌套 overlay 亮色用浅霜 + 白字，不再套海军蓝，也不改成实心白底深字。光学仍冻结。移动端验收后续再做。
+本批次修 `/ui` 亮色，但仍是液态玻璃，不是旧 frosted 白卡片。侧栏选中板加一层浅透镜对比；嵌套 overlay 亮色用浅玻璃 + 深字 `#132033`，不再套海军蓝，也不改成实心白卡片。光学仍冻结。移动端验收后续再做。
 
 菜单正下方必须是模糊或纯色，以保证文字可读。
 
@@ -22,13 +22,13 @@
 - `LiquidDialog` 是第五个做完的覆盖层：模态遮罩 + 居中玻璃卡片。`children` 是任意内容；默认预览是删除确认卡，不是菜单。点遮罩和 Escape 立刻关闭。按下挤扁与居中三拍弹出保留。
 - `LiquidMenubar` 是第六个做完的覆盖层：顶栏命令条。薄「文件 / 编辑」标题打开玻璃动作列表；点「打开」立刻 `onValueChange("file","open")` 并关闭。没有常驻选中、没有旅行透镜。弹出形变保留。
 - 目录侧栏（`CatalogNav`）在提交后锁住 pending 选中项，避免 `router.push` 晚到时选择板弹回再播一遍旅行。侧栏标签 `nowrap`、从左侧缩放，长英文名不换行且左缘对齐。
-- `/ui` 预览台。左侧目录本身就是 `LiquidMenu`。标题行右侧是两个 32px 图标按钮：A/文语言图标切语言、日月切亮暗，分别写入 `liquid-glass:ui-locale` 与 `liquid-glass:ui-theme`。图标 18px。悬停用原生 `title`：英文页 `Switch to Chinese` / `Switch to dark`；中文页 `切换为英文` / `切换亮色`。英文全英文。中文时栏框（品牌、侧栏、标题、Usage / Props）中英双语，舞台红框文案只显示中文。侧栏与七个预览都吃 `theme`。内核光学与折射场不变。`/liquid-menu` 重定向到 `/ui/liquid-menu`。七个预览共用舞台背景：天空 / 黄昏 / 草地 / 石墨，色块在右上角「文字底」左侧，写入 `liquid-glass:ui-stage-scene`。`LiquidMenu` 预览与 overlay 一样居中，并有「文字底」。色块是平涂圆，没有纵向渐变。Overlay 预览「文字底」打开后以 10px、220×16 图块满铺 `Liquid glass abcd ABCD 1234`。
+- `/ui` 预览台。左侧目录本身就是 `LiquidMenu`。标题行右侧是两个 32px 图标按钮：A/文语言图标切语言、日月切亮暗，分别写入 `liquid-glass:ui-locale` 与 `liquid-glass:ui-theme`。图标 18px。悬停用原生 `title`：英文页 `Switch to Chinese` / `Switch to dark`；中文页 `切换为英文` / `切换亮色`。英文全英文。中文时栏框（品牌、侧栏、标题、Usage / Props）中英双语，舞台红框文案只显示中文。侧栏与七个预览都吃 `theme`。内核光学与折射场不变。`/liquid-menu` 重定向到 `/ui/liquid-menu`。七个预览共用舞台背景：天空 / 黄昏 / 草地 / 石墨，色块在右上角「文字底」左侧，写入 `liquid-glass:ui-stage-scene`。舞台与门户副本 `StageWash` 同时带 `data-scene` 和 `data-theme`：暗色保留原渐变，亮色同色相提亮，底色不再沉到近黑。色块仍是暗色代表色的平涂圆，不跟主题换。`LiquidMenu` 预览与 overlay 一样居中，并有「文字底」。Overlay 预览「文字底」打开后以 10px、220×16 图块满铺 `Liquid glass abcd ABCD 1234`；暗色白字，亮色深字。
 - 覆盖层家族已做完。后续是新表面，不再补未完成的五件套。
 - `LiquidDropdown` 使用内核 `density: "compact"`（36px 行、13/16 字、200px、16/12 圆角）。常驻 `LiquidMenu` 仍是 `panel`（58 / 14↔20 / 280）。
 - Dropdown 打开是内层三拍液态形变，对标控制中心计算器 →「拷贝上个结果」：按下时触发器挤扁（`scaleX 1.1 / scaleY 0.84`），打开后 120ms 松开并弹回原状；源尺寸小团，过大弹出，再收回 compact。关闭不再重放挤扁。定位仍由 Radix Content 负责。`cssAncestorScale` 不让世界副本吃进动画缩放。
 - 嵌套 overlay 衬底（`data-host="nested"`）与常驻面板同一套填色：亮色 `rgb(255 255 255 / 16%)`，暗色 `rgb(12 16 28 / 28%)`，模糊 `40px`。不再用固定海军蓝。常驻面板仍是 `16%` + `blur(22px)`。折射不变。
-- Overlay 触发器、Menubar、Context 表面、Dialog 遮罩带 `data-theme`。亮色是浅玻璃 + 白字；暗色仍是原来的半透明深底白字。
-- `/ui` 亮色侧栏选中板为 `rgb(255 255 255 / 28%)` 透镜，不是实心白条。亮色侧栏字在选中板之上，避免浅霜把深色字冲淡。亮色舞台描边改为 `rgb(255 255 255 / 58%)`，浅色天空上不再画出一条深色顶边。独立 `LiquidMenu` 预览亮色仍是白字配彩壁纸，选中板仍是 `4%` 白。
+- Overlay 触发器、Menubar、Context 表面、Dialog 遮罩带 `data-theme`。亮色是浅玻璃 + 深字 `#132033`；暗色仍是原来的半透明深底白字。Dialog 删除按钮仍是红底白字。
+- `/ui` 亮色侧栏选中板为 `rgb(255 255 255 / 28%)` 透镜，不是实心白条。亮色侧栏字在选中板之上，避免浅霜把深色字冲淡。亮色舞台描边改为 `rgb(255 255 255 / 58%)`，浅色天空上不再画出一条深色顶边。独立 `LiquidMenu` 与嵌套 overlay 菜单亮色都是深字 `#132033` 配浅壁纸；未选项标签从左侧缩放，与选中项左缘对齐。「文字底」按钮和舞台值同色。舞台选中板跟侧栏同一套 `28%` 白透镜，idle 填色 `18%`、描边 `1px` 白。内核光学场不变。
 - Skill 提取与 `app/apple-clear` 保持字节一致。
 
 ## 3. 验证证据
@@ -60,6 +60,11 @@
 | 旅行板叠字 | `/ui/liquid-menu` 桌面：旅行中途 `stretchY=1.16`、板高 74、nudge −8。above/below 裁切再扩 `--apple-lens-clip-overshoot`（约 6px）。停在两行中间时板缘不再叠大小字。落稳单行。控制台无 error。 |
 | `/ui` 亮色对比度 | 桌面 1280×800。亮色侧栏选中板 `rgba(255,255,255,0.28)` 透镜，字 `#132033`。`/ui/liquid-dropdown` 与 `/ui/liquid-context-menu` 打开后嵌套衬底 `rgba(90,150,210,0.44)` / `blur(40px)`，行字白，trigger / 卡片动作仍是白字浅玻璃，不是实心白卡片。独立 `/ui/liquid-menu` 预览仍是白字、选中板 `0.04` 白。切回暗色：嵌套衬底 `rgba(14,18,30,0.54)`。控制台无 error。本批次未发布。 |
 | `/ui` 舞台背景 | 桌面 1280×800 `/ui/liquid-menubar`：右上角四个色块在「文字底」左侧。默认 `data-scene=sky`。点黄昏 → `dusk`，草地 → `meadow`，石墨 → `graphite`。切到 Dropdown 仍为 graphite。刷新后仍为 graphite。点回天空 → `sky`。「文字底」仍可开关。`/ui/liquid-menu` 居中、有「文字底」，舞台四角无缺口。色块为平涂圆。Dropdown 打开后玻璃跟舞台：草地透绿，黄昏透紫。控制台无 error。 |
+| `/ui` 舞台跟主题 | 桌面 1280×800。`/ui/liquid-menu` 亮色石墨：`--ui-stage-top/#a8b0bc`、`#8890a0`、`#6a7280`。点暗色 → `#3a4250` / `#1c2028` / `#0c0e12`。再点亮色恢复浅灰。亮色天空 `#9ecfff/#6eb0ef/#4a90d8`，黄昏 `#e0b0f0/#c888dc/#a068c0`，草地 `#8ee8b8/#5cd09a/#3cb88a`。打开「文字底」为 `rgb(19,32,51)` 深字，可读。刷新后仍为 light + meadow。`/ui/liquid-dropdown` 打开后门户 `StageWash` `data-theme=light` 与舞台同色；切暗色后舞台与再打开的副本均为 `#3cb88a/#0d3d38`。色块仍是暗色代表色。控制台无 error。本批次未发布。 |
+| `/ui` 亮色舞台选中板 | 桌面 1280×800 `/ui/liquid-menu` 亮色。天空 / 黄昏 / 草地：舞台选中板 `apple-selection-plate__optical` 为 `rgba(255,255,255,0.28)`，idle 填色 `0.18`，描边 `1px` 白。Home 板缘可见，不贴底。点 Photos 旅行后落稳 `photos`，板仍是 `0.28`。切暗色恢复 `0.04` / `0.03` / `0.5px` 白描边。内核光学未改。控制台无 error。本批次未发布。 |
+| `/ui` 亮色舞台深字 | 桌面 1280×800 `/ui/liquid-menu` 亮色草地：菜单选中字 `#132033`，未选中 `rgb(19 32 51 / 78%)`，「Glyphs」与舞台值同为 `#132033`。点 Messages 旅行后落稳仍是深字。切暗色：选中白、未选中 `78%` 白、「Glyphs」白。控制台无 error。本批次未发布。 |
+| `/ui` 菜单标签左缘 | 桌面 1280×800 `/ui/liquid-menu`。未选项标签 `transform-origin: left center`。亮色草地：Home / Photos / Messages / Settings 左缘均为 `672.5px`；选中 `#132033`，未选中 `rgb(19 32 51 / 78%)`。暗色草地：四条左缘仍是 `672.5px`；选中白，未选中 `78%` 白。控制台无 error。本批次未发布。 |
+| `/ui` overlay 亮色深字 | 桌面 1280×800 亮色草地。字色挂在 overlay / `apple-clear[data-theme=light]` 节点上，Radix Portal 离开 `.ui-studio` 后仍吃得到。`/ui/liquid-dropdown` 触发器 `#132033`；打开后嵌套标签左缘同为 `769.5px`，字色相同。`/ui/liquid-select` 触发器 `Select…` 为 `rgb(19,32,51)`；打开后 Home / Photos / Messages / Settings 左缘 `762.5px`，选中 `#132033`，未选中同色 `78%`。`/ui/liquid-popover` Network 触发器与卡片正文 `#132033`。`/ui/liquid-dialog` Cancel `#132033`；Delete 仍是红底白字。`/ui/liquid-context-menu` Cut / Copy / Paste `#132033`。`/ui/liquid-menubar` File / Edit / New / Open / Save `#132033`。暗色 `/ui/liquid-menubar`：File 触发器与 New / Open / Save 恢复 `rgb(255,255,255)`。控制台无 error。本批次未发布。 |
 | `/ui` 语言与主题位置 | 桌面 1280×800 `/ui/liquid-dialog`：语言与主题开关在标题行右侧，侧栏品牌行不再有太阳/月亮。默认中文：标题 `Dialog 对话框`，简介中文，触发器「删除相册」。点语言图标：标题 `Dialog`，简介英文，触发器 `Delete album`，侧栏无中文。刷新仍为 EN。再点语言图标回到中文。主题开关仍切亮暗。控制台无 error。 |
 | `/ui` 标题摘要宽度 | `.ui-studio__header p` 的 `max-width` 从 `56ch` 调到 `90ch`。桌面 1280×800 `/ui/liquid-context-menu` 英文摘要单行放下。同页中文、以及 Dropdown / Select 长摘要共用该上限。本批次未发布。 |
 | `/ui` 标题图标按钮 | 桌面 1280×800 `/ui/liquid-context-menu`：语言与主题都是 32×32 图标按钮，描边图标 18px。语言是 A/文，不是地球。英文页语言按钮 `title`/`aria-label` 为 `Switch to Chinese`，主题为 `Switch to dark`。点语言后舞台与栏框切到中文，提示变为 `切换为英文`。点主题切暗色。无「EN / 中文」文字胶囊。控制台无 error。本批次未发布。 |

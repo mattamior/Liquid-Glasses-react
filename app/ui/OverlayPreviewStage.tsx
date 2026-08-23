@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { uiChrome } from "./copy";
 import { useUiLocale } from "./UiLocale";
+import { useUiTheme } from "./UiTheme";
 
 const STORAGE_KEY = "liquid-glass:ui-stage-scene";
 
@@ -20,6 +21,7 @@ interface PreviewStageProps {
 
 export function PreviewStage({ children, overlay = false, probe = false }: PreviewStageProps) {
   const { locale } = useUiLocale();
+  const { theme } = useUiTheme();
   const chrome = uiChrome(locale);
   const [scene, setScene] = useState<(typeof SCENE_IDS)[number]>("sky");
   const [showProbe, setShowProbe] = useState(false);
@@ -51,7 +53,7 @@ export function PreviewStage({ children, overlay = false, probe = false }: Previ
     .join(" ");
 
   return (
-    <div className={className} data-scene={scene}>
+    <div className={className} data-scene={scene} data-theme={theme}>
       <div className="ui-studio__stage-chrome">
         <div className="ui-studio__scene-picker" role="group" aria-label={chrome.sceneGroup}>
           {SCENE_IDS.map((id) => (
@@ -108,6 +110,7 @@ export function StageWash({ copy }: { copy: "visible" | "replica" }) {
       node.style.height = `${preview.offsetHeight}px`;
       node.style.transform = `translate(${previewBox.left - hostBox.left}px, ${previewBox.top - hostBox.top}px)`;
       node.dataset.scene = preview.getAttribute("data-scene") ?? "sky";
+      node.dataset.theme = preview.getAttribute("data-theme") ?? "dark";
     };
 
     align();
@@ -119,7 +122,7 @@ export function StageWash({ copy }: { copy: "visible" | "replica" }) {
         : null;
     if (preview instanceof HTMLElement) {
       resize?.observe(preview);
-      mutation?.observe(preview, { attributes: true, attributeFilter: ["data-scene"] });
+      mutation?.observe(preview, { attributes: true, attributeFilter: ["data-scene", "data-theme"] });
     }
     window.addEventListener("resize", align);
     return () => {

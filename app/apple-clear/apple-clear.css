@@ -505,7 +505,7 @@ body:has(.apple-clear) {
   white-space: nowrap;
   text-overflow: ellipsis;
   transform: scale(calc(var(--apple-menu-size-idle) / var(--apple-menu-size-active)));
-  transform-origin: center;
+  transform-origin: left center;
   transition:
     transform 160ms ease,
     color 160ms ease;
@@ -515,7 +515,53 @@ body:has(.apple-clear) {
 .apple-menu-visual--lens .apple-menu-visual__label {
   color: #fff;
   transform: scale(1);
-  transform-origin: center;
+  transform-origin: left center;
+}
+
+.apple-clear[data-theme="light"] .apple-menu-visual,
+.apple-clear[data-theme="light"] .apple-menu-visual__item {
+  color: rgb(19 32 51 / 78%);
+}
+
+.apple-clear[data-theme="light"] .apple-menu-visual__item[data-selected="true"] .apple-menu-visual__label,
+.apple-clear[data-theme="light"] .apple-menu-visual--lens .apple-menu-visual__label {
+  color: #132033;
+}
+
+.apple-clear[data-theme="light"] .apple-menu-visual {
+  z-index: 5;
+}
+
+.apple-clear[data-theme="light"] .liquid-glass-card__body {
+  color: #132033;
+}
+
+.apple-clear[data-theme="light"] .apple-selection-plate__optical {
+  background: rgb(255 255 255 / 28%);
+  box-shadow:
+    0 6px 16px rgb(18 32 56 / 8%),
+    inset 0 1px 0 rgb(255 255 255 / 78%),
+    inset 0 0 0 1px rgb(255 255 255 / 62%),
+    inset 0 -1px 0 rgb(49 72 121 / 10%);
+}
+
+.apple-clear[data-theme="light"] .apple-selection-plate[data-phase="idle"] .apple-selection-plate__optical,
+.apple-clear[data-theme="light"] .apple-selection-plate[data-phase="fading"] .apple-selection-plate__optical {
+  box-shadow:
+    0 6px 16px rgb(18 32 56 / 8%),
+    inset 0 1px 0 rgb(255 255 255 / 78%),
+    inset 0 0 0 1px rgb(255 255 255 / 62%),
+    inset 0 -1px 0 rgb(49 72 121 / 10%);
+}
+
+.apple-clear[data-theme="light"] .apple-selection-plate[data-phase="idle"] .apple-selection-plate__fill,
+.apple-clear[data-theme="light"] .apple-selection-plate[data-phase="fading"] .apple-selection-plate__fill {
+  background: rgb(255 255 255 / 18%);
+}
+
+.apple-clear[data-theme="light"] .apple-selection-plate[data-phase="idle"] .apple-selection-plate__edge,
+.apple-clear[data-theme="light"] .apple-selection-plate[data-phase="fading"] .apple-selection-plate__edge {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 72%);
 }
 
 .apple-menu-radix-list,

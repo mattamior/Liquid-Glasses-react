@@ -26,9 +26,9 @@
 
 .liquid-overlay-trigger[data-theme="light"],
 .liquid-select-trigger[data-theme="light"] {
-  border-color: rgb(255 255 255 / 42%);
-  background: rgb(255 255 255 / 22%);
-  color: #fff;
+  border-color: rgb(18 32 56 / 16%);
+  background: rgb(255 255 255 / 42%);
+  color: #132033;
 }
 
 .liquid-overlay-trigger[data-theme="light"][data-state="open"],
@@ -66,8 +66,8 @@
 }
 
 .liquid-context-surface[data-theme="light"] {
-  border-color: rgb(255 255 255 / 42%);
-  color: rgb(255 255 255 / 88%);
+  border-color: rgb(18 32 56 / 16%);
+  color: rgb(19 32 51 / 82%);
 }
 
 .liquid-menubar {
@@ -97,12 +97,12 @@
 }
 
 .liquid-menubar[data-theme="light"] {
-  border-color: rgb(255 255 255 / 38%);
-  background: rgb(255 255 255 / 22%);
+  border-color: rgb(18 32 56 / 16%);
+  background: rgb(255 255 255 / 42%);
 }
 
 .liquid-menubar[data-theme="light"] .liquid-menubar-trigger {
-  color: #fff;
+  color: #132033;
 }
 
 .liquid-menubar[data-theme="light"] .liquid-menubar-trigger[data-state="open"] {
@@ -129,6 +129,10 @@
 .liquid-menubar-action:focus-visible {
   background: rgb(255 255 255 / 14%);
   outline: none;
+}
+
+.apple-clear[data-theme="light"] .liquid-menubar-action {
+  color: #132033;
 }
 
 .liquid-dialog-overlay {

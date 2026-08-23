@@ -22,9 +22,9 @@
 }
 
 .liquid-dropdown__trigger[data-theme="light"] {
-  border-color: rgb(255 255 255 / 42%);
-  background: rgb(255 255 255 / 22%);
-  color: #fff;
+  border-color: rgb(18 32 56 / 16%);
+  background: rgb(255 255 255 / 42%);
+  color: #132033;
 }
 
 .liquid-dropdown__trigger[data-theme="light"][data-state="open"] {
