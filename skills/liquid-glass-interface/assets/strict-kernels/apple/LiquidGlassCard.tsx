@@ -185,14 +185,43 @@ export function LiquidGlassCard({
     const observer = new ResizeObserver(schedule);
     if (stageRef.current) observer.observe(stageRef.current);
     if (shellRef.current) observer.observe(shellRef.current);
+    let tracking = 0;
+    let trackingFrame = 0;
+    const track = () => {
+      trackingFrame = 0;
+      schedule();
+      if (tracking > 0) trackingFrame = requestAnimationFrame(track);
+    };
+    const onTransformMotion = (event: AnimationEvent | TransitionEvent) => {
+      const shell = shellRef.current;
+      const target = event.target;
+      if (!shell || !(target instanceof Element)) return;
+      if (!shell.contains(target) && !target.contains(shell)) return;
+      if (event.type.endsWith("start") || event.type === "transitionrun") {
+        tracking += 1;
+        if (!trackingFrame) trackingFrame = requestAnimationFrame(track);
+        return;
+      }
+      tracking = Math.max(0, tracking - 1);
+      schedule();
+    };
     window.addEventListener("resize", schedule);
     window.addEventListener("scroll", schedule, true);
+    window.addEventListener("animationstart", onTransformMotion, true);
+    window.addEventListener("animationend", onTransformMotion, true);
+    window.addEventListener("transitionrun", onTransformMotion, true);
+    window.addEventListener("transitionend", onTransformMotion, true);
     schedule();
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", schedule);
       window.removeEventListener("scroll", schedule, true);
+      window.removeEventListener("animationstart", onTransformMotion, true);
+      window.removeEventListener("animationend", onTransformMotion, true);
+      window.removeEventListener("transitionrun", onTransformMotion, true);
+      window.removeEventListener("transitionend", onTransformMotion, true);
       if (scheduled) cancelAnimationFrame(scheduled);
+      if (trackingFrame) cancelAnimationFrame(trackingFrame);
     };
   }, [theme]);
 

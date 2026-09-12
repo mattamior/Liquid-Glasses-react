@@ -1,9 +1,23 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { uiChrome } from "./copy";
 import { useUiLocale } from "./UiLocale";
 import { useUiTheme } from "./UiTheme";
+
+const OverlayPortalContext = createContext<HTMLElement | null>(null);
+
+export function useOverlayPortal() {
+  return useContext(OverlayPortalContext);
+}
 
 const STORAGE_KEY = "liquid-glass:ui-stage-scene";
 
@@ -23,8 +37,14 @@ export function PreviewStage({ children, overlay = false, probe = false }: Previ
   const { locale } = useUiLocale();
   const { theme } = useUiTheme();
   const chrome = uiChrome(locale);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const [portal, setPortal] = useState<HTMLElement | null>(null);
   const [scene, setScene] = useState<(typeof SCENE_IDS)[number]>("sky");
   const [showProbe, setShowProbe] = useState(false);
+
+  useLayoutEffect(() => {
+    setPortal(previewRef.current);
+  }, []);
 
   useEffect(() => {
     try {
@@ -53,7 +73,7 @@ export function PreviewStage({ children, overlay = false, probe = false }: Previ
     .join(" ");
 
   return (
-    <div className={className} data-scene={scene} data-theme={theme}>
+    <div ref={previewRef} className={className} data-scene={scene} data-theme={theme}>
       <div className="ui-studio__stage-chrome">
         <div className="ui-studio__scene-picker" role="group" aria-label={chrome.sceneGroup}>
           {SCENE_IDS.map((id) => (
@@ -79,7 +99,7 @@ export function PreviewStage({ children, overlay = false, probe = false }: Previ
           </button>
         ) : null}
       </div>
-      {children}
+      <OverlayPortalContext.Provider value={portal}>{children}</OverlayPortalContext.Provider>
     </div>
   );
 }
@@ -113,23 +133,14 @@ export function StageWash({ copy }: { copy: "visible" | "replica" }) {
       node.dataset.theme = preview.getAttribute("data-theme") ?? "dark";
     };
 
-    align();
-    const preview = document.querySelector(".ui-studio__preview");
-    const resize = preview instanceof HTMLElement ? new ResizeObserver(align) : null;
-    const mutation =
-      preview instanceof HTMLElement
-        ? new MutationObserver(align)
-        : null;
-    if (preview instanceof HTMLElement) {
-      resize?.observe(preview);
-      mutation?.observe(preview, { attributes: true, attributeFilter: ["data-scene", "data-theme"] });
-    }
-    window.addEventListener("resize", align);
-    return () => {
-      resize?.disconnect();
-      mutation?.disconnect();
-      window.removeEventListener("resize", align);
+    let frame = 0;
+    const loop = () => {
+      align();
+      frame = requestAnimationFrame(loop);
     };
+    align();
+    frame = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(frame);
   }, [copy]);
 
   return <div ref={ref} className="ui-studio__stage-wash" data-copy={copy} aria-hidden="true" />;

@@ -19,6 +19,20 @@ const pairs = [
   ["app/apple-clear/LiquidPopover.tsx", "LiquidPopover.tsx"],
   ["app/apple-clear/LiquidDialog.tsx", "LiquidDialog.tsx"],
   ["app/apple-clear/LiquidMenubar.tsx", "LiquidMenubar.tsx"],
+  ["app/apple-clear/LiquidButton.tsx", "LiquidButton.tsx"],
+  ["app/apple-clear/LiquidInput.tsx", "LiquidInput.tsx"],
+  ["app/apple-clear/LiquidTextarea.tsx", "LiquidTextarea.tsx"],
+  ["app/apple-clear/LiquidCheckbox.tsx", "LiquidCheckbox.tsx"],
+  ["app/apple-clear/LiquidRadioGroup.tsx", "LiquidRadioGroup.tsx"],
+  ["app/apple-clear/LiquidAlertDialog.tsx", "LiquidAlertDialog.tsx"],
+  ["app/apple-clear/LiquidSheet.tsx", "LiquidSheet.tsx"],
+  ["app/apple-clear/LiquidNativeSelect.tsx", "LiquidNativeSelect.tsx"],
+  ["app/apple-clear/LiquidPill.tsx", "LiquidPill.tsx"],
+  ["app/apple-clear/LiquidPagination.tsx", "LiquidPagination.tsx"],
+  ["app/apple-clear/LiquidTable.tsx", "LiquidTable.tsx"],
+  ["app/apple-clear/LiquidToolbar.tsx", "LiquidToolbar.tsx"],
+  ["app/apple-clear/LiquidTree.tsx", "LiquidTree.tsx"],
+  ["app/apple-clear/liquid-controls.css", "liquid-controls.css"],
   ["app/apple-clear/liquid-overlays.css", "liquid-overlays.css"],
   ["app/apple-clear/LiquidGlassAppleClearKernel.tsx", "LiquidGlassAppleClearKernel.tsx"],
   ["app/apple-clear/apple-clear.css", "apple-clear.css"],
@@ -82,6 +96,49 @@ assert.match(menubar, /Menubar\.Item/);
 assert.doesNotMatch(menubar, /from "\.\/LiquidMenu"/);
 assert.doesNotMatch(menubar, /closeAfterCommit/);
 assert.doesNotMatch(menubar, /key=\{epoch\}/);
+const button = fs.readFileSync(path.join(assetRoot, "LiquidButton.tsx"), "utf8");
+assert.match(button, /data-variant=\{variant\}/);
+assert.match(button, /data-press/);
+assert.doesNotMatch(button, /LiquidMenu/);
+const input = fs.readFileSync(path.join(assetRoot, "LiquidInput.tsx"), "utf8");
+assert.match(input, /liquid-input/);
+assert.match(input, /LiquidLabel/);
+const textarea = fs.readFileSync(path.join(assetRoot, "LiquidTextarea.tsx"), "utf8");
+assert.match(textarea, /liquid-textarea/);
+const checkbox = fs.readFileSync(path.join(assetRoot, "LiquidCheckbox.tsx"), "utf8");
+assert.match(checkbox, /@radix-ui\/react-checkbox/);
+assert.match(checkbox, /onCheckedChange/);
+const radio = fs.readFileSync(path.join(assetRoot, "LiquidRadioGroup.tsx"), "utf8");
+assert.match(radio, /@radix-ui\/react-radio-group/);
+assert.match(radio, /options\.map/);
+const alertDialog = fs.readFileSync(path.join(assetRoot, "LiquidAlertDialog.tsx"), "utf8");
+assert.match(alertDialog, /@radix-ui\/react-alert-dialog/);
+assert.match(alertDialog, /LiquidGlassCard/);
+assert.doesNotMatch(alertDialog, /from "\.\/LiquidMenu"/);
+const sheet = fs.readFileSync(path.join(assetRoot, "LiquidSheet.tsx"), "utf8");
+assert.match(sheet, /@radix-ui\/react-dialog/);
+assert.match(sheet, /liquid-sheet-content/);
+assert.match(sheet, /LiquidGlassCard/);
+assert.doesNotMatch(sheet, /from "\.\/LiquidMenu"/);
+assert.match(sheet, /trigger === null/);
+const nativeSelect = fs.readFileSync(path.join(assetRoot, "LiquidNativeSelect.tsx"), "utf8");
+assert.match(nativeSelect, /liquid-native-select/);
+assert.match(nativeSelect, /select/);
+const pill = fs.readFileSync(path.join(assetRoot, "LiquidPill.tsx"), "utf8");
+assert.match(pill, /statusTone/);
+assert.match(pill, /PRE_ONLINE/);
+const pagination = fs.readFileSync(path.join(assetRoot, "LiquidPagination.tsx"), "utf8");
+assert.match(pagination, /useLiquidPagination/);
+assert.match(pagination, /ellipsis/);
+const table = fs.readFileSync(path.join(assetRoot, "LiquidTable.tsx"), "utf8");
+assert.match(table, /liquid-table/);
+assert.match(table, /getRowKey/);
+const toolbar = fs.readFileSync(path.join(assetRoot, "LiquidToolbar.tsx"), "utf8");
+assert.match(toolbar, /onSearch/);
+assert.match(toolbar, /liquid-search/);
+const tree = fs.readFileSync(path.join(assetRoot, "LiquidTree.tsx"), "utf8");
+assert.match(tree, /collapsedIds/);
+assert.match(tree, /LiquidCheckbox/);
 assert.match(page, /config\.host \?\? "standalone"/);
 assert.match(page, /host === "nested"/);
 assert.match(page, /HomeScreenScene/);

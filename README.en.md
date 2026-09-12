@@ -23,6 +23,8 @@ design. It explores continuous refraction（连续折射）, adaptive highlights
 [Liquid Glass Skill Strict Conformance（Liquid Glass Skill 严格合规）](./docs/decisions/liquid-glass-interface-strict-conformance.en.md) ·
 [Apple Clear default kernel](./docs/decisions/apple-clear-default-kernel.en.md) ·
 [Liquid Glass Radix menu](./docs/decisions/liquid-glass-radix-menu.en.md) ·
+[Default entry `/ui`](./docs/decisions/default-entry-ui-catalog.en.md) ·
+[bbg-admin catalog controls](./docs/decisions/bbg-admin-catalog-controls.en.md) ·
 [Apple system references 2026-08](./docs/decisions/apple-system-references-2026-08.en.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
@@ -34,9 +36,9 @@ The public version is hosted on Cloudflare Workers:
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Redirects to `/v2`, the current default navigation study. |
+| `/` | Redirects to the Liquid Glass catalog `/ui`. |
 | `/v1` | Frozen archived Demo retained for comparison. |
-| `/v2` | Default vertical navigation-lens reference implementation. |
+| `/v2` | Vertical navigation-lens reference implementation. |
 | `/v3` | Independent horizontal navigation-lens experiment; the M04 candidate baseline is restored and deployed. |
 | `/v3-05-failed` | Public direct-access archive for the failed M05 candidate; `noindex, nofollow` and absent from site navigation. |
 | `/apple-clear` | Apple Clear folder/panel preview; source of the Skill default kernel. |
@@ -48,17 +50,33 @@ The public version is hosted on Cloudflare Workers:
 | `/ui/liquid-dialog` | Centered modal card. |
 | `/ui/liquid-menubar` | Top command bar. |
 | `/ui/liquid-context-menu` | Right-click action list. |
+| `/ui/liquid-button` | Glass button. |
+| `/ui/liquid-input` | Text field. |
+| `/ui/liquid-textarea` | Multiline field. |
+| `/ui/liquid-checkbox` | Checkbox. |
+| `/ui/liquid-radio` | Radio group. |
+| `/ui/liquid-alert` | Confirm card. |
+| `/ui/liquid-sheet` | Side detail card. |
+| `/ui/liquid-card` | Standing glass card. |
+| `/ui/liquid-table` | Data table. |
+| `/ui/liquid-pagination` | Pager. |
+| `/ui/liquid-pill` | Status chip. |
+| `/ui/liquid-tree` | Nested menu tree. |
+| `/ui/liquid-toolbar` | Search toolbar. |
+| `/ui/liquid-native-select` | Native form select. |
 | `/liquid-menu` | Redirects to `/ui/liquid-menu`. |
 | `/brand-preview` | Light/dark review surface for the current Liquid Lab logo. |
 
-The Skill default is Apple Clear, not the V2 admin template. `/` still redirects
-to `/v2` as this repository's navigation study. V3 remains a separate experiment.
-The `/ui` catalog is deployed as Worker `liquid-lab-optics-demo` version
-`ced4b0d6-f829-4be6-aae8-64869fb453c1`; rollback target `c395db38-be40-43f5-b663-3d56591db275`.
+The Skill default is Apple Clear, not the V2 admin template. `/` redirects
+to `/ui` as the catalog entry; `/ui` then continues to `/ui/liquid-menu`.
+`/v2` remains a direct route. V3 remains a separate experiment.
+The root-entry change is implemented on this branch and is not yet in the
+production Worker. The public site still serves `ced4b0d6-f829-4be6-aae8-64869fb453c1`,
+which sends `/` to `/v2`; rollback target `c395db38-be40-43f5-b663-3d56591db275`.
 
 ## Features
 
-### V2: default vertical navigation lens
+### V2: vertical navigation lens
 
 - One continuous capsule SVG displacement map（位移贴图） sample for the moving
   lens, generated at adaptive `1×` or `2×` DPR and capped at `2×`.
@@ -186,9 +204,9 @@ routes.
 ```text
 AGENTS.md                         Repository workflow and bilingual decision-record rule
 app/
-  page.tsx                        Redirect from / to /v2
+  page.tsx                        Redirect from / to /ui
   v1/                             Frozen archived Demo
-  v2/                             Default vertical navigation-lens study
+  v2/                             Vertical navigation-lens study
   v3/                             Independent horizontal navigation-lens study
   brand-preview/                  Logo review route
 public/

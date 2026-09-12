@@ -39,13 +39,17 @@ adaptive highlights, and navigation lenses.
 [Apple Clear 默认内核](./docs/decisions/apple-clear-default-kernel.zh.md) ·
 [Liquid Glass Radix menu](./docs/decisions/liquid-glass-radix-menu.en.md) ·
 [液态玻璃 Radix 菜单](./docs/decisions/liquid-glass-radix-menu.zh.md) ·
+[Default entry `/ui`](./docs/decisions/default-entry-ui-catalog.en.md) ·
+[默认入口 `/ui`](./docs/decisions/default-entry-ui-catalog.zh.md) ·
+[bbg-admin catalog controls](./docs/decisions/bbg-admin-catalog-controls.en.md) ·
+[bbg-admin 目录控件](./docs/decisions/bbg-admin-catalog-controls.zh.md) ·
 [Apple system references 2026-08](./docs/decisions/apple-system-references-2026-08.en.md) ·
 [苹果系统参考截图 2026-08](./docs/decisions/apple-system-references-2026-08.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
 ## Highlights
 
-- `/` redirects to the default `/v2` vertical navigation study; frozen `/v1` remains available for archival comparison.
+- `/` redirects to `/ui` (then `/ui/liquid-menu`); `/v2` remains the vertical navigation study; frozen `/v1` remains available for archival comparison. This root-entry change is on the current branch and is not yet the production Worker.
 - The source `/v3` route is reference-calibrated at `1264 × 948`: a `1124 × 210` dock, `872 × 210` rail, `296 × 242` temporary lens, and `210 × 182` static selection slider.
 - `/v3` is restored exactly to the M04 candidate baseline `d353abed0e5b379989bbcb7d13bb830702eece3f`: `coreZoom: 0.12`, a `24px` inward meniscus, `11px` baseline refraction, and `1.14×` static Edge strength. It keeps the reference presentation, continuous padding-box world sampling, `?chrome=demo`, and `?optics=edge`.
 - V3 follows the system color scheme when no preference is stored; its sparkle toggle persists（持久化） only valid `dark` / `light` values in `liquid-lab:v3-theme`, restores them on reload, and synchronizes（跨标签同步） changes across tabs. Theme implementation commit `6fc3897` was first released as Cloudflare Worker version `590a19bb-8b64-4053-af13-a1b0f54fb387`; see the bilingual [system-theme decision](./docs/decisions/v3-system-theme-toggle.en.md) / [系统主题决策](./docs/decisions/v3-system-theme-toggle.zh.md).
@@ -60,7 +64,7 @@ adaptive highlights, and navigation lenses.
   [V2 card-container decision](./docs/decisions/v2-liquid-glass-card-container.en.md) /
   [V2 卡片容器决策](./docs/decisions/v2-liquid-glass-card-container.zh.md). V3 remains
   an independent App-style experiment and does not replace V2.
-- `/apple-clear` is the Apple Clear folder/panel study and the source of the Skill default kernel. `/ui` is the Liquid Glass component catalog (`LiquidMenu`, `LiquidDropdown`, `LiquidContextMenu`, `LiquidSelect`, `LiquidPopover`, `LiquidDialog`, `LiquidMenubar`). `/liquid-menu` redirects to the menu entry. The Skill default mode is now `apple-liquid-glass`; `v1-fidelity`, `v2-default`, and `v3-horizontal` are explicit simulation presets. Failed M05 remains an archive. The catalog is deployed as Worker `liquid-lab-optics-demo` version `ced4b0d6-f829-4be6-aae8-64869fb453c1`; rollback target `c395db38-be40-43f5-b663-3d56591db275`.
+- `/apple-clear` is the Apple Clear folder/panel study and the source of the Skill default kernel. `/ui` is the Liquid Glass component catalog (`LiquidMenu`, overlays, form controls, table, pagination, pill, tree, toolbar). `/liquid-menu` redirects to the menu entry. The Skill default mode is now `apple-liquid-glass`; `v1-fidelity`, `v2-default`, and `v3-horizontal` are explicit simulation presets. Failed M05 remains an archive. The catalog is deployed as Worker `liquid-lab-optics-demo` version `ced4b0d6-f829-4be6-aae8-64869fb453c1`; rollback target `c395db38-be40-43f5-b663-3d56591db275`.
 - The reusable Agent Skill still ships schema `2.0` contracts for the three simulation presets across Next.js App Router and Vite/React Router.
 
 ## Quick Start

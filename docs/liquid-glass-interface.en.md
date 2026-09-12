@@ -4,7 +4,7 @@ This method turns the Demo's iterated（迭代调校的） visual findings into 
 
 ## Versioned Demo and Asset Routing（版本路由与资产）
 
-`/` redirects to the current V2 navigation study. `/apple-clear` is the Apple Clear folder/panel source for the Skill default kernel. `/v1` remains a frozen archived Demo; `/v3` is a separate horizontal-navigation study, not a V2 replacement. The older [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/), [`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/), and [`assets/v3-horizontal-navigation`](../skills/liquid-glass-interface/assets/v3-horizontal-navigation/) bundles remain source-synchronized publication references for those simulation presets. Unnamed Skill requests now select `apple-liquid-glass` and copy [`assets/strict-kernels/apple/`](../skills/liquid-glass-interface/assets/strict-kernels/apple/). Unknown `vN` requests require a supported selection; `/v3-05-failed` remains an archive, never a Skill asset or baseline.
+`/` redirects to the Liquid Glass catalog `/ui` (then `/ui/liquid-menu`). `/apple-clear` is the Apple Clear folder/panel source for the Skill default kernel. `/v1` remains a frozen archived Demo; `/v2` remains a direct vertical-navigation study; `/v3` is a separate horizontal-navigation study, not a V2 replacement. The older [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/), [`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/), and [`assets/v3-horizontal-navigation`](../skills/liquid-glass-interface/assets/v3-horizontal-navigation/) bundles remain source-synchronized publication references for those simulation presets. Unnamed Skill requests now select `apple-liquid-glass` and copy [`assets/strict-kernels/apple/`](../skills/liquid-glass-interface/assets/strict-kernels/apple/). Unknown `vN` requests require a supported selection; `/v3-05-failed` remains an archive, never a Skill asset or baseline.
 
 `/brand-preview` is the project mark review page. Authoritative public brand assets live under `public/brand/`; they are project assets, not a prescription for a reusable Liquid Glass color palette.
 
@@ -157,7 +157,8 @@ Describe implementations as inspired by Apple Liquid Glass. Do not copy Apple so
 
 | Method（方法） | Demo implementation（Demo 实现） |
 | --- | --- |
-| Default route（默认入口） | `/` redirects to `/v2` |
+| Default route（默认入口） | `/` redirects to `/ui`, then `/ui/liquid-menu` |
+| `/ui` catalog（`/ui` 目录） | Menus, overlays, forms, table, pagination, pill, tree, toolbar |
 | Archived Demo（归档 Demo） | `/v1`, frozen visual and interaction behavior with archived metadata |
 | V2 refraction（V2 折射） | One application-controlled menu replica and one continuous rounded-SDF `feDisplacementMap` sample |
 | V2 selection（V2 选择） | Flat committed state plus a temporary click/drag lens that fades before committing content |

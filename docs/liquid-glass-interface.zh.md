@@ -4,7 +4,7 @@
 
 ## 版本路由与资产
 
-`/` 会进入当前的 V2 导航实验。`/apple-clear` 是 Apple Clear 文件夹/面板源实现，也是 Skill 默认内核。`/v1` 仍可作为冻结归档 Demo 直接访问；`/v3` 是独立横向导航实验，而非 V2 的替代品。旧的 [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/)、[`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/) 和 [`assets/v3-horizontal-navigation`](../skills/liquid-glass-interface/assets/v3-horizontal-navigation/) bundle 仍是这些模拟预设的发布参考。未点名版本的 Skill 请求现在选择 `apple-liquid-glass` 并复制 [`assets/strict-kernels/apple/`](../skills/liquid-glass-interface/assets/strict-kernels/apple/)。未知 `vN` 必须请求选择受支持模式；`/v3-05-failed` 仍只是归档，绝不能作为 Skill 资产或基线。
+`/` 会进入液态玻璃组件预览台 `/ui`（再转到 `/ui/liquid-menu`）。`/apple-clear` 是 Apple Clear 文件夹/面板源实现，也是 Skill 默认内核。`/v1` 仍可作为冻结归档 Demo 直接访问；`/v2` 是纵向导航实验，可直达；`/v3` 是独立横向导航实验，而非 V2 的替代品。旧的 [`assets/v2-reference-implementation`](../skills/liquid-glass-interface/assets/v2-reference-implementation/)、[`assets/v1-fidelity-kit`](../skills/liquid-glass-interface/assets/v1-fidelity-kit/) 和 [`assets/v3-horizontal-navigation`](../skills/liquid-glass-interface/assets/v3-horizontal-navigation/) bundle 仍是这些模拟预设的发布参考。未点名版本的 Skill 请求现在选择 `apple-liquid-glass` 并复制 [`assets/strict-kernels/apple/`](../skills/liquid-glass-interface/assets/strict-kernels/apple/)。未知 `vN` 必须请求选择受支持模式；`/v3-05-failed` 仍只是归档，绝不能作为 Skill 资产或基线。
 
 `/brand-preview` 是项目标志审阅页。权威公开品牌资产位于 `public/brand/`；它们是项目资产，不是可复用 Liquid Glass 色彩方案的规定。
 
@@ -138,7 +138,8 @@ Skill 只提供界面设计与实现指导，不需要读取凭证、私有文�
 
 | 方法 | Demo 实现 |
 | --- | --- |
-| 默认入口 | `/` 重定向至 `/v2` |
+| 默认入口 | `/` 重定向至 `/ui`，再转到 `/ui/liquid-menu` |
+| `/ui` 目录 | 菜单、覆盖层、表单、表格、分页、状态、树、工具栏 |
 | 归档 Demo | `/v1`，视觉与交互冻结并使用归档元数据 |
 | V2 折射 | 一个应用可控的菜单副本与一个连续圆角 SDF `feDisplacementMap` 采样 |
 | V2 选择 | 扁平已提交态加临时点击/拖拽透镜；淡出后提交内容 |

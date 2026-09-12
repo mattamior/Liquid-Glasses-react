@@ -21,6 +21,7 @@ export function CatalogNav() {
       key={`${theme}-${locale}`}
       title="Components"
       theme={theme}
+      density="compact"
       items={getNavItems(locale)}
       value={current}
       onValueChange={(slug) => {

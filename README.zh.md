@@ -22,6 +22,8 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 [Liquid Glass Skill 严格合规](./docs/decisions/liquid-glass-interface-strict-conformance.zh.md) ·
 [Apple Clear 默认内核](./docs/decisions/apple-clear-default-kernel.zh.md) ·
 [液态玻璃 Radix 菜单](./docs/decisions/liquid-glass-radix-menu.zh.md) ·
+[默认入口 `/ui`](./docs/decisions/default-entry-ui-catalog.zh.md) ·
+[bbg-admin 目录控件](./docs/decisions/bbg-admin-catalog-controls.zh.md) ·
 [苹果系统参考截图 2026-08](./docs/decisions/apple-system-references-2026-08.zh.md) ·
 [Agent Skill](./skills/liquid-glass-interface/SKILL.md)
 
@@ -33,9 +35,9 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 
 | 路由 | 用途 |
 | --- | --- |
-| `/` | 重定向至当前默认导航实验 `/v2`。 |
+| `/` | 重定向至液态玻璃组件预览台 `/ui`。 |
 | `/v1` | 保留用于对照的冻结归档 Demo。 |
-| `/v2` | 默认的纵向导航透镜参考实现。 |
+| `/v2` | 纵向导航透镜参考实现。 |
 | `/v3` | 独立横向导航透镜实验；M04 候选基线已恢复并部署。 |
 | `/v3-05-failed` | M05 失败候选的公开直达归档；`noindex, nofollow`，不进入站内导航。 |
 | `/apple-clear` | Apple Clear 文件夹/面板预览；Skill 默认内核的源实现。 |
@@ -47,14 +49,28 @@ Liquid Glasses React 是一个受 Apple 液态玻璃设计启发的交互实验�
 | `/ui/liquid-dialog` | 居中模态卡片。 |
 | `/ui/liquid-menubar` | 顶栏命令条。 |
 | `/ui/liquid-context-menu` | 右键动作列表。 |
+| `/ui/liquid-button` | 玻璃按钮。 |
+| `/ui/liquid-input` | 输入框。 |
+| `/ui/liquid-textarea` | 文本域。 |
+| `/ui/liquid-checkbox` | 复选框。 |
+| `/ui/liquid-radio` | 单选组。 |
+| `/ui/liquid-alert` | 确认框。 |
+| `/ui/liquid-sheet` | 侧栏详情。 |
+| `/ui/liquid-card` | 常驻玻璃卡片。 |
+| `/ui/liquid-table` | 数据表。 |
+| `/ui/liquid-pagination` | 分页。 |
+| `/ui/liquid-pill` | 状态胶囊。 |
+| `/ui/liquid-tree` | 菜单树。 |
+| `/ui/liquid-toolbar` | 查询工具栏。 |
+| `/ui/liquid-native-select` | 表单原生选择。 |
 | `/liquid-menu` | 重定向到 `/ui/liquid-menu`。 |
 | `/brand-preview` | 当前 Liquid Lab 标志的亮暗背景审阅页。 |
 
-Skill 默认身份是 Apple Clear，不再是 V2 后台模板。`/` 仍重定向到 `/v2` 作为本仓库导航实验入口。V3 是独立实验。`/ui` 目录已发布为 Worker `liquid-lab-optics-demo` 版本 `ced4b0d6-f829-4be6-aae8-64869fb453c1`；回滚目标 `c395db38-be40-43f5-b663-3d56591db275`。
+Skill 默认身份是 Apple Clear，不再是 V2 后台模板。`/` 重定向到 `/ui` 作为组件预览台入口；`/ui` 再转到 `/ui/liquid-menu`。`/v2` 仍可直达。V3 是独立实验。根入口改到 `/ui` 已在本分支落地，尚未发布到生产 Worker。公开站点当前版本 `ced4b0d6-f829-4be6-aae8-64869fb453c1` 仍把 `/` 指到 `/v2`；回滚目标 `c395db38-be40-43f5-b663-3d56591db275`。
 
 ## 功能特性
 
-### V2：默认纵向导航透镜
+### V2：纵向导航透镜
 
 - 使用单层连续 capsule SVG 位移贴图采样移动透镜，以自适应 `1×` 或 `2×` DPR
   生成并限制最高为 `2×`。
@@ -160,9 +176,9 @@ npm test
 ```text
 AGENTS.md                         仓库工作流与双语决策记录规则
 app/
-  page.tsx                        从 / 重定向至 /v2
+  page.tsx                        从 / 重定向至 /ui
   v1/                             冻结归档 Demo
-  v2/                             默认纵向导航透镜实验
+  v2/                             纵向导航透镜实验
   v3/                             独立横向导航透镜实验
   brand-preview/                  标志审阅路由
 public/

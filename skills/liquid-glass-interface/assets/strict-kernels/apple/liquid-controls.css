@@ -1,0 +1,715 @@
+.liquid-control-stack {
+  display: grid;
+  gap: 14px;
+  width: min(280px, 100%);
+}
+
+.liquid-control-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.liquid-label {
+  display: block;
+  color: rgb(255 255 255 / 78%);
+  font: 650 12px/1 inherit;
+}
+
+.apple-clear[data-theme="light"] .liquid-label,
+.liquid-label[data-theme="light"] {
+  color: rgb(19 32 51 / 78%);
+}
+
+.liquid-field {
+  display: grid;
+  gap: 6px;
+}
+
+.liquid-button,
+.liquid-input,
+.liquid-textarea {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 14px;
+  background: rgb(12 20 36 / 28%);
+  color: #fff;
+  font: 650 14px/1 inherit;
+}
+
+.liquid-button {
+  transform-origin: center center;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    transform 220ms cubic-bezier(0.22, 1.48, 0.28, 1);
+}
+
+.liquid-button[data-press] {
+  transform: scaleX(1.1) scaleY(0.84);
+}
+
+.liquid-button[data-variant="secondary"] {
+  background: rgb(255 255 255 / 12%);
+}
+
+.liquid-button[data-variant="destructive"] {
+  border-color: transparent;
+  background: rgb(180 48 56 / 72%);
+}
+
+.liquid-button[data-theme="light"],
+.liquid-input[data-theme="light"],
+.liquid-textarea[data-theme="light"] {
+  border-color: rgb(18 32 56 / 16%);
+  background: rgb(255 255 255 / 42%);
+  color: #132033;
+}
+
+.liquid-button[data-theme="light"][data-variant="secondary"] {
+  background: rgb(255 255 255 / 28%);
+}
+
+.liquid-button[data-theme="light"][data-variant="destructive"] {
+  border-color: transparent;
+  background: rgb(180 48 56 / 72%);
+  color: #fff;
+}
+
+.liquid-button[data-variant="ghost"] {
+  border-color: transparent;
+  background: transparent;
+}
+
+.liquid-button[data-size="sm"] {
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.liquid-button[data-size="icon"] {
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+}
+
+.liquid-button:disabled,
+.liquid-input:disabled,
+.liquid-textarea:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+.liquid-input,
+.liquid-textarea {
+  width: 100%;
+  outline: none;
+}
+
+.liquid-input::placeholder,
+.liquid-textarea::placeholder {
+  color: rgb(255 255 255 / 46%);
+}
+
+.liquid-input[data-theme="light"]::placeholder,
+.liquid-textarea[data-theme="light"]::placeholder {
+  color: rgb(19 32 51 / 42%);
+}
+
+.liquid-input:focus-visible,
+.liquid-textarea:focus-visible {
+  border-color: rgb(255 255 255 / 58%);
+}
+
+.liquid-textarea {
+  min-height: 88px;
+  padding: 12px 16px;
+  resize: vertical;
+  line-height: 1.4;
+}
+
+.liquid-field-hint,
+.liquid-field-error {
+  margin: 0;
+  font: 650 12px/1.35 inherit;
+}
+
+.liquid-field-hint {
+  color: rgb(255 255 255 / 56%);
+}
+
+.liquid-field-error {
+  color: #ff8a7a;
+}
+
+.liquid-label[data-theme="light"] + .liquid-field-hint,
+.liquid-field[data-theme="light"] .liquid-field-hint {
+  color: rgb(19 32 51 / 56%);
+}
+
+.liquid-native-select {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 14px;
+  background: rgb(12 20 36 / 28%);
+  color: #fff;
+  font: 650 14px/1 inherit;
+  outline: none;
+}
+
+.liquid-native-select[multiple] {
+  min-height: 118px;
+  padding: 8px;
+}
+
+.liquid-native-select[data-theme="light"] {
+  border-color: rgb(18 32 56 / 16%);
+  background: rgb(255 255 255 / 42%);
+  color: #132033;
+}
+
+.liquid-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  width: min(720px, 100%);
+}
+
+.liquid-search {
+  display: flex;
+  align-items: center;
+  min-width: min(280px, 100%);
+  padding: 3px 3px 3px 12px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 14px;
+  background: rgb(12 20 36 / 28%);
+}
+
+.liquid-search[data-theme="light"] {
+  border-color: rgb(18 32 56 / 16%);
+  background: rgb(255 255 255 / 42%);
+}
+
+.liquid-search__input {
+  flex: 1;
+  min-width: 0;
+  min-height: 34px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: 650 13px/1 inherit;
+  outline: none;
+}
+
+.liquid-search[data-theme="light"] .liquid-search__input {
+  color: #132033;
+}
+
+.liquid-search__actions {
+  display: flex;
+  gap: 3px;
+}
+
+.liquid-pill {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font: 800 11px/1 inherit;
+}
+
+.liquid-pill[data-tone="positive"] {
+  background: rgb(82 196 26 / 18%);
+  color: #7dff8a;
+}
+
+.liquid-pill[data-tone="pending"] {
+  background: rgb(250 173 20 / 20%);
+  color: #ffd27a;
+}
+
+.liquid-pill[data-tone="disabled"] {
+  background: rgb(245 34 45 / 18%);
+  color: #ff8a7a;
+}
+
+.liquid-pill[data-tone="muted"] {
+  background: rgb(255 255 255 / 12%);
+  color: rgb(255 255 255 / 72%);
+}
+
+.liquid-pill[data-theme="light"][data-tone="positive"] {
+  color: #237804;
+}
+
+.liquid-pill[data-theme="light"][data-tone="pending"] {
+  color: #ad6800;
+}
+
+.liquid-pill[data-theme="light"][data-tone="disabled"] {
+  color: #a8071a;
+}
+
+.liquid-pill[data-theme="light"][data-tone="muted"] {
+  background: rgb(18 32 56 / 8%);
+  color: rgb(19 32 51 / 62%);
+}
+
+.liquid-table-host .liquid-glass-card {
+  width: min(720px, calc(100vw - 48px));
+}
+
+.liquid-table-host .liquid-glass-card__body {
+  gap: 12px;
+  padding: 12px;
+}
+
+.liquid-table-scroll {
+  overflow-x: auto;
+}
+
+.liquid-table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+}
+
+.liquid-table th {
+  padding: 10px 12px;
+  color: rgb(255 255 255 / 56%);
+  font: 800 11px/1 inherit;
+  letter-spacing: 0.04em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.liquid-table td {
+  padding: 12px;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+  font: 650 13px/1.3 inherit;
+  vertical-align: middle;
+}
+
+.liquid-table tbody tr:hover td {
+  background: rgb(255 255 255 / 8%);
+}
+
+.liquid-table code {
+  padding: 3px 5px;
+  border-radius: 5px;
+  background: rgb(255 255 255 / 10%);
+  font: 650 12px/1 inherit;
+}
+
+.liquid-table-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: 750 13px/1 inherit;
+  cursor: pointer;
+}
+
+.liquid-table-link:hover {
+  text-decoration: underline;
+}
+
+.liquid-table-actions {
+  display: inline-flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.apple-clear[data-theme="light"] .liquid-table th {
+  color: rgb(19 32 51 / 52%);
+}
+
+.apple-clear[data-theme="light"] .liquid-table td {
+  border-top-color: rgb(18 32 56 / 10%);
+}
+
+.apple-clear[data-theme="light"] .liquid-table tbody tr:hover td {
+  background: rgb(18 32 56 / 6%);
+}
+
+.apple-clear[data-theme="light"] .liquid-table code {
+  background: rgb(18 32 56 / 8%);
+}
+
+.liquid-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.liquid-pagination p {
+  margin: 0;
+  color: rgb(255 255 255 / 62%);
+  font: 650 12px/1 inherit;
+}
+
+.liquid-pagination__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.liquid-pagination__ellipsis {
+  min-width: 24px;
+  text-align: center;
+  color: rgb(255 255 255 / 46%);
+}
+
+.apple-clear[data-theme="light"] .liquid-pagination p,
+.liquid-pagination[data-theme="light"] p {
+  color: rgb(19 32 51 / 62%);
+}
+
+.liquid-tree {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.liquid-tree .liquid-tree {
+  padding-left: 18px;
+  border-left: 1px solid rgb(255 255 255 / 12%);
+  margin-left: 12px;
+}
+
+.liquid-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+}
+
+.liquid-tree-toggle,
+.liquid-tree-spacer {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+}
+
+.liquid-tree-toggle {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.liquid-tree-toggle svg {
+  width: 12px;
+  height: 12px;
+  transition: transform 160ms ease;
+}
+
+.liquid-tree-toggle[aria-expanded="false"] svg {
+  transform: rotate(-90deg);
+}
+
+.liquid-tree-select {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: 650 13px/1 inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.liquid-tree-select[data-selected] {
+  border-color: rgb(255 255 255 / 18%);
+  background: rgb(255 255 255 / 14%);
+  font-weight: 750;
+}
+
+.apple-clear[data-theme="light"] .liquid-tree {
+  border-left-color: rgb(18 32 56 / 12%);
+}
+
+.apple-clear[data-theme="light"] .liquid-tree-select[data-selected] {
+  border-color: rgb(18 32 56 / 16%);
+  background: rgb(255 255 255 / 48%);
+}
+
+.liquid-empty,
+.liquid-loading {
+  padding: 28px 12px;
+  color: rgb(255 255 255 / 62%);
+  font: 650 13px/1.4 inherit;
+  text-align: center;
+}
+
+.apple-clear[data-theme="light"] .liquid-empty,
+.apple-clear[data-theme="light"] .liquid-loading {
+  color: rgb(19 32 51 / 62%);
+}
+
+.liquid-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  color: #fff;
+  font: 650 14px/1 inherit;
+  cursor: pointer;
+}
+
+.apple-clear[data-theme="light"] .liquid-choice,
+.liquid-choice[data-theme="light"] {
+  color: #132033;
+}
+
+.liquid-checkbox,
+.liquid-radio {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 28%);
+  background: rgb(12 20 36 / 28%);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.liquid-checkbox {
+  border-radius: 7px;
+}
+
+.liquid-radio {
+  border-radius: 999px;
+}
+
+.liquid-checkbox[data-theme="light"],
+.liquid-radio[data-theme="light"] {
+  border-color: rgb(18 32 56 / 16%);
+  background: rgb(255 255 255 / 42%);
+  color: #132033;
+}
+
+.liquid-checkbox[data-state="checked"],
+.liquid-radio[data-state="checked"] {
+  background: rgb(255 255 255 / 22%);
+}
+
+.liquid-checkbox[data-theme="light"][data-state="checked"],
+.liquid-radio[data-theme="light"][data-state="checked"] {
+  background: rgb(255 255 255 / 64%);
+}
+
+.liquid-checkbox svg,
+.liquid-radio svg {
+  display: none;
+  width: 12px;
+  height: 12px;
+}
+
+.liquid-checkbox[data-state="checked"] svg,
+.liquid-radio[data-state="checked"] svg {
+  display: block;
+}
+
+.liquid-radio-group {
+  display: grid;
+  gap: 4px;
+}
+
+.liquid-sheet-overlay {
+  background: rgb(6 10 18 / 28%);
+}
+
+.liquid-sheet-overlay[data-theme="light"] {
+  background: rgb(18 32 56 / 14%);
+}
+
+.liquid-sheet-overlay[data-contained] {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+}
+
+.liquid-sheet-overlay[data-state="open"] {
+  animation: liquid-sheet-overlay-in 280ms ease both;
+}
+
+.liquid-sheet-overlay[data-state="closed"] {
+  animation: liquid-sheet-overlay-out 220ms ease both;
+}
+
+@keyframes liquid-sheet-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes liquid-sheet-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.liquid-sheet-content {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 41;
+  display: flex;
+  width: min(320px, calc(100vw - 32px));
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  outline: none;
+  transform-origin: right center;
+}
+
+.liquid-sheet-content[data-contained] {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  width: min(300px, calc(100% - 24px));
+}
+
+.liquid-sheet-content[data-state="open"] {
+  animation: liquid-sheet-in 520ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.liquid-sheet-content[data-state="closed"] {
+  animation: liquid-sheet-out 280ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes liquid-sheet-in {
+  from {
+    opacity: 0.92;
+    transform: translateX(calc(100% + 24px));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes liquid-sheet-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0.92;
+    transform: translateX(calc(100% + 24px));
+  }
+}
+
+.liquid-sheet-pop {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.liquid-sheet-content .liquid-glass-card {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.liquid-sheet-content .liquid-glass-card__body {
+  min-height: 0;
+  overflow: auto;
+}
+
+.liquid-sheet-content .apple-clear[data-variant="embedded"],
+.liquid-alert-content .apple-clear[data-variant="embedded"] {
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  border-radius: var(--apple-menu-radius);
+}
+
+.liquid-sheet-content .apple-clear-cluster,
+.liquid-alert-content .apple-clear-cluster,
+.liquid-sheet-content .apple-clear-menu-frame {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+}
+
+.liquid-sheet-heading {
+  margin: 0 0 4px;
+  color: inherit;
+  font: 650 16px/1.2 inherit;
+}
+
+.liquid-detail-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.liquid-detail-list div {
+  display: grid;
+  gap: 2px;
+}
+
+.liquid-detail-list dt {
+  color: rgb(255 255 255 / 56%);
+  font: 650 11px/1 inherit;
+}
+
+.liquid-detail-list dd {
+  margin: 0;
+  color: #fff;
+  font: 650 14px/1.3 inherit;
+}
+
+.apple-clear[data-theme="light"] .liquid-detail-list dt {
+  color: rgb(19 32 51 / 56%);
+}
+
+.apple-clear[data-theme="light"] .liquid-detail-list dd {
+  color: #132033;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-button,
+  .liquid-button[data-press] {
+    transition: none;
+    transform: none;
+  }
+
+  .liquid-sheet-content[data-state="open"],
+  .liquid-sheet-content[data-state="closed"],
+  .liquid-sheet-overlay[data-state="open"],
+  .liquid-sheet-overlay[data-state="closed"] {
+    animation: none;
+  }
+}

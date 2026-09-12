@@ -22,12 +22,21 @@ async function render(pathname = "/") {
   );
 }
 
-test("redirects the root route to the current V2 demo", async () => {
+test("redirects the root route to the UI catalog", async () => {
   const response = await render("/");
   assert.equal(response.status, 307);
   assert.equal(
     new URL(response.headers.get("location"), "http://localhost/").pathname,
-    "/v2",
+    "/ui",
+  );
+});
+
+test("redirects the UI catalog index to LiquidMenu", async () => {
+  const response = await render("/ui");
+  assert.equal(response.status, 307);
+  assert.equal(
+    new URL(response.headers.get("location"), "http://localhost/").pathname,
+    "/ui/liquid-menu",
   );
 });
 
@@ -102,6 +111,20 @@ test("renders overlay family catalog pages", async () => {
     "liquid-popover",
     "liquid-dialog",
     "liquid-menubar",
+    "liquid-button",
+    "liquid-input",
+    "liquid-textarea",
+    "liquid-checkbox",
+    "liquid-radio",
+    "liquid-alert",
+    "liquid-sheet",
+    "liquid-card",
+    "liquid-table",
+    "liquid-pagination",
+    "liquid-pill",
+    "liquid-tree",
+    "liquid-toolbar",
+    "liquid-native-select",
   ]) {
     const response = await render(`/ui/${slug}`);
     assert.equal(response.status, 200, slug);
